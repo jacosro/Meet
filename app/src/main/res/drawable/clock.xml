@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="194dp"
+    android:height="194dp"
+    android:viewportWidth="194"
+    android:viewportHeight="194">
+    <path
+        android:name="Ellipse 8 copy"
+        android:pathData="m97 5c50.81 0 92 41.19 92 92c0 50.81 -41.19 92 -92 92c-50.81 0 -92 -41.19 -92 -92h0c0 -50.81 41.19 -92 92 -92v-0zm0 -5c-53.57 0 -97 43.43 -97 97c0 53.57 43.43 97 97 97c53.57 0 97 -43.43 97 -97c0 -53.57 -43.43 -97 -97 -97z"
+        android:fillColor="#53a39f" />
+    <path
+        android:name="Ellipse 4"
+        android:pathData="m97.63 59.75c20.71 0 37.5 16.79 37.5 37.5c0 20.71 -16.79 37.5 -37.5 37.5c-20.71 0 -37.5 -16.79 -37.5 -37.5c0 -20.71 16.79 -37.5 37.5 -37.5zm0 -5c-23.47 0 -42.5 19.03 -42.5 42.5c0 23.47 19.03 42.5 42.5 42.5c23.47 0 42.5 -19.03 42.5 -42.5c0 -23.47 -19.03 -42.5 -42.5 -42.5z"
+        android:fillColor="#53a39f" />
+    <path
+        android:name="Rounded Rectangle 2 copy 3"
+        android:pathData="m97.13 73.5c-1.1 0 -2 0.9 -2 2v27.25c0 0.68 0.33 1.27 0.85 1.63c0.12 0.36 0.32 0.69 0.6 0.98l9.81 9.81c0.49 0.49 1.13 0.73 1.77 0.73c0.64 0 1.28 -0.24 1.77 -0.73c0.98 -0.98 0.98 -2.56 0 -3.54l-9.8 -9.8v-26.34c0 -1.1 -0.9 -2 -2 -2z"
+        android:fillColor="#53a49e" />
+</vector>

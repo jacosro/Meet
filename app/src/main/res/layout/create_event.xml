@@ -5,197 +5,129 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary">
-
-    <Button
-        android:id="@+id/cancelButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="28dp"
-        android:backgroundTint="#20000000"
-        android:fontFamily="Roboto"
-        android:text="Cancel"
-        android:textAllCaps="false"
-        android:textColor="#50000000"
-        android:textSize="18sp"
-        android:stateListAnimator="@null"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    android:background="#FFFFFF">
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
         android:layout_marginLeft="32dp"
-        android:layout_marginRight="32dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="48dp"
         android:text="New Event"
-        android:textAlignment="center"
-        android:textColor="#FFFFFF"
-        android:textSize="32sp"
+        android:textAlignment="viewStart"
+        android:textColor="@color/colorPrimary"
+        android:textSize="50sp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/cardView"
+    <TextView
+        android:id="@+id/space"
         android:layout_width="0dp"
-        android:layout_height="80dp"
-        android:layout_marginEnd="24dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginStart="24dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
-
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+Add Image" />
-
-        <ImageButton
-            android:id="@+id/addImageButton"
-            style="@style/WhiteButton"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fontFamily="Roboto"
-            android:text="+ Add Image"
-            android:textAllCaps="false"
-            android:textColor="#30000000"
-            android:textSize="18sp" />
-
-    </android.support.v7.widget.CardView>
-
-    <EditText
-        android:id="@+id/nameEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginRight="32dp"
-        android:layout_marginStart="32dp"
-        android:backgroundTint="#FFFFFF"
-        android:ems="10"
+        android:layout_marginTop="48dp"
+        android:alpha="0.1"
         android:fontFamily="Roboto"
-        android:inputType="textPersonName"
-        android:text="Name?"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
-
-    <EditText
-        android:id="@+id/locationEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="125dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginRight="125dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="8dp"
-        android:backgroundTint="#FFFFFF"
-        android:ems="10"
-        android:fontFamily="Roboto"
-        android:inputType="textPersonName"
-        android:text="Where to?"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameEditText" />
+        android:text="Friends"
+        android:textAlignment="viewStart"
+        android:textColor="@color/colorPrimary"
+        android:textSize="50sp"
+        app:layout_constraintLeft_toRightOf="@+id/textView2"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="16dp" />
 
     <Button
-        android:id="@+id/addPerson"
+        android:id="@+id/searchLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
-        android:backgroundTint="#60FFFFFF"
+        android:backgroundTint="@color/accent"
         android:fontFamily="Roboto"
         android:stateListAnimator="@null"
         android:text="Search"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
-        app:layout_constraintBaseline_toBaselineOf="@+id/locationEditText"
-        app:layout_constraintHorizontal_bias="0.272"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/nameEditText" />
 
     <android.support.v7.widget.CardView
+        android:id="@+id/members"
         android:layout_width="0dp"
-        android:layout_height="75dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginRight="32dp"
-        android:layout_marginTop="4dp"
+        android:layout_height="80dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginTop="5dp"
+        android:alpha="0.1"
+        android:elevation="0dp"
+        app:cardBackgroundColor="@color/colorPrimary"
+        app:cardElevation="0dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/withWho"
-        android:id="@+id/cardView2"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp" />
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerParticipants"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </android.support.v7.widget.CardView>
 
     <TextView
         android:id="@+id/withWho"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="32dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="32dp"
         android:fontFamily="Roboto"
         android:text="With who?"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
+        android:textColor="#80000000"
+        android:textSize="16dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/locationEditText"
-        android:layout_marginStart="32dp" />
+        android:layout_marginTop="21dp"
+        app:layout_constraintTop_toBottomOf="@+id/locationEditText" />
 
     <TextView
         android:id="@+id/participantsNumber"
         android:layout_width="wrap_content"
-        android:layout_height="12dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
-        android:layout_marginTop="16dp"
         android:text="0 Participants"
-        android:textSize="10sp"
         android:textAllCaps="true"
-        app:layout_constraintBottom_toTopOf="@+id/cardView2"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/locationEditText"
-        app:layout_constraintVertical_bias="0.428"
-        android:layout_marginEnd="32dp" />
+        android:textColor="#50000000"
+        android:textSize="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/members"
+        app:layout_constraintRight_toRightOf="parent" />
 
     <Button
         android:id="@+id/manageParticipants"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:backgroundTint="#60FFFFFF"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:backgroundTint="@color/accent"
         android:fontFamily="Roboto"
         android:stateListAnimator="@null"
-        android:text="Manage participants"
+        android:text="+ Add participants"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/cardView2"
-        android:layout_marginLeft="8dp"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/members" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
-        android:layout_height="120dp"
+        android:layout_height="110dp"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
@@ -211,43 +143,22 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:dividerPadding="0dp"
             android:gravity="center"
             android:orientation="vertical">
 
-            <android.support.v7.widget.CardView
-                android:id="@+id/calendarCardView"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                app:cardCornerRadius="40dp"
-                tools:layout_editor_absoluteX="62dp"
-                tools:layout_editor_absoluteY="489dp">
-
-                <android.support.constraint.ConstraintLayout
-                    android:id="@+id/constraintLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageButton
-                        android:id="@+id/whenButton"
-                        android:layout_width="65dp"
-                        android:layout_height="65dp"
-                        android:layout_marginBottom="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:backgroundTint="#FFFFFF"
-                        android:scaleType="fitXY"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/ic_calendar" />
-
-                </android.support.constraint.ConstraintLayout>
-
-            </android.support.v7.widget.CardView>
+            <ImageButton
+                android:id="@+id/whenButton"
+                android:layout_width="95dp"
+                android:layout_height="91dp"
+                android:layout_weight="1"
+                android:backgroundTint="#FFFFFF"
+                android:scaleType="fitXY"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/calendar" />
 
             <TextView
                 android:id="@+id/whenLabel"
@@ -256,61 +167,30 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="When?"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textColor="#80000000"
+                android:textSize="16dp"
                 tools:layout_editor_absoluteX="80dp"
                 tools:layout_editor_absoluteY="581dp" />
 
-            <TextView
-                android:id="@+id/dateSelection"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Today" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="25dp"
-            android:layout_marginRight="25dp"
             android:gravity="center"
             android:orientation="vertical">
 
-            <android.support.v7.widget.CardView
-                android:id="@+id/timeCardView"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginLeft="0dp"
-                android:layout_marginRight="0dp"
-                app:cardCornerRadius="40dp"
-                tools:layout_editor_absoluteX="62dp"
-                tools:layout_editor_absoluteY="489dp">
-
-                <android.support.constraint.ConstraintLayout
-                    android:id="@+id/constraintLayout2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageButton
-                        android:id="@+id/whatTimeButton"
-                        android:layout_width="67dp"
-                        android:layout_height="65dp"
-                        android:layout_marginBottom="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:backgroundTint="#FFFFFF"
-                        android:scaleType="fitXY"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/ic_clock" />
-                </android.support.constraint.ConstraintLayout>
-
-            </android.support.v7.widget.CardView>
+            <ImageButton
+                android:id="@+id/whatTimeButton"
+                android:layout_width="95dp"
+                android:layout_height="91dp"
+                android:backgroundTint="#FFFFFF"
+                android:scaleType="fitXY"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/clock" />
 
             <TextView
                 android:id="@+id/whatTimeLabel"
@@ -321,14 +201,8 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="What time?"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/timeSelection"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="00:00" />
+                android:textColor="#80000000"
+                android:textSize="16dp" />
 
         </LinearLayout>
 
@@ -338,76 +212,85 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <android.support.v7.widget.CardView
-                android:id="@+id/settingsCardView"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:backgroundTint="#30FFFFFF"
-                app:cardCornerRadius="40dp"
-                app:cardElevation="0dp"
-                tools:layout_editor_absoluteX="62dp"
-                tools:layout_editor_absoluteY="489dp">
-
-                <android.support.constraint.ConstraintLayout
-                    android:id="@+id/constraintLayout3"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageButton
-                        android:id="@+id/settingsButton"
-                        android:layout_width="67dp"
-                        android:layout_height="65dp"
-                        android:layout_marginBottom="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:backgroundTint="#00FFFFFF"
-                        android:scaleType="fitXY"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/ic_settings" />
-                </android.support.constraint.ConstraintLayout>
-
-            </android.support.v7.widget.CardView>
+            <ImageButton
+                android:id="@+id/photoButton"
+                android:layout_width="95dp"
+                android:layout_height="91dp"
+                android:backgroundTint="#00FFFFFF"
+                android:scaleType="fitXY"
+                android:tint="@color/colorPrimary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/camera" />
 
             <TextView
-                android:id="@+id/settingsLabel"
+                android:id="@+id/imageLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Settings"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/textView8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Default" />
+                android:text="Photo?"
+                android:textColor="#80000000"
+                android:textSize="16dp" />
 
         </LinearLayout>
 
     </LinearLayout>
 
     <android.support.v7.widget.CardView
-        android:layout_width="150dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="8dp"
+        android:id="@+id/cardViewf"
+        android:layout_width="300dp"
+        android:layout_height="25dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="#fee7f0"
         android:foregroundGravity="center"
-        app:cardBackgroundColor="@color/accent"
-        app:cardCornerRadius="20dp"
+        app:cardCornerRadius="13dp"
+        app:cardElevation="0dp"
         app:cardPreventCornerOverlap="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/fieldsCompleted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="You still have some fields to complete"
+                android:textAlignment="center"
+                android:textColor="@color/accent" />
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="150dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:foregroundGravity="center"
+        app:cardElevation="0dp"
+        app:cardCornerRadius="20dp"
+        android:backgroundTint="#10000000"
+        app:cardPreventCornerOverlap="true"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:id="@+id/cardView"
+        app:layout_constraintHorizontal_bias="0.497"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@+id/cardViewf"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -416,17 +299,68 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/doneButton"
+                android:id="@+id/cancelButton"
                 style="@style/WhiteButton"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#FFFFFF"
                 android:fontFamily="Roboto"
-                android:text="Done!"
+                android:text="Cancel"
                 android:textAllCaps="false"
-                android:textColor="#ffffff"
+                android:textColor="#A0000000"
                 android:textSize="18sp" />
         </LinearLayout>
     </android.support.v7.widget.CardView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/doneFAB"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
+        android:clickable="true"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:srcCompat="@drawable/done"
+        android:layout_marginEnd="16dp" />
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="32dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="32dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="7dp"
+        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        android:id="@+id/nameEditText"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp">
+
+        <EditText
+            android:id="@+id/EditText2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Event name?" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/locationEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="125dp"
+        android:layout_marginTop="0dp"
+        android:maxLines="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nameEditText"
+        app:layout_constraintHorizontal_bias="0.0">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Where to?" />
+    </android.support.design.widget.TextInputLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -13,14 +13,14 @@ public class Card {
     private int km;
     private String image;
 
-    public Card(String time, String date, String name, String location, int persons, int km, String image) {
+
+    public Card(String time, String date, String name, String location, int persons, int km) {
         this.time = time;
         this.date = date;
         this.name = name;
         this.location = location;
         this.persons = persons;
         this.km = km;
-        this.image = image;
     }
 
     public String getTime() {

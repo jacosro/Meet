@@ -1,6 +1,7 @@
 package dds.project.meet;
 
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -21,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     public static RecyclerView.Adapter adapterCards;
     private RecyclerView.LayoutManager layoutManagerCards;
 
-    TextView numberCards;
+    static TextView numberCards;
     static ArrayList<Card> dataCards;
 
 
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
                 })
         );
 
-        numberCards = (TextView) findViewById(R.id.numberCards);
+        TextView numberCards = (TextView) findViewById(R.id.numberCards);
         numberCards.setText(dataCards.size() + " events waiting for you");
     }
 
@@ -116,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadCards() {
-        dataCards.add(new Card("10:30", "21 MARCH" , "Playa hahaha", "Sampaka Coaod", 5, 5, ""));
+        dataCards.add(new Card("10:30", "21 Mar." , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5));
     }
 
     public void createCard(View v) {
@@ -133,6 +135,8 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("EXTRA_NAME", card.getName());
         intent.putExtra("EXTRA_LOCATION", card.getLocation());
         intent.putExtra("EXTRA_TIME", card.getTime());
+        intent.putExtra("EXTRA_LOCATION", card.getLocation());
+        intent.putExtra("EXTRA_DATE", card.getDate());
 
         startActivity(intent);
     }
