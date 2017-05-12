@@ -31,16 +31,24 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
         public TextView time;
         public TextView km;
         public TextView pers;
-        public ImageView image;
+        public TextView date;
+        //public ImageView image;
 
         public ViewHolder(View v) {
             super(v);
+            v.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    return false;
+                }
+            });
             name = (TextView) v.findViewById(R.id.name);
             location = (TextView) v.findViewById(R.id.location);
             time = (TextView) v.findViewById(R.id.time);
             km = (TextView) v.findViewById(R.id.distance);
             pers = (TextView) v.findViewById(R.id.personsnumber);
-            image = (ImageView) v.findViewById(R.id.eventImageView);
+            date = (TextView) v.findViewById(R.id.date);
+            //image = (ImageView) v.findViewById(R.id.eventImageView);
         }
 
     }
@@ -50,7 +58,6 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
     }
 
     public CardAdapter(ArrayList<Card> myyDataset, Context context){
-
         mDataset = myyDataset;
         this.context = context;
     }
@@ -69,10 +76,11 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
         holder.name.setText(mDataset.get(position).getName());
         holder.location.setText(mDataset.get(position).getLocation());
         holder.time.setText(mDataset.get(position).getTime());
-        //holder.pers.setText(mDataset.get(position).getPersons());
-        //holder.km.setText(mDataset.get(position).getKm());
-        Uri img = Uri.parse(mDataset.get(position).getImage());
-        holder.image.setImageURI(img);
+        holder.date.setText(mDataset.get(position).getDate());
+        holder.pers.setText(mDataset.get(position).getPersons() + " pers.");
+        holder.km.setText(mDataset.get(position).getKm() + " km");
+        //Uri img = Uri.parse(mDataset.get(position).getImage());
+        //holder.image.setImageURI(img);
 
     }
 

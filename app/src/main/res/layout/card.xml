@@ -40,14 +40,14 @@
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                app:srcCompat="@drawable/cacao_sampakaa" />
+                app:srcCompat="@drawable/salad" />
 
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
             android:id="@+id/main"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="110dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="-25dp"
@@ -64,11 +64,12 @@
                     android:id="@+id/distance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2.5Km"
-                    app:layout_constraintLeft_toRightOf="@+id/imageButton2"
+                    android:layout_marginBottom="13dp"
                     android:layout_marginLeft="4dp"
+                    android:text="2.5Km"
+                    android:textSize="15dp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginBottom="13dp" />
+                    app:layout_constraintLeft_toRightOf="@+id/imageButton2" />
 
                 <TextView
                     android:id="@+id/personsnumber"
@@ -77,6 +78,7 @@
                     android:layout_marginBottom="13dp"
                     android:layout_marginLeft="4dp"
                     android:text="8 pers."
+                    android:textSize="15dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toRightOf="@+id/persons" />
 
@@ -101,7 +103,7 @@
                     android:layout_marginTop="0dp"
                     android:text="Av. Blasco Ibañez, Valencia"
                     android:textColor="@color/cardview_shadow_start_color"
-                    android:textSize="14sp"
+                    android:textSize="15dp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/name" />
 
@@ -109,11 +111,11 @@
                     android:id="@+id/name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginTop="28dp"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginTop="18dp"
                     android:text="Cena Montaditos"
                     android:textColor="@color/cardview_dark_background"
-                    android:textSize="24sp"
+                    android:textSize="25sp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -126,7 +128,7 @@
                     android:fontFamily="Roboto Light"
                     android:text="10:30"
                     android:textColor="@color/accent"
-                    android:textSize="24sp"
+                    android:textSize="26dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintRight_toRightOf="parent" />
 
@@ -134,13 +136,13 @@
                     android:id="@+id/imageButton2"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="16dp"
                     android:background="#FFFFFF"
                     android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/location"
-                    app:layout_constraintLeft_toRightOf="@+id/personsnumber"
-                    android:layout_marginLeft="16dp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginBottom="10dp" />
+                    app:layout_constraintLeft_toRightOf="@+id/personsnumber"
+                    app:srcCompat="@drawable/location" />
 
                 <TextView
                     android:id="@+id/date"
@@ -149,6 +151,7 @@
                     android:layout_marginBottom="-1dp"
                     android:layout_marginRight="16dp"
                     android:text="21 Sept."
+                    android:textSize="16dp"
                     app:layout_constraintBottom_toTopOf="@+id/time"
                     app:layout_constraintRight_toRightOf="parent" />
 

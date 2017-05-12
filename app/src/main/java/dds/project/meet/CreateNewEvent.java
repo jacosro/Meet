@@ -3,15 +3,17 @@ package dds.project.meet;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -21,11 +23,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
-
-import com.mikepenz.materialdrawer.Drawer;
+import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * Created by RaulCoroban on 10/04/2017.
@@ -35,11 +38,14 @@ public class CreateNewEvent extends AppCompatActivity {
 
     String date, time, uriString;
     ImageView eventImage;
-    ImageButton buttonImage;
+    ImageButton photo, when, whatTime;
+    RecyclerView recyclerParticipants;
 
-    boolean bool = true;
+    static ArrayList<Participant> dataMembers;
+    RecyclerView.LayoutManager layoutManagerParticipants;
+    ParticipantAdapter adapterParticipants;
 
-    String[] months = {"JAN", "FEB", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUG", "SEPT", "OCT", "NOV", "DEC"};
+    String[] months = {"Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."};
     static final int SELECTED_PICTURE = 1;
 
     @Override
@@ -47,66 +53,29 @@ public class CreateNewEvent extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_event);
 
-        ImageButton when = (ImageButton) findViewById(R.id.whenButton);
-        when.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pickDate();
-            }
-        });
+        recyclerParticipants = (RecyclerView) findViewById(R.id.recyclerParticipants);
+        dataMembers = new ArrayList<Participant>();
+        loadMembers();
 
-        ImageButton whatTime = (ImageButton) findViewById(R.id.whatTimeButton);
-        whatTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pickTime();
-            }
-        });
+        recyclerParticipants.setHasFixedSize(true);
 
-        Button done = (Button) findViewById(R.id.doneButton);
-        done.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                donePressed();
-            }
-        });
+        layoutManagerParticipants = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerParticipants.setLayoutManager(layoutManagerParticipants);
 
-        buttonImage = (ImageButton) findViewById(R.id.addImageButton);
-        buttonImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(i, SELECTED_PICTURE);
+        adapterParticipants = new ParticipantAdapter(dataMembers, this);
+        recyclerParticipants.setAdapter(adapterParticipants);
 
-            }
-        });
+        recyclerParticipants.addOnItemTouchListener(
+                new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        Participant p = dataMembers.get(position);
+                        System.out.println(p.getName());
+                    }
+                })
+        );
 
-        Button cancel = (Button) findViewById(R.id.cancelButton);
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        setListeners();
 
-        final EditText nameEditText = (EditText) findViewById(R.id.nameEditText);
-        nameEditText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                nameEditText.setText("");
-                return false;
-            }
-        });
-
-        final EditText locationEditText = (EditText) findViewById(R.id.locationEditText);
-        locationEditText.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                locationEditText.setText("");
-                return false;
-            }
-        });
     }
 
     @Override
@@ -115,7 +84,8 @@ public class CreateNewEvent extends AppCompatActivity {
         if (requestCode == SELECTED_PICTURE && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
             uriString = uri.toString();
-            buttonImage.setImageURI(Uri.parse(uriString));
+            photo.setImageURI(Uri.parse(uriString));
+            photo.setImageResource(R.drawable.cameras);
         }
     }
 
@@ -130,8 +100,9 @@ public class CreateNewEvent extends AppCompatActivity {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                 date = dayOfMonth + " " + months[month];
-                TextView dS = (TextView) findViewById(R.id.dateSelection);
+                TextView dS = (TextView) findViewById(R.id.whenLabel);
                 dS.setText(date);
+                when.setImageResource(R.drawable.calendars);
             }
         },mYear, mMonth, mDay);
         cal.show();
@@ -147,23 +118,122 @@ public class CreateNewEvent extends AppCompatActivity {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 time = hourOfDay + ":" + minute;
-                TextView tS = (TextView) findViewById(R.id.timeSelection);
-                tS.setText(time);
+                TextView tS = (TextView) findViewById(R.id.whatTimeLabel);
+                tS.setText(time + "h");
+                whatTime.setImageResource(R.drawable.clocks);
             }
         },mHour, mMinutes, false);
         cal.show();
+
     }
 
     public void donePressed() {
-        EditText name = (EditText) findViewById(R.id.nameEditText);
-        EditText location = (EditText) findViewById(R.id.locationEditText);
-        TextView tS = (TextView) findViewById(R.id.timeSelection);
-        TextView dS = (TextView) findViewById(R.id.dateSelection);
-        ImageView eventImageView = (ImageView) findViewById(R.id.eventImageView);
+        TextInputLayout name = (TextInputLayout) findViewById(R.id.nameEditText);
+        TextInputLayout location = (TextInputLayout) findViewById(R.id.locationEditText);
+        TextView tS = (TextView) findViewById(R.id.whatTimeLabel);
+        TextView dS = (TextView) findViewById(R.id.whenLabel);
 
-        Card newEvent = CardFactory.getCard(tS.getText().toString(), "TODAY" , name.getText().toString(), location.getText().toString(), 0, 0, uriString);
+        Card newEvent = CardFactory.getCard(tS.getText().toString(), dS.getText().toString() , name.getEditText().getText().toString(), location.getEditText().getText().toString(), 0, 0);
         MainActivity.dataCards.add(newEvent);
         MainActivity.adapterCards.notifyDataSetChanged();
+
         finish();
+    }
+
+    public void loadMembers() {
+        dataMembers.add(new Participant("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
+        dataMembers.add(new Participant("Maria Alpuente", "Alli", "654765876", "malpuente@gmail.com"));
+        dataMembers.add(new Participant("Mario Bros", "Alla", "654765876", "mgomezbors@gmail.com"));
+    }
+
+    public void setListeners() {
+
+        when = (ImageButton) findViewById(R.id.whenButton);
+        when.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pickDate();
+            }
+        });
+
+        whatTime = (ImageButton) findViewById(R.id.whatTimeButton);
+        whatTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pickTime();
+            }
+        });
+
+
+        FloatingActionButton done = (FloatingActionButton) findViewById(R.id.doneFAB);
+        done.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                donePressed();
+            }
+        });
+
+        photo = (ImageButton) findViewById(R.id.photoButton);
+        photo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(i, SELECTED_PICTURE);
+
+
+            }
+        });
+
+        Button cancel = (Button) findViewById(R.id.cancelButton);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        Button addPersons = (Button) findViewById(R.id.manageParticipants);
+        addPersons.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dataMembers.add(new Participant("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
+                TextView num = (TextView) findViewById(R.id.participantsNumber);
+                num.setText(dataMembers.size() + " participants");
+            }
+        });
+
+        Button searchLocation = (Button) findViewById(R.id.searchLocation);
+        searchLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextInputLayout locationEditText = (TextInputLayout) findViewById(R.id.locationEditText);
+                try {
+                    String dir = locationEditText.getEditText().getText().toString();
+                    if(validateLocation(dir)) {
+                        Toast.makeText(CreateNewEvent.this, "Correct location", Toast.LENGTH_SHORT).show();
+                        TextInputLayout location = (TextInputLayout) findViewById(R.id.locationEditText);
+                        location.getEditText().setText(getExactLocationName(dir));
+                    } else {
+                        Toast.makeText(CreateNewEvent.this, "Hmmm... try another location", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public boolean validateLocation(String location) throws IOException {
+        Geocoder gc = new Geocoder(this);
+        List<Address> list = gc.getFromLocationName(location, 1);
+        if (list.size() >= 1) return true;
+        return false;
+    }
+
+    public String getExactLocationName(String location) throws IOException {
+        Geocoder gc = new Geocoder(this);
+        List<Address> list = gc.getFromLocationName(location, 1);
+        String ret = list.get(0).getAddressLine(0) + " " + list.get(0).getCountryName();
+        return ret;
     }
 }
