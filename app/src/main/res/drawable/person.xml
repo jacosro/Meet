@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="38dp"
+    android:height="57dp"
+    android:viewportWidth="38"
+    android:viewportHeight="57">
+    <path
+        android:fillColor="#f20f6a"
+        android:name="Persons"
+        android:pathData="m19.36 0c-6.58 0 -11.92 5.3 -11.92 11.84c0 6.54 5.34 11.84 11.92 11.84c6.58 0 11.92 -5.3 11.92 -11.84c0 -6.54 -5.34 -11.84 -11.92 -11.84zm-0.36 26.65c-10.49 0 -19 8.45 -19 18.88c0 10.43 8.51 11.47 19 11.47c10.49 0 19 -1.05 19 -11.47c0 -10.43 -8.51 -18.88 -19 -18.88z" />
+</vector>

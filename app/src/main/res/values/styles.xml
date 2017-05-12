@@ -1,0 +1,42 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">#673AB7</item>
+        <item name="colorPrimaryDark">#55A89D</item>
+        <item name="colorAccent">#FF4081</item>
+        <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">#55A89D</item>
+        <item name="android:windowTranslucentStatus">false</item>-->
+    </style>
+
+    <style name="transparent">
+        <item name="android:color">#5055A89D</item>
+        <item name="android:alpha">0.1</item>
+    </style>
+
+    <style name="CardSpacing">
+        <item name="android:layout_marginTop">10dp</item>
+    </style>
+
+    <style name="ImageSpacing">
+        <item name="android:layout_marginTop">-10dp</item>
+    </style>
+
+    <style name="JosefinSansLight">
+        <item name="android:fontFamily">/fonts/JosefinSans-Light</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="toWhite">
+        <item name="android:tint">#FFFFFF</item>
+    </style>
+
+    <style name="WhiteButton" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
+
+    </style>
+</resources>
