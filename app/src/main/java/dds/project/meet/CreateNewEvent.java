@@ -37,6 +37,8 @@ public class CreateNewEvent extends AppCompatActivity {
     ImageView eventImage;
     ImageButton buttonImage;
 
+    boolean bool = true;
+
     String[] months = {"JAN", "FEB", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUG", "SEPT", "OCT", "NOV", "DEC"};
     static final int SELECTED_PICTURE = 1;
 
