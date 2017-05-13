@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import dds.project.meet.R;
 
@@ -30,6 +32,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
             super(itemView);
             nameParticipant = (TextView) itemView.findViewById(R.id.nameParticipant);
             emailParticipant = (TextView) itemView.findViewById(R.id.emailParticipant);
+            acroParticipant = (TextView) itemView.findViewById(R.id.acroParticipant);
         }
     }
 
@@ -47,15 +50,17 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
 
     @Override
     public void onBindViewHolder(ParticipantAdapter.ViewHolder holder, int position) {
-        holder.nameParticipant.setText(dataMembers.get(position).getName());
+        String name = dataMembers.get(position).getName();
+        holder.nameParticipant.setText(name);
         holder.emailParticipant.setText(dataMembers.get(position).getEmail());
 
-        String[] name = dataMembers.get(position).getName().split("\\s");
-        String initials =
-                name.length == 2
-                    ? (name[0].substring(0, 1) + name[1].substring(0, 1)).toUpperCase() // Get first character of Name and Last Name
-                    :  name[0].substring(0, 2).toUpperCase(); // Get two first characters of Name
-
+        String[] split = name.split("\\s");
+        String initials;
+        if (split.length == 2) {
+            initials = (split[0].substring(0, 1)+ split[1].substring(0, 1)).toUpperCase();
+        } else {
+            initials = split[0].substring(0, 2);
+        }
         holder.acroParticipant.setText(initials);
     }
 
