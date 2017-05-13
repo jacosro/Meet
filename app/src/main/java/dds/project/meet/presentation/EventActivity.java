@@ -1,4 +1,4 @@
-package dds.project.meet;
+package dds.project.meet.presentation;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -22,6 +22,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.util.List;
+
+import dds.project.meet.R;
 
 /**
  * Created by RaulCoroban on 24/04/2017.

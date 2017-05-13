@@ -1,4 +1,4 @@
-package dds.project.meet;
+package dds.project.meet.logic;
 
 /**
  * Created by RaulCoroban on 15/04/2017.

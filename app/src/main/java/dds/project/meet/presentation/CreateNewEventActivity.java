@@ -1,4 +1,4 @@
-package dds.project.meet;
+package dds.project.meet.presentation;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -9,16 +9,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,11 +27,18 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import dds.project.meet.R;
+import dds.project.meet.logic.Card;
+import dds.project.meet.logic.CardFactory;
+import dds.project.meet.logic.Participant;
+import dds.project.meet.logic.ParticipantAdapter;
+import dds.project.meet.logic.RecyclerItemClickListener;
+
 /**
  * Created by RaulCoroban on 10/04/2017.
  */
 
-public class CreateNewEvent extends AppCompatActivity {
+public class CreateNewEventActivity extends AppCompatActivity {
 
     String date, time, uriString;
     ImageView eventImage;
@@ -96,7 +100,7 @@ public class CreateNewEvent extends AppCompatActivity {
         int mMonth = mcurrentDate.get(Calendar.MONTH);
         int mDay = mcurrentDate.get(Calendar.DAY_OF_MONTH);
 
-        DatePickerDialog cal = new DatePickerDialog(CreateNewEvent.this, new DatePickerDialog.OnDateSetListener() {
+        DatePickerDialog cal = new DatePickerDialog(CreateNewEventActivity.this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                 date = dayOfMonth + " " + months[month];
@@ -114,7 +118,7 @@ public class CreateNewEvent extends AppCompatActivity {
         int mHour = mcurrentDate.get(Calendar.HOUR_OF_DAY);
         int mMinutes = mcurrentDate.get(Calendar.MINUTE);
 
-        TimePickerDialog cal = new TimePickerDialog(CreateNewEvent.this, new TimePickerDialog.OnTimeSetListener() {
+        TimePickerDialog cal = new TimePickerDialog(CreateNewEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 time = hourOfDay + ":" + minute;
@@ -210,11 +214,11 @@ public class CreateNewEvent extends AppCompatActivity {
                 try {
                     String dir = locationEditText.getEditText().getText().toString();
                     if(validateLocation(dir)) {
-                        Toast.makeText(CreateNewEvent.this, "Correct location", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateNewEventActivity.this, "Correct location", Toast.LENGTH_SHORT).show();
                         TextInputLayout location = (TextInputLayout) findViewById(R.id.locationEditText);
                         location.getEditText().setText(getExactLocationName(dir));
                     } else {
-                        Toast.makeText(CreateNewEvent.this, "Hmmm... try another location", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateNewEventActivity.this, "Hmmm... try another location", Toast.LENGTH_SHORT).show();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
