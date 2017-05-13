@@ -1,12 +1,15 @@
 package dds.project.meet.presentation;
 
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +17,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import dds.project.meet.Originator;
+import dds.project.meet.CareTaker;
 import dds.project.meet.R;
 import dds.project.meet.logic.Card;
 import dds.project.meet.logic.CardAdapter;
@@ -26,8 +31,10 @@ public class MainActivity extends AppCompatActivity {
     public static RecyclerView.Adapter adapterCards;
     private RecyclerView.LayoutManager layoutManagerCards;
 
-    static TextView numberCards;
     static ArrayList<Card> dataCards;
+    public Originator originator;
+    public CareTaker careTaker;
+    private Card removedCard;
 
 
     @Override
@@ -50,16 +57,68 @@ public class MainActivity extends AppCompatActivity {
         recyclerCards.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        System.out.println(position);
                         Card c = dataCards.get(position);
                         openEvent(c);
                     }
                 })
         );
 
+        //Gestures
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
+        itemTouchHelper.attachToRecyclerView(recyclerCards);
+
+        //Memento
+        originator = new Originator();
+        careTaker = new CareTaker();
+
         TextView numberCards = (TextView) findViewById(R.id.numberCards);
-        numberCards.setText(dataCards.size() + " events waiting for you");
+        numberCards.setText(adapterCards.getItemCount() + " events waiting for you");
     }
+
+    private ItemTouchHelper.Callback createHelperCallback(){
+        ItemTouchHelper.SimpleCallback simpleCallback =
+                new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
+
+                    @Override
+                    public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                        moveCard(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                        return true;
+                    }
+
+                    @Override
+                    public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+                        removedCard = dataCards.get(viewHolder.getAdapterPosition());
+                        deleteCard(viewHolder.getAdapterPosition());
+                        Snackbar undoDelete = Snackbar.make(findViewById(R.id.drawer_layout), "Card deleted", Snackbar.LENGTH_LONG);
+                        undoDelete.setAction("UNDO", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                undoDeletion();
+                            }
+                        });
+                        undoDelete.show();
+                    }
+            };
+            return simpleCallback;
+    }
+
+    private void deleteCard(int adapterPosition) {
+        dataCards.remove(adapterPosition);
+        adapterCards.notifyItemRemoved(adapterPosition);
+    }
+
+    private void moveCard(int adapterPositionOld, int adapterPositionNew) {
+        Card aux = dataCards.get(adapterPositionOld);
+        dataCards.remove(adapterPositionOld);
+        dataCards.add(adapterPositionNew, aux);
+        adapterCards.notifyItemMoved(adapterPositionOld, adapterPositionNew);
+    }
+
+    private void undoDeletion() {
+        dataCards.add(removedCard);
+        adapterCards.notifyDataSetChanged();
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -113,11 +172,6 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    public void nextScreen(View view) {
-        Intent intent = new Intent(this, CreateNewEventActivity.class);
-        startActivity(intent);
     }
 
     public void loadCards() {
