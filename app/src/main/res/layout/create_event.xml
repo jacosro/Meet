@@ -14,7 +14,7 @@
         android:layout_marginLeft="32dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="48dp"
-        android:text="New Event"
+        android:text="@string/new_event"
         android:textAlignment="viewStart"
         android:textColor="@color/colorPrimary"
         android:textSize="50sp"
@@ -26,16 +26,16 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="48dp"
         android:alpha="0.1"
         android:fontFamily="Roboto"
-        android:text="Friends"
+        android:text="@string/friends"
         android:textAlignment="viewStart"
         android:textColor="@color/colorPrimary"
         android:textSize="50sp"
         app:layout_constraintLeft_toRightOf="@+id/textView2"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="16dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/searchLocation"
@@ -43,14 +43,14 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
+        android:layout_marginTop="0dp"
         android:backgroundTint="@color/accent"
         android:fontFamily="Roboto"
         android:stateListAnimator="@null"
-        android:text="Search"
+        android:text="@string/search"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="0dp"
         app:layout_constraintTop_toBottomOf="@+id/nameEditText" />
 
     <android.support.v7.widget.CardView
@@ -82,12 +82,12 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="32dp"
         android:layout_marginStart="32dp"
+        android:layout_marginTop="21dp"
         android:fontFamily="Roboto"
-        android:text="With who?"
+        android:text="@string/with_who"
         android:textColor="#80000000"
         android:textSize="16dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="21dp"
         app:layout_constraintTop_toBottomOf="@+id/locationEditText" />
 
     <TextView
@@ -112,16 +112,16 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:backgroundTint="@color/accent"
         android:fontFamily="Roboto"
         android:stateListAnimator="@null"
-        android:text="+ Add participants"
+        android:text="@string/add_participants"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@+id/members" />
 
     <LinearLayout
@@ -166,7 +166,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="When?"
+                android:text="@string/when"
                 android:textColor="#80000000"
                 android:textSize="16dp"
                 tools:layout_editor_absoluteX="80dp"
@@ -200,7 +200,7 @@
                 android:layout_marginRight="0dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="What time?"
+                android:text="@string/what_time"
                 android:textColor="#80000000"
                 android:textSize="16dp" />
 
@@ -230,7 +230,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Photo?"
+                android:text="@string/photo"
                 android:textColor="#80000000"
                 android:textSize="16dp" />
 
@@ -341,7 +341,7 @@
             android:id="@+id/EditText2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Event name?" />
+            android:hint="@string/event_name" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
@@ -360,7 +360,7 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Where to?" />
+            android:hint="@string/where_to" />
     </android.support.design.widget.TextInputLayout>
 
 </android.support.constraint.ConstraintLayout>

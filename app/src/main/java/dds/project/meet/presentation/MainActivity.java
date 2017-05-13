@@ -1,7 +1,6 @@
-package dds.project.meet;
+package dds.project.meet.presentation;
 
 import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -10,11 +9,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import dds.project.meet.R;
+import dds.project.meet.logic.Card;
+import dds.project.meet.logic.CardAdapter;
+import dds.project.meet.logic.RecyclerItemClickListener;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -113,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void nextScreen(View view) {
-        Intent intent = new Intent(this, CreateNewEvent.class);
+        Intent intent = new Intent(this, CreateNewEventActivity.class);
         startActivity(intent);
     }
 
@@ -122,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createCard(View v) {
-        Intent intent = new Intent(this, CreateNewEvent.class);
+        Intent intent = new Intent(this, CreateNewEventActivity.class);
         startActivity(intent);
         /*Card c = new CardFactory().getCard();
         dataCards.add(c);

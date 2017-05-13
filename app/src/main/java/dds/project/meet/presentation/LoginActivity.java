@@ -1,19 +1,20 @@
-package dds.project.meet;
+package dds.project.meet.presentation;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
+import dds.project.meet.R;
 
 
 /**
  * Created by RaulCoroban on 24/04/2017.
  */
 
-public class Login extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

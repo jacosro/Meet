@@ -1,4 +1,4 @@
-package dds.project.meet;
+package dds.project.meet.logic;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

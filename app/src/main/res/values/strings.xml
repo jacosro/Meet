@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Meet</string>
     <string name="edit_message">Enter a message</string>
     <string name="button_send">Send</string>
     <string name="open">Open</string>
@@ -15,4 +15,29 @@
     <string name="title_activity_real_drawer">RealDrawer</string>
     <string name="title_activity_sidebar">Sidebar</string>
     <string name="title_activity_real">real</string>
+    <string name="username_label">Username</string>
+    <string name="password_label">Password</string>
+    <string name="create_account">Create Account</string>
+    <string name="login">Login</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="new_event">New Event</string>
+    <string name="event_name">Event Name</string>
+    <string name="where_to">Where to</string>
+    <string name="with_who">Who with</string>
+    <string name="add_participants">+ Add Participants</string>
+    <string name="when">When?</string>
+    <string name="what_time">What Time?</string>
+    <string name="photo">Photo</string>
+    <string name="search">Search</string>
+    <string name="friends">Firends</string>
+    <string name="default_event_date">25th MARCH</string>
+    <string name="default_event_name">Vamos a por KKO</string>
+    <string name="default_event_time">10:30</string>
+    <string name="default_event_description">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.</string>
+    <string name="default_event_location">Av. Blasco Ibañez</string>
+    <string name="default_name">Andrea Pavarotti</string>
+    <string name="default_email">andpavaormuypava@gmail.com</string>
+    <string name="default_participant_name">Patricio Orlando</string>
+    <string name="default_participant_email">porlando@gmail.com</string>
+    <string name="default_participant_initials">PO</string>
 </resources>

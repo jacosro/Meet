@@ -27,7 +27,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="AB"
+                android:text="@string/default_participant_initials"
                 android:textAlignment="center"
                 android:textColor="#FFFFFF"
                 android:textSize="30sp" />
@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="24dp"
-        android:text="Patricio Orlando"
+        android:text="@string/default_participant_name"
         android:textSize="28sp"
         app:layout_constraintLeft_toRightOf="@+id/cardView2"
         app:layout_constraintTop_toTopOf="parent" />
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="32dp"
         android:layout_marginTop="0dp"
-        android:text="porlando@gmail.com"
+        android:text="@string/default_participant_email"
         app:layout_constraintLeft_toRightOf="@+id/cardView2"
         app:layout_constraintTop_toBottomOf="@+id/nameParticipant" />
 </android.support.constraint.ConstraintLayout>

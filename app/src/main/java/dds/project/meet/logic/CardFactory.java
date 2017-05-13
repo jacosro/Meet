@@ -1,4 +1,6 @@
-package dds.project.meet;
+package dds.project.meet.logic;
+
+import dds.project.meet.logic.Card;
 
 /**
  * Created by RaulCoroban on 16/04/2017.
