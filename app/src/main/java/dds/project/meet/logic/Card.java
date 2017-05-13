@@ -13,7 +13,6 @@ public class Card {
     private int km;
     private String image;
 
-
     public Card(String time, String date, String name, String location, int persons, int km) {
         this.time = time;
         this.date = date;
