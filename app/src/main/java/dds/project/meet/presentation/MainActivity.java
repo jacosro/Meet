@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
         );
-
         //Gestures
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
         itemTouchHelper.attachToRecyclerView(recyclerCards);
