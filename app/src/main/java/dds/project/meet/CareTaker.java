@@ -9,12 +9,16 @@ import java.util.List;
 
 public class CareTaker {
     private List<Memento> memoList = new ArrayList<Memento>();
+    private int lastElement = 0;
 
     public void add(Memento m) {
         memoList.add(m);
+        lastElement ++;
     }
 
     public Memento get(int index) {
         return memoList.get(index);
     }
+
+    public void undo() { memoList.remove(lastElement); }
 }

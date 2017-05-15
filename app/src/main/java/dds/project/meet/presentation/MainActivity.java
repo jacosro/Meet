@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     static ArrayList<Card> dataCards;
     public Originator originator;
     public CareTaker careTaker;
-    private Card removedCard;
 
 
     @Override
@@ -67,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
         itemTouchHelper.attachToRecyclerView(recyclerCards);
 
-        //Memento
+        //Memento tools declaration
         originator = new Originator();
         careTaker = new CareTaker();
 
@@ -87,10 +86,15 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
-                        removedCard = dataCards.get(viewHolder.getAdapterPosition());
+                        Card aux = dataCards.get(viewHolder.getAdapterPosition());
+                        String name = aux.getName();
+
+                        originator.setState(aux);
+                        careTaker.add(originator.saveStateToMemento());
+
                         deleteCard(viewHolder.getAdapterPosition());
-                        Snackbar undoDelete = Snackbar.make(findViewById(R.id.drawer_layout), "Card deleted", Snackbar.LENGTH_LONG);
-                        undoDelete.setAction("UNDO", new View.OnClickListener() {
+                        Snackbar undoDelete = Snackbar.make(findViewById(R.id.drawer_layout), name , Snackbar.LENGTH_LONG);
+                        undoDelete.setAction("RESTORE", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 undoDeletion();
@@ -115,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void undoDeletion() {
-        dataCards.add(removedCard);
+        dataCards.add(originator.getState());
         adapterCards.notifyDataSetChanged();
     }
 
