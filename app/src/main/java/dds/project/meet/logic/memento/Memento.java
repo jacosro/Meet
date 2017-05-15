@@ -1,5 +1,8 @@
 package dds.project.meet.logic.memento;
 
+import java.sql.Timestamp;
+
+
 import dds.project.meet.logic.Card;
 
 /**
@@ -8,12 +11,18 @@ import dds.project.meet.logic.Card;
 
 public class Memento {
     private Card mementoState;
+    private Timestamp stampTime;
 
     public Memento (Card card) {
         this.mementoState = card;
+        this.stampTime = new Timestamp(System.currentTimeMillis());
     }
 
     public Card getState() {
         return mementoState;
+    }
+
+    public Timestamp getTimeStamp() {
+        return stampTime;
     }
 }
