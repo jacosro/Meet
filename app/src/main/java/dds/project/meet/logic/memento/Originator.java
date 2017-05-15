@@ -1,4 +1,4 @@
-package dds.project.meet;
+package dds.project.meet.logic.memento;
 
 import dds.project.meet.logic.Card;
 

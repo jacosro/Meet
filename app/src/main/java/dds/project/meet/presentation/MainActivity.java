@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,8 +16,12 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import dds.project.meet.Originator;
-import dds.project.meet.CareTaker;
+import dds.project.meet.logic.command.AddCardCommand;
+import dds.project.meet.logic.command.Command;
+import dds.project.meet.logic.command.MoveCardCommand;
+import dds.project.meet.logic.command.RemoveCardCommand;
+import dds.project.meet.logic.memento.Originator;
+import dds.project.meet.logic.memento.CareTaker;
 import dds.project.meet.R;
 import dds.project.meet.logic.Card;
 import dds.project.meet.logic.CardAdapter;
@@ -102,21 +105,23 @@ public class MainActivity extends AppCompatActivity {
             return simpleCallback;
     }
 
+    private void addCard(Card card) {
+        Command addCard = new AddCardCommand(recyclerCards.getAdapter(), dataCards, card);
+        addCard.execute();
+    }
+
     private void deleteCard(int adapterPosition) {
-        dataCards.remove(adapterPosition);
-        adapterCards.notifyItemRemoved(adapterPosition);
+        Command deleteCard = new RemoveCardCommand(recyclerCards.getAdapter(), dataCards, adapterPosition);
+        deleteCard.execute();
     }
 
     private void moveCard(int adapterPositionOld, int adapterPositionNew) {
-        Card aux = dataCards.get(adapterPositionOld);
-        dataCards.remove(adapterPositionOld);
-        dataCards.add(adapterPositionNew, aux);
-        adapterCards.notifyItemMoved(adapterPositionOld, adapterPositionNew);
+        Command moveCard = new MoveCardCommand(recyclerCards.getAdapter(), dataCards, adapterPositionOld, adapterPositionNew);
+        moveCard.execute();
     }
 
     private void undoDeletion() {
-        dataCards.add(removedCard);
-        adapterCards.notifyDataSetChanged();
+        addCard(removedCard);
     }
 
 
@@ -175,7 +180,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadCards() {
-        dataCards.add(new Card("10:30", "21 Mar." , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5));
+        Card one = new Card("10:30", "21 Mar." , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5);
+        Command addCard = new AddCardCommand(recyclerCards.getAdapter(), dataCards, one);
+        addCard.execute();
     }
 
     public void createCard(View v) {
