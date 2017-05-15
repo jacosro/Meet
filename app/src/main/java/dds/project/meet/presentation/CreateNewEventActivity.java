@@ -138,7 +138,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
         TextView dS = (TextView) findViewById(R.id.whenLabel);
 
         Card newEvent = CardFactory.getCard(tS.getText().toString(), dS.getText().toString() , name.getEditText().getText().toString(), location.getEditText().getText().toString(), 0, 0);
-        MainActivity.dataCards.add(newEvent); // <- TODO Refactory to startActivityForResult in MainActivity
+        MainActivity.dataCards.add(newEvent); // <- TODO Refactor to startActivityForResult in MainActivity
         MainActivity.adapterCards.notifyDataSetChanged();
 
         finish();
