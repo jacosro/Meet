@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
         dataCards = new ArrayList<Card>();
 
-        loadCards();
+
 
         recyclerCards.setHasFixedSize(true);
         layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         TextView numberCards = (TextView) findViewById(R.id.numberCards);
         numberCards.setText(adapterCards.getItemCount() + " events waiting for you");
+        loadCards();
     }
 
     private ItemTouchHelper.Callback createHelperCallback(){
