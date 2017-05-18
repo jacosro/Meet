@@ -40,4 +40,9 @@
     <string name="default_participant_name">Patricio Orlando</string>
     <string name="default_participant_email">porlando@gmail.com</string>
     <string name="default_participant_initials">PO</string>
+    <string name="statusDistanceLabel">You are about</string>
+    <string name="statusDefaultDistance">2.5 Km</string>
+    <string name="statusDefaultCarTime">15 min</string>
+    <string name="statusDefaultWalkTime">5 min</string>
+    <string name="statusDirections">Directions</string>
 </resources>
