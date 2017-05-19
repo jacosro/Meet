@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "191241980380",
+    "firebase_url": "https://meet-b1515.firebaseio.com",
+    "project_id": "meet-b1515",
+    "storage_bucket": "meet-b1515.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191241980380:android:c755679fb9c889db",
+        "android_client_info": {
+          "package_name": "dds.project.meet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "191241980380-972ah7mmvcqn4er7ae1egr6e7mucbdfr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVD6TkknfRkP7js-zHRcY3o-4L1kJz9nU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
