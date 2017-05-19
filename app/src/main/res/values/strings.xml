@@ -45,4 +45,5 @@
     <string name="statusDefaultCarTime">15 min</string>
     <string name="statusDefaultWalkTime">5 min</string>
     <string name="statusDirections">Directions</string>
+    <string name="statusNotifications">Notify</string>
 </resources>
