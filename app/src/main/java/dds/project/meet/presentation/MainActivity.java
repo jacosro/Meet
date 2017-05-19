@@ -9,10 +9,13 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
@@ -48,8 +51,6 @@ public class MainActivity extends AppCompatActivity {
 
         dataCards = new ArrayList<Card>();
 
-        loadCards();
-
         recyclerCards.setHasFixedSize(true);
         layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerCards.setLayoutManager(layoutManagerCards);
@@ -73,8 +74,25 @@ public class MainActivity extends AppCompatActivity {
         originator = new Originator();
         careTaker = new CareTaker();
 
+        loadCards();
+
         TextView numberCards = (TextView) findViewById(R.id.numberCards);
         numberCards.setText(adapterCards.getItemCount() + " events waiting for you");
+
+        findViewById(R.id.mainMeetTitle).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                doSignOut();
+                return true;
+            }
+        });
+    }
+
+    private void doSignOut() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        FirebaseAuth.getInstance().signOut();
+        startActivity(intent);
+        finish();
     }
 
     private ItemTouchHelper.Callback createHelperCallback(){
@@ -151,31 +169,6 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        switch (id){
-            case R.id.nav_home:
-
-                break;
-            case R.id.nav_spaces:
-
-                break;
-            case R.id.nav_contacts:
-
-                break;
-            case R.id.nav_focus:
-
-                break;
-        }
-
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     public void loadCards() {
