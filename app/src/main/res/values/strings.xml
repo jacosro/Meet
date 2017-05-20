@@ -40,10 +40,18 @@
     <string name="default_participant_name">Patricio Orlando</string>
     <string name="default_participant_email">porlando@gmail.com</string>
     <string name="default_participant_initials">PO</string>
-    <string name="statusDistanceLabel">You are about</string>
-    <string name="statusDefaultDistance">2.5 Km</string>
-    <string name="statusDefaultCarTime">15 min</string>
-    <string name="statusDefaultWalkTime">5 min</string>
-    <string name="statusDirections">Directions</string>
-    <string name="statusNotifications">Notify</string>
+    <string name="title_activity_register">Register</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
 </resources>

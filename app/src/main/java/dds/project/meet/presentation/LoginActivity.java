@@ -26,7 +26,7 @@ public class LoginActivity extends BaseActivity {
 
     private static final String TAG = LoginActivity.class.toString();
 
-    public static final boolean AUTOMATIC_LOGIN = true; // If you don't want to login
+    public static final boolean AUTOMATIC_LOGIN = false; // If you don't want to login
     public static final String DEFAULT_EMAIL = "dds@project.com";
     public static final String DEFAULT_PASSWORD = "ddsproject";
 
@@ -50,6 +50,7 @@ public class LoginActivity extends BaseActivity {
         mEmailEditText = (EditText) findViewById(R.id.usernameEditText);
         mPasswordEditText = (EditText) findViewById(R.id.passwordEditText);
         Button login = (Button) findViewById(R.id.loginButton);
+        Button register = (Button) findViewById(R.id.createButton);
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,10 +64,18 @@ public class LoginActivity extends BaseActivity {
                 checkLogin();
             }
         });
+
+        register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(i);
+                finish();
+            }
+        });
     }
 
     private void checkLogin() {
-        showProgressDialog();
         mEmailEditText.setError(null);
         mPasswordEditText.setError(null);
 
@@ -92,6 +101,7 @@ public class LoginActivity extends BaseActivity {
             hideProgressDialog();
             failed.requestFocus();
         } else {
+            showProgressDialog();
             mFirebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
