@@ -85,7 +85,6 @@ public class RegisterActivity extends BaseActivity {
             focusView.requestFocus();
         } else {
             doRegister(email, password);
-
         }
     }
 

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -25,7 +26,7 @@ import dds.project.meet.R;
 public class LoginActivity extends BaseActivity {
 
     private static final String TAG = LoginActivity.class.toString();
-    public static final int REQUEST_CODE = 0;
+    private static final int REQUEST_CODE = 0;
 
     public static final boolean AUTOMATIC_LOGIN = false; // If you don't want to login
     public static final String DEFAULT_EMAIL = "dds@project.com";
@@ -43,7 +44,7 @@ public class LoginActivity extends BaseActivity {
 
         if (mFirebaseAuth.getCurrentUser() != null) {
             Log.d(TAG, "User is logged in! Launching MainActivity");
-            goToMainActivity();
+            loginCompleted(true);
         }
         Log.d(TAG, "User is not logged in");
 
@@ -57,10 +58,12 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 if (AUTOMATIC_LOGIN) {
-                    doSignIn(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-                } else {
-                    checkFieldsAndSignIn();
+                    mEmailEditText.getText().clear();
+                    mPasswordEditText.getText().clear();
+                    mEmailEditText.getText().append(DEFAULT_EMAIL);
+                    mPasswordEditText.getText().append(DEFAULT_PASSWORD);
                 }
+                checkLogin();
             }
         });
 
@@ -73,7 +76,7 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
-    private void checkFieldsAndSignIn() {
+    private void checkLogin() {
         mEmailEditText.setError(null);
         mPasswordEditText.setError(null);
 
@@ -105,20 +108,18 @@ public class LoginActivity extends BaseActivity {
 
     private void doSignIn(String email, String password) {
         showProgressDialog();
-
         mFirebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
 
                 if (task.isSuccessful()) {
-                    goToMainActivity();
+                    loginCompleted(true);
                 } else {
                     String text =
                             isThePhoneConnected()
                                     ? "Incorrect email or password"
                                     : "You are not connected";
 
-                    hideProgressDialog();
                     Toast.makeText(LoginActivity.this, text, Toast.LENGTH_SHORT).show();
                     mEmailEditText.getText().clear();
                     mPasswordEditText.getText().clear();
@@ -137,10 +138,12 @@ public class LoginActivity extends BaseActivity {
         return password.length() > 4;
     }
 
-    public void goToMainActivity() {
+    public void loginCompleted(boolean finish) {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
-        finish();
+        if (finish) {
+            finish();
+        }
     }
 
     @Override
