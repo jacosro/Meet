@@ -125,8 +125,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void undoDeletion() {
-        dataCards.add(originator.getState());
-        adapterCards.notifyDataSetChanged();
+        addCard(originator.getState());
     }
 
 
