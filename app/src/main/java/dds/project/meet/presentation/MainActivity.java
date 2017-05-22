@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 
 import dds.project.meet.logic.command.AddCardCommand;
@@ -75,6 +77,21 @@ public class MainActivity extends AppCompatActivity {
         TextView numberCards = (TextView) findViewById(R.id.numberCards);
         numberCards.setText(adapterCards.getItemCount() + " events waiting for you");
         loadCards();
+
+        findViewById(R.id.mainMeetTitle).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                doSignOut();
+                return true;
+            }
+        });
+    }
+
+    private void doSignOut() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private ItemTouchHelper.Callback createHelperCallback(){
