@@ -1,5 +1,6 @@
 package dds.project.meet.presentation;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,6 +26,7 @@ import dds.project.meet.R;
 public class LoginActivity extends BaseActivity {
 
     private static final String TAG = LoginActivity.class.toString();
+    private static final int REQUEST_CODE = 0;
 
     public static final boolean AUTOMATIC_LOGIN = false; // If you don't want to login
     public static final String DEFAULT_EMAIL = "dds@project.com";
@@ -69,8 +71,7 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(i);
-                finish();
+                startActivityForResult(i, REQUEST_CODE);
             }
         });
     }
@@ -101,23 +102,32 @@ public class LoginActivity extends BaseActivity {
             hideProgressDialog();
             failed.requestFocus();
         } else {
-            showProgressDialog();
-            mFirebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-
-                    if (task.isSuccessful()) {
-                        loginCompleted(true);
-                    } else {
-                        Toast.makeText(LoginActivity.this, "Incorrect email or password, please try again", Toast.LENGTH_SHORT).show();
-                        mEmailEditText.getText().clear();
-                        mPasswordEditText.getText().clear();
-                        hideProgressDialog();
-                    }
-
-                }
-            });
+            doSignIn(email, password);
         }
+    }
+
+    private void doSignIn(String email, String password) {
+        showProgressDialog();
+        mFirebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+
+                if (task.isSuccessful()) {
+                    loginCompleted(true);
+                } else {
+                    String text =
+                            isThePhoneConnected()
+                                    ? "Incorrect email or password"
+                                    : "You are not connected";
+
+                    Toast.makeText(LoginActivity.this, text, Toast.LENGTH_SHORT).show();
+                    mEmailEditText.getText().clear();
+                    mPasswordEditText.getText().clear();
+                    hideProgressDialog();
+                }
+
+            }
+        });
     }
 
     private boolean isEmailOK(String email) {
@@ -133,6 +143,18 @@ public class LoginActivity extends BaseActivity {
         startActivity(intent);
         if (finish) {
             finish();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            if (intent != null && intent.getExtras() != null) {
+                String email = intent.getExtras().getString("email");
+                String password = intent.getExtras().getString("password");
+
+                doSignIn(email, password);
+            }
         }
     }
 }
