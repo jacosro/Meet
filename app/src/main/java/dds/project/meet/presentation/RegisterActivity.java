@@ -1,5 +1,6 @@
 package dds.project.meet.presentation;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -83,29 +84,40 @@ public class RegisterActivity extends BaseActivity {
         if (cancel) {
             focusView.requestFocus();
         } else {
-            showProgressDialog();
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        loginOK();
-                    } else {
-                        String text =
-                                isThePhoneConnected()
-                                    ? "Email already registered"
-                                    : "You are not connected";
+            doRegister(email, password);
 
-                        hideProgressDialog();
-                        Toast.makeText(RegisterActivity.this, text, Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
         }
     }
 
-    private void loginOK() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+    private void doRegister(final String email, final String password) {
+        showProgressDialog();
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    loginOK(email, password);
+                } else {
+                    String text =
+                            isThePhoneConnected()
+                                    ? "Email already registered"
+                                    : "You are not connected";
+
+                    hideProgressDialog();
+                    Toast.makeText(RegisterActivity.this, text, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void loginOK(String email, String password) {
+        Bundle bundle = new Bundle();
+        bundle.putString("email", email);
+        bundle.putString("password", password);
+
+        Intent intent = new Intent();
+        intent.putExtras(bundle);
+
+        setResult(Activity.RESULT_OK, intent);
         finish();
     }
 

@@ -40,7 +40,7 @@
                     android:layout_height="match_parent"
                     android:backgroundTint="#FFFFFF"
                     android:fontFamily="Roboto"
-                    android:text="@string/statusNotifications"
+                    android:text=""
                     android:textAllCaps="false"
                     android:textColor="#ffffff"
                     android:textSize="18sp" />
@@ -74,7 +74,7 @@
                     android:layout_height="match_parent"
                     android:backgroundTint="#FFFFFF"
                     android:fontFamily="Roboto"
-                    android:text="@string/statusDirections"
+                    android:text=""
                     android:textAllCaps="false"
                     android:textColor="#ffffff"
                     android:textSize="18sp" />
@@ -197,7 +197,7 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
-            android:text="@string/default_event_date"
+            android:text=""
             android:textColor="@color/cardview_shadow_start_color"
             android:textSize="14sp"
             app:layout_constraintHorizontal_bias="0.498"
@@ -214,7 +214,7 @@
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
-            android:text="@string/default_event_time"
+            android:text=""
             android:textColor="#55A89D"
             android:textSize="24sp"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -229,7 +229,7 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
-            android:text="@string/default_event_name"
+            android:text=""
             android:textColor="@color/cardview_dark_background"
             android:textSize="24sp"
             app:layout_constraintHorizontal_bias="0.497"
@@ -247,7 +247,7 @@
             android:layout_marginStart="24dp"
             android:layout_marginTop="8dp"
             android:fontFamily="Roboto"
-            android:text="@string/default_event_description"
+            android:text=""
             android:textAlignment="center"
             android:textColor="#50000000"
             app:layout_constraintHorizontal_bias="0.0"
@@ -287,13 +287,14 @@
                 android:id="@+id/imageView2"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                app:srcCompat="@drawable/location" />
+            />
+            <!--app:srcCompat="@drawable/location" -->
 
             <TextView
                 android:id="@+id/location_map"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/default_event_location" />
+                android:text="" />
         </LinearLayout>
 
         <TextView
@@ -304,7 +305,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="24dp"
             android:alpha="0.7"
-            android:text="@string/statusDistanceLabel"
+            android:text=""
             android:textSize="16dp"
             app:layout_constraintLeft_toRightOf="@+id/statusProfile"
             app:layout_constraintTop_toBottomOf="@+id/participantsMenu" />
@@ -314,7 +315,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="25dp"
-            android:text="@string/statusDefaultDistance"
+            android:text=""
             android:textSize="30dp"
             app:layout_constraintLeft_toRightOf="@+id/statusProfile"
             app:layout_constraintTop_toBottomOf="@+id/textView7"
@@ -344,7 +345,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/statusDefaultCarTime"
+                android:text=""
                 android:textColor="@color/colorPrimary"
                 tools:layout_editor_absoluteX="285dp"
                 tools:layout_editor_absoluteY="732dp" />
@@ -376,7 +377,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/statusDefaultCarTime"
+                android:text=""
                 android:textColor="@color/colorPrimary"
                 tools:layout_editor_absoluteX="285dp"
                 tools:layout_editor_absoluteY="732dp" />

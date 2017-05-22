@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 
 import dds.project.meet.logic.command.AddCardCommand;
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     static ArrayList<Card> dataCards;
     public Originator originator;
     public CareTaker careTaker;
+    private Card removedCard;
 
 
     @Override
@@ -46,8 +49,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerCards = (RecyclerView) findViewById(R.id.recycler_cards);
 
         dataCards = new ArrayList<Card>();
-
-
 
         recyclerCards.setHasFixedSize(true);
         layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -68,13 +69,29 @@ public class MainActivity extends AppCompatActivity {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
         itemTouchHelper.attachToRecyclerView(recyclerCards);
 
-        //Memento tools declaration
+        //Memento
         originator = new Originator();
         careTaker = new CareTaker();
 
+        loadCards();
+
         TextView numberCards = (TextView) findViewById(R.id.numberCards);
         numberCards.setText(adapterCards.getItemCount() + " events waiting for you");
-        loadCards();
+
+        findViewById(R.id.mainMeetTitle).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                doSignOut();
+                return true;
+            }
+        });
+    }
+
+    private void doSignOut() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        FirebaseAuth.getInstance().signOut();
+        startActivity(intent);
+        finish();
     }
 
     private ItemTouchHelper.Callback createHelperCallback(){
@@ -89,15 +106,10 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
-                        Card aux = dataCards.get(viewHolder.getAdapterPosition());
-                        String name = aux.getName();
-
-                        originator.setState(aux);
-                        careTaker.add(originator.saveStateToMemento());
-
+                        removedCard = dataCards.get(viewHolder.getAdapterPosition());
                         deleteCard(viewHolder.getAdapterPosition());
-                        Snackbar undoDelete = Snackbar.make(findViewById(R.id.drawer_layout), name , Snackbar.LENGTH_LONG);
-                        undoDelete.setAction("RESTORE", new View.OnClickListener() {
+                        Snackbar undoDelete = Snackbar.make(findViewById(R.id.drawer_layout), "Card deleted", Snackbar.LENGTH_LONG);
+                        undoDelete.setAction("UNDO", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 undoDeletion();
@@ -125,8 +137,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void undoDeletion() {
-        dataCards.add(originator.getState());
-        adapterCards.notifyDataSetChanged();
+        addCard(removedCard);
     }
 
 
@@ -157,31 +168,6 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        switch (id){
-            case R.id.nav_home:
-
-                break;
-            case R.id.nav_spaces:
-
-                break;
-            case R.id.nav_contacts:
-
-                break;
-            case R.id.nav_focus:
-
-                break;
-        }
-
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     public void loadCards() {
