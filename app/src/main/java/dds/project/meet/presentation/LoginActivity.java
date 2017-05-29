@@ -17,6 +17,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 import dds.project.meet.R;
+import dds.project.meet.persistence.Persistence;
 
 
 /**
@@ -40,7 +41,7 @@ public class LoginActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseAuth = Persistence.getAuth();
 
         if (mFirebaseAuth.getCurrentUser() != null) {
             Log.d(TAG, "User is logged in! Launching MainActivity");

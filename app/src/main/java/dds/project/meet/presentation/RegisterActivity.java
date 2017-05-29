@@ -16,6 +16,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 import dds.project.meet.R;
+import dds.project.meet.persistence.Persistence;
 
 public class RegisterActivity extends BaseActivity {
 
@@ -90,7 +91,7 @@ public class RegisterActivity extends BaseActivity {
 
     private void doRegister(final String email, final String password) {
         showProgressDialog();
-        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        Persistence.getAuth().createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {

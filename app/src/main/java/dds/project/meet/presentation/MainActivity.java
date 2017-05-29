@@ -28,6 +28,7 @@ import dds.project.meet.R;
 import dds.project.meet.logic.Card;
 import dds.project.meet.logic.CardAdapter;
 import dds.project.meet.logic.RecyclerItemClickListener;
+import dds.project.meet.persistence.Persistence;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void doSignOut() {
-        FirebaseAuth.getInstance().signOut();
+        Persistence.getAuth().signOut();
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
         finish();
