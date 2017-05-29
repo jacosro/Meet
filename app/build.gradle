@@ -45,9 +45,6 @@ repositories {
 dependencies {
     compile 'com.makeramen:roundedimageview:2.3.0'
 }
-dependencies {
-    compile 'com.android.support.constraint:constraint-layout:+'
-}
 
 dependencies {
     compile 'com.google.firebase:firebase-auth:10.2.6'
