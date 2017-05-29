@@ -29,7 +29,7 @@ import dds.project.meet.R;
  * Created by RaulCoroban on 24/04/2017.
  */
 
-public class EventActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class EventActivity extends BaseActivity implements OnMapReadyCallback {
 
     GoogleMap map;
     boolean defaultMap = true;
