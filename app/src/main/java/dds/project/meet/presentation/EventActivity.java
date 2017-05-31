@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,8 +60,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
 
         dataParticipant = new ArrayList<Participant>();
 
-
-
         recyclerParticipants.setHasFixedSize(true);
         layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerParticipants.setLayoutManager(layoutManagerCards);
@@ -95,7 +94,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     private void initMap() {
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
-
+        Log.d("MAP_READY", "InitMap");
     }
 
     public boolean googleServicesOK() {
@@ -133,6 +132,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
                 .position(new LatLng(latitude, longitude));
         map.addMarker(mo);
         Toast.makeText(this, "Perfect!", Toast.LENGTH_SHORT).show();
+        Log.d("MAP_READY", "Searched");
     }
 
     @Override
@@ -141,6 +141,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         if(defaultMap) {
             try {
                 geoLocate("london");
+                Log.d("MAP_READY", "Everything Ok");
             } catch (IOException e) {
                 e.printStackTrace();
             }
