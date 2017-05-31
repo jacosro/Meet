@@ -6,6 +6,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,9 +24,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import dds.project.meet.R;
+import dds.project.meet.logic.Card;
+import dds.project.meet.logic.CardAdapter;
+import dds.project.meet.logic.Participant;
+import dds.project.meet.logic.ParticipantAdapter;
+import dds.project.meet.logic.ParticipantOnEventAdapter;
+import dds.project.meet.logic.RecyclerItemClickListener;
 
 /**
  * Created by RaulCoroban on 24/04/2017.
@@ -35,10 +45,31 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     boolean defaultMap = true;
     String locationEvent;
 
+    RecyclerView recyclerParticipants;
+    ArrayList<Participant> dataParticipant;
+    private RecyclerView.LayoutManager layoutManagerCards;
+    public static RecyclerView.Adapter adapterCards;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_activity);
+
+        recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
+
+        dataParticipant = new ArrayList<Participant>();
+
+
+
+        recyclerParticipants.setHasFixedSize(true);
+        layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerParticipants.setLayoutManager(layoutManagerCards);
+
+        adapterCards = new ParticipantOnEventAdapter(dataParticipant, this);
+        recyclerParticipants.setAdapter(adapterCards);
+        dataParticipant.add(new Participant("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
+        dataParticipant.add(new Participant("Maria Bahilo", "Aqui", "654765876", "porlando@gmail.com"));
+        dataParticipant.add(new Participant("Sandra Castillo", "Aqui", "654765876", "porlando@gmail.com"));
 
         Intent intent = getIntent();
 
