@@ -43,7 +43,6 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
-        android:layout_marginTop="0dp"
         android:backgroundTint="@color/accent"
         android:fontFamily="Roboto"
         android:stateListAnimator="@null"
@@ -131,7 +130,6 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="0dp"
         android:gravity="top|center"
         android:orientation="horizontal"
         app:layout_constraintHorizontal_bias="0.0"
@@ -237,78 +235,40 @@
 
     </LinearLayout>
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/cardViewf"
+    <TextView
+        android:id="@+id/fieldsCompleted"
         android:layout_width="300dp"
-        android:layout_height="25dp"
-        android:layout_marginEnd="8dp"
+        android:layout_height="30dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="12dp"
-        android:backgroundTint="#fee7f0"
-        android:foregroundGravity="center"
-        app:cardCornerRadius="13dp"
-        app:cardElevation="0dp"
-        app:cardPreventCornerOverlap="true"
-        app:layout_constraintHorizontal_bias="0.494"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/round_button_pink_light"
+        android:gravity="center"
+        android:text="Don't worry, you can modify the event later"
+        android:textAlignment="center"
+        android:textColor="@color/accent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/fieldsCompleted"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="You still have some fields to complete"
-                android:textAlignment="center"
-                android:textColor="@color/accent" />
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
-
-    <android.support.v7.widget.CardView
-        android:id="@+id/cardView"
+    <Button
+        android:id="@+id/cancelButton"
+        style="@style/WhiteButton"
         android:layout_width="150dp"
         android:layout_height="40dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="12dp"
-        android:backgroundTint="#10000000"
-        android:foregroundGravity="center"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="0dp"
-        app:cardPreventCornerOverlap="true"
-        app:layout_constraintHorizontal_bias="0.497"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/round_button_light"
+        android:fontFamily="Roboto"
+        android:text="Cancel"
+        android:textAllCaps="false"
+        android:textColor="#A0000000"
+        android:textSize="18sp"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardViewf">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <Button
-                android:id="@+id/cancelButton"
-                style="@style/WhiteButton"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:fontFamily="Roboto"
-                android:text="Cancel"
-                android:textAllCaps="false"
-                android:textColor="#A0000000"
-                android:textSize="18sp" />
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
+        app:layout_constraintTop_toBottomOf="@+id/fieldsCompleted" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/doneFAB"
@@ -349,16 +309,18 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="32dp"
         android:layout_marginRight="125dp"
-        android:layout_marginTop="0dp"
         android:maxLines="1"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameEditText">
+        app:layout_constraintTop_toBottomOf="@+id/nameEditText"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="125dp">
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:maxLines="1"
             android:hint="@string/where_to" />
     </android.support.design.widget.TextInputLayout>
 
