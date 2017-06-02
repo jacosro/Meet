@@ -47,6 +47,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
     ImageView eventImage;
     ImageButton photo, when, whatTime;
     RecyclerView recyclerParticipants;
+    TextInputLayout location;
 
     static ArrayList<Participant> dataMembers;
     RecyclerView.LayoutManager layoutManagerParticipants;
@@ -92,6 +93,8 @@ public class CreateNewEventActivity extends AppCompatActivity {
 
         doneFab = (FloatingActionButton) findViewById(R.id.doneFAB);
         doneFab.hide();
+
+        location = (TextInputLayout) findViewById(R.id.locationEditText);
     }
 
     @Override
@@ -138,8 +141,14 @@ public class CreateNewEventActivity extends AppCompatActivity {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 String minuteS = "", hourS = "";
-                if(minute < 10) minuteS =  "0" + minute;
-                if(hourOfDay < 10) hourS = "0" + hourOfDay;
+                if(minute < 10) {
+                    minuteS =  "0" + minute;
+                } else minuteS = minute + "";
+
+                if(hourOfDay < 10) {
+                    hourS = "0" + hourOfDay;
+                } else hourS = hourOfDay + "";
+
                 time = hourS + ":" + minuteS;
                 TextView tS = (TextView) findViewById(R.id.whatTimeLabel);
                 tS.setText(time + "h");
@@ -154,7 +163,6 @@ public class CreateNewEventActivity extends AppCompatActivity {
 
     public void donePressed() {
         TextInputLayout name = (TextInputLayout) findViewById(R.id.nameEditText);
-        TextInputLayout location = (TextInputLayout) findViewById(R.id.locationEditText);
         TextView tS = (TextView) findViewById(R.id.whatTimeLabel);
         TextView dS = (TextView) findViewById(R.id.whenLabel);
 
@@ -228,6 +236,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
                 adapterParticipants.notifyItemInserted(dataMembers.size());
                 TextView num = (TextView) findViewById(R.id.participantsNumber);
                 num.setText(dataMembers.size() + " participants");
+                recyclerParticipants.smoothScrollToPosition(dataMembers.size());
             }
         });
 
