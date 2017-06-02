@@ -29,7 +29,7 @@ public class LoginActivity extends BaseActivity {
     private static final String TAG = LoginActivity.class.toString();
     private static final int REQUEST_CODE = 0;
 
-    public static final boolean AUTOMATIC_LOGIN = false; // If you don't want to login
+    public static final boolean AUTOMATIC_LOGIN = true; // If you don't want to login
     public static final String DEFAULT_EMAIL = "dds@project.com";
     public static final String DEFAULT_PASSWORD = "ddsproject";
 
