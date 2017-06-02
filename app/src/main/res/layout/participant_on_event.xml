@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="65dp">
+    android:layout_height="70dp">
 
     <android.support.v7.widget.CardView
         android:id="@+id/cardView45"
@@ -46,11 +46,13 @@
         android:id="@+id/cardView2"
         android:layout_width="55dp"
         android:layout_height="55dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
         app:cardBackgroundColor="@color/colorPrimary"
         app:cardCornerRadius="27dp"
         app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -77,7 +79,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="16dp"
         android:text="@string/default_participant_name"
         android:textSize="20dp"
         app:layout_constraintLeft_toRightOf="@+id/cardView2"

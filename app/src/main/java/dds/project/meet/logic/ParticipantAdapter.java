@@ -1,6 +1,7 @@
 package dds.project.meet.logic;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,14 +32,16 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
         public TextView nameParticipant;
         public TextView acroParticipant;
         public TextView emailParticipant;
+        public CardView cardHolder;
         public Button b;
 
         public ViewHolder(View itemView) {
             super(itemView);
             nameParticipant = (TextView) itemView.findViewById(R.id.nameParticipant);
-            emailParticipant = (TextView) itemView.findViewById(R.id.emailParticipant);
+            //emailParticipant = (TextView) itemView.findViewById(R.id.emailParticipant);
             acroParticipant = (TextView) itemView.findViewById(R.id.acroParticipant);
             b = (Button) itemView.findViewById(R.id.button2);
+            cardHolder = (CardView) itemView.findViewById(R.id.cardViewHolder);
         }
     }
 
@@ -56,14 +60,11 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
     @Override
     public void onBindViewHolder(final ParticipantAdapter.ViewHolder holder, int position) {
         final String name = dataMembers.get(position).getName();
-        holder.nameParticipant.setText(name);
-        holder.emailParticipant.setText(dataMembers.get(position).getEmail());
-        holder.b.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        String [] first = name.split("\\s");
+        holder.nameParticipant.setText(first[0]);
+        //holder.emailParticipant.setText(dataMembers.get(position).getEmail());
 
-            }
-        });
+        holder.cardHolder.setCardBackgroundColor(setRandomColor());
 
 
         String[] split = name.split("\\s");
@@ -79,5 +80,12 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
     @Override
     public int getItemCount() {
         return dataMembers.size();
+    }
+
+    private int setRandomColor() {
+        int [] colors = {0xFFF3A356,0xFF5BB397,0xFF528fdb,0xFF9A69E4,0xFFEDB64D};
+        Random r = new Random();
+        int selectColor = r.nextInt(colors.length);
+        return colors[selectColor];
     }
 }

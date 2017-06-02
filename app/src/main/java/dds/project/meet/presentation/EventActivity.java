@@ -51,6 +51,8 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     private RecyclerView.LayoutManager layoutManagerCards;
     public static RecyclerView.Adapter adapterCards;
 
+    String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +62,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
 
         dataParticipant = new ArrayList<Participant>();
 
-        recyclerParticipants.setHasFixedSize(true);
+        recyclerParticipants.setHasFixedSize(false);
         layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerParticipants.setLayoutManager(layoutManagerCards);
 
@@ -78,7 +80,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         TextView locationMap = (TextView) findViewById(R.id.location_map);
         nameEvent.setText(intent.getStringExtra("EXTRA_NAME"));
         timeEvent.setText(intent.getStringExtra("EXTRA_TIME"));
-        dateEvent.setText(intent.getStringExtra("EXTRA_DATE"));
+        dateEvent.setText(intent.getIntExtra("EXTRA_DATE_DAY", 0) + " " + months[intent.getIntExtra("EXTRA_DATE_MONTH", 0)]);
         locationMap.setText(intent.getStringExtra("EXTRA_LOCATION"));
 
         if(locationEvent != null) defaultMap = false;
