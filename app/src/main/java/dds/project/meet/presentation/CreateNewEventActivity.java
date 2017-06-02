@@ -67,7 +67,6 @@ public class CreateNewEventActivity extends AppCompatActivity {
         dataMembers = new ArrayList<Participant>();
         loadMembers();
 
-
         recyclerParticipants.setHasFixedSize(true);
 
         layoutManagerParticipants = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);

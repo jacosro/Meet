@@ -52,7 +52,7 @@ public class LoginActivity extends BaseActivity {
         setContentView(R.layout.login);
         mEmailEditText = (EditText) findViewById(R.id.usernameEditText);
         mPasswordEditText = (EditText) findViewById(R.id.passwordEditText);
-        Button login = (Button) findViewById(R.id.loginButton);
+        final Button login = (Button) findViewById(R.id.loginButton);
         Button register = (Button) findViewById(R.id.createButton);
 
         login.setOnClickListener(new View.OnClickListener() {
