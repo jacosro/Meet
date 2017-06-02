@@ -6,6 +6,10 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,9 +25,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import dds.project.meet.R;
+import dds.project.meet.logic.Card;
+import dds.project.meet.logic.CardAdapter;
+import dds.project.meet.logic.Participant;
+import dds.project.meet.logic.ParticipantAdapter;
+import dds.project.meet.logic.ParticipantOnEventAdapter;
+import dds.project.meet.logic.RecyclerItemClickListener;
 
 /**
  * Created by RaulCoroban on 24/04/2017.
@@ -35,10 +46,31 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     boolean defaultMap = true;
     String locationEvent;
 
+    RecyclerView recyclerParticipants;
+    ArrayList<Participant> dataParticipant;
+    private RecyclerView.LayoutManager layoutManagerCards;
+    public static RecyclerView.Adapter adapterCards;
+
+    String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_activity);
+
+        recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
+
+        dataParticipant = new ArrayList<Participant>();
+
+        recyclerParticipants.setHasFixedSize(false);
+        layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerParticipants.setLayoutManager(layoutManagerCards);
+
+        adapterCards = new ParticipantOnEventAdapter(dataParticipant, this);
+        recyclerParticipants.setAdapter(adapterCards);
+        dataParticipant.add(new Participant("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
+        dataParticipant.add(new Participant("Maria Bahilo", "Aqui", "654765876", "porlando@gmail.com"));
+        dataParticipant.add(new Participant("Sandra Castillo", "Aqui", "654765876", "porlando@gmail.com"));
 
         Intent intent = getIntent();
 
@@ -48,7 +80,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         TextView locationMap = (TextView) findViewById(R.id.location_map);
         nameEvent.setText(intent.getStringExtra("EXTRA_NAME"));
         timeEvent.setText(intent.getStringExtra("EXTRA_TIME"));
-        dateEvent.setText(intent.getStringExtra("EXTRA_DATE"));
+        dateEvent.setText(intent.getIntExtra("EXTRA_DATE_DAY", 0) + " " + months[intent.getIntExtra("EXTRA_DATE_MONTH", 0)]);
         locationMap.setText(intent.getStringExtra("EXTRA_LOCATION"));
 
         if(locationEvent != null) defaultMap = false;
@@ -64,7 +96,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     private void initMap() {
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
-
+        Log.d("MAP_READY", "InitMap");
     }
 
     public boolean googleServicesOK() {
@@ -102,6 +134,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
                 .position(new LatLng(latitude, longitude));
         map.addMarker(mo);
         Toast.makeText(this, "Perfect!", Toast.LENGTH_SHORT).show();
+        Log.d("MAP_READY", "Searched");
     }
 
     @Override
@@ -110,6 +143,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         if(defaultMap) {
             try {
                 geoLocate("london");
+                Log.d("MAP_READY", "Everything Ok");
             } catch (IOException e) {
                 e.printStackTrace();
             }

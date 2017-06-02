@@ -3,18 +3,13 @@ package dds.project.meet.logic;
 import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import dds.project.meet.R;
 
@@ -22,7 +17,7 @@ import dds.project.meet.R;
  * Created by RaulCoroban on 28/04/2017.
  */
 
-public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.ViewHolder> {
+public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantOnEventAdapter.ViewHolder> {
 
     private ArrayList<Participant> dataMembers;
     Context context;
@@ -31,41 +26,37 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
 
         public TextView nameParticipant;
         public TextView acroParticipant;
-        public TextView emailParticipant;
-        public CardView cardHolder;
-        public Button b;
+        public TextView distanceParticipant;
+        public CardView c;
 
         public ViewHolder(View itemView) {
             super(itemView);
             nameParticipant = (TextView) itemView.findViewById(R.id.nameParticipant);
-            //emailParticipant = (TextView) itemView.findViewById(R.id.emailParticipant);
+            distanceParticipant = (TextView) itemView.findViewById(R.id.distanceParticipant);
             acroParticipant = (TextView) itemView.findViewById(R.id.acroParticipant);
-            b = (Button) itemView.findViewById(R.id.button2);
-            cardHolder = (CardView) itemView.findViewById(R.id.cardViewHolder);
+            c = (CardView) itemView.findViewById(R.id.cardView2);
         }
     }
 
-    public ParticipantAdapter(ArrayList<Participant> myyDataset, Context context){
+    public ParticipantOnEventAdapter(ArrayList<Participant> myyDataset, Context context){
         dataMembers = myyDataset;
         this.context = context;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.participant, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.participant_on_event, parent, false);
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
 
     @Override
-    public void onBindViewHolder(final ParticipantAdapter.ViewHolder holder, int position) {
-        final String name = dataMembers.get(position).getName();
-        String [] first = name.split("\\s");
-        holder.nameParticipant.setText(first[0]);
-        //holder.emailParticipant.setText(dataMembers.get(position).getEmail());
+    public void onBindViewHolder(ParticipantOnEventAdapter.ViewHolder holder, int position) {
+        String name = dataMembers.get(position).getName();
+        holder.nameParticipant.setText(name);
+        //holder.distanceParticipant.setText(dataMembers.get(position).getEmail());
 
-        holder.cardHolder.setCardBackgroundColor(setRandomColor());
-
+        holder.c.setCardBackgroundColor(setRandomColor());
 
         String[] split = name.split("\\s");
         String initials;

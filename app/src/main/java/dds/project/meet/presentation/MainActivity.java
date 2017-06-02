@@ -1,6 +1,7 @@
 package dds.project.meet.presentation;
 
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -13,8 +14,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
@@ -50,7 +49,13 @@ public class MainActivity extends AppCompatActivity {
 
         dataCards = new ArrayList<Card>();
 
-
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createCard(v);
+            }
+        });
 
         recyclerCards.setHasFixedSize(true);
         layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -76,8 +81,8 @@ public class MainActivity extends AppCompatActivity {
         careTaker = new CareTaker();
 
         TextView numberCards = (TextView) findViewById(R.id.numberCards);
-        numberCards.setText(adapterCards.getItemCount() + " events waiting for you");
         loadCards();
+        numberCards.setText(dataCards.size() + " upcoming event(s)");
 
         findViewById(R.id.mainMeetTitle).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -114,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                         careTaker.add(originator.saveStateToMemento());
 
                         deleteCard(viewHolder.getAdapterPosition());
-                        Snackbar undoDelete = Snackbar.make(findViewById(R.id.drawer_layout), name , Snackbar.LENGTH_LONG);
+                        Snackbar undoDelete = Snackbar.make(findViewById(R.id.drawer_layout), "\"" + name + "\"" + " deleted" , Snackbar.LENGTH_LONG);
                         undoDelete.setAction("RESTORE", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -202,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadCards() {
-        Card one = new Card("10:30", "21 Mar." , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5);
+        Card one = new Card("10:30", 12 , 3 , 2016 , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5);
         Command addCard = new AddCardCommand(recyclerCards.getAdapter(), dataCards, one);
         addCard.execute();
     }
@@ -222,7 +227,9 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("EXTRA_LOCATION", card.getLocation());
         intent.putExtra("EXTRA_TIME", card.getTime());
         intent.putExtra("EXTRA_LOCATION", card.getLocation());
-        intent.putExtra("EXTRA_DATE", card.getDate());
+        intent.putExtra("EXTRA_DATE_DAY", card.getDateDay());
+        intent.putExtra("EXTRA_DATE_MONTH", card.getDateMonth());
+        intent.putExtra("EXTRA_DATE_YEAR", card.getDateYear());
 
         startActivity(intent);
     }

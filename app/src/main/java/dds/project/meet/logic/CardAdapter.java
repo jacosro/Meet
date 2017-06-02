@@ -67,11 +67,12 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
     //Mostar info 1 a 1
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        String[] months = {"Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."};
         holder.itemView.setTag(position);
         holder.name.setText(mDataset.get(position).getName());
         holder.location.setText(mDataset.get(position).getLocation());
         holder.time.setText(mDataset.get(position).getTime());
-        holder.date.setText(mDataset.get(position).getDate());
+        holder.date.setText(mDataset.get(position).getDateDay() + " " + months[mDataset.get(position).getDateMonth()]);
         holder.pers.setText(mDataset.get(position).getPersons() + " pers.");
         holder.km.setText(mDataset.get(position).getKm() + " km");
         //Uri img = Uri.parse(mDataset.get(position).getImage());

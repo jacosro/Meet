@@ -9,11 +9,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
+import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
@@ -49,6 +52,9 @@ public class CreateNewEventActivity extends AppCompatActivity {
     RecyclerView.LayoutManager layoutManagerParticipants;
     ParticipantAdapter adapterParticipants;
 
+    private static int day, month, year;
+    private FloatingActionButton doneFab;
+
     String[] months = {"Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."};
     static final int SELECTED_PICTURE = 1;
 
@@ -61,9 +67,10 @@ public class CreateNewEventActivity extends AppCompatActivity {
         dataMembers = new ArrayList<Participant>();
         loadMembers();
 
+
         recyclerParticipants.setHasFixedSize(true);
 
-        layoutManagerParticipants = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        layoutManagerParticipants = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerParticipants.setLayoutManager(layoutManagerParticipants);
 
         adapterParticipants = new ParticipantAdapter(dataMembers, this);
@@ -80,6 +87,12 @@ public class CreateNewEventActivity extends AppCompatActivity {
 
         setListeners();
 
+        adapterParticipants.notifyDataSetChanged();
+        TextView num = (TextView) findViewById(R.id.participantsNumber);
+        num.setText(dataMembers.size() + " participants");
+
+        doneFab = (FloatingActionButton) findViewById(R.id.doneFAB);
+        doneFab.hide();
     }
 
     @Override
@@ -103,6 +116,10 @@ public class CreateNewEventActivity extends AppCompatActivity {
         DatePickerDialog cal = new DatePickerDialog(CreateNewEventActivity.this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                CreateNewEventActivity.day = dayOfMonth;
+                CreateNewEventActivity.month = month;
+                CreateNewEventActivity.year = year; // <-- TODO Refactor
+
                 date = dayOfMonth + " " + months[month];
                 TextView dS = (TextView) findViewById(R.id.whenLabel);
                 dS.setText(date);
@@ -121,15 +138,20 @@ public class CreateNewEventActivity extends AppCompatActivity {
         TimePickerDialog cal = new TimePickerDialog(CreateNewEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                time = hourOfDay + ":" + minute;
+                String minuteS = "", hourS = "";
+                if(minute < 10) minuteS =  "0" + minute;
+                if(hourOfDay < 10) hourS = "0" + hourOfDay;
+                time = hourS + ":" + minuteS;
                 TextView tS = (TextView) findViewById(R.id.whatTimeLabel);
                 tS.setText(time + "h");
                 whatTime.setImageResource(R.drawable.clocks);
+                doneFab.show();
             }
         },mHour, mMinutes, false);
         cal.show();
 
     }
+
 
     public void donePressed() {
         TextInputLayout name = (TextInputLayout) findViewById(R.id.nameEditText);
@@ -137,7 +159,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
         TextView tS = (TextView) findViewById(R.id.whatTimeLabel);
         TextView dS = (TextView) findViewById(R.id.whenLabel);
 
-        Card newEvent = CardFactory.getCard(tS.getText().toString(), dS.getText().toString() , name.getEditText().getText().toString(), location.getEditText().getText().toString(), 0, 0);
+        Card newEvent = CardFactory.getCard(tS.getText().toString(), day, month, year , name.getEditText().getText().toString(), location.getEditText().getText().toString(), dataMembers.size(), 34);
         MainActivity.dataCards.add(newEvent); // <- TODO Refactor to startActivityForResult in MainActivity
         MainActivity.adapterCards.notifyDataSetChanged();
 
@@ -148,6 +170,10 @@ public class CreateNewEventActivity extends AppCompatActivity {
         dataMembers.add(new Participant("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
         dataMembers.add(new Participant("Maria Alpuente", "Alli", "654765876", "malpuente@gmail.com"));
         dataMembers.add(new Participant("Mario Bros", "Alla", "654765876", "mgomezbors@gmail.com"));
+        dataMembers.add(new Participant("Cameron Luigi", "Alla", "654765876", "mgomezbors@gmail.com"));
+        dataMembers.add(new Participant("Toad Bahilo", "Alla", "654765876", "mgomezbors@gmail.com"));
+        dataMembers.add(new Participant("Diango Bros", "Alla", "654765876", "mgomezbors@gmail.com"));
+        dataMembers.add(new Participant("Esteban Bros", "Alla", "654765876", "mgomezbors@gmail.com"));
     }
 
     public void setListeners() {
@@ -194,11 +220,13 @@ public class CreateNewEventActivity extends AppCompatActivity {
             }
         });
 
-        Button addPersons = (Button) findViewById(R.id.manageParticipants);
+        final Button addPersons = (Button) findViewById(R.id.manageParticipants);
         addPersons.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                addPersons.clearAnimation();
                 dataMembers.add(new Participant("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
+                adapterParticipants.notifyItemInserted(dataMembers.size());
                 TextView num = (TextView) findViewById(R.id.participantsNumber);
                 num.setText(dataMembers.size() + " participants");
             }
@@ -210,13 +238,24 @@ public class CreateNewEventActivity extends AppCompatActivity {
             public void onClick(View v) {
                 TextInputLayout locationEditText = (TextInputLayout) findViewById(R.id.locationEditText);
                 try {
-                    String dir = locationEditText.getEditText().getText().toString();
+                    final String dir = locationEditText.getEditText().getText().toString();
                     if(validateLocation(dir)) {
-                        Toast.makeText(CreateNewEventActivity.this, "Correct location", Toast.LENGTH_SHORT).show();
+                        Log.d("LOCATION", "Correct Location");
                         TextInputLayout location = (TextInputLayout) findViewById(R.id.locationEditText);
                         location.getEditText().setText(getExactLocationName(dir));
                     } else {
-                        Toast.makeText(CreateNewEventActivity.this, "Hmmm... try another location", Toast.LENGTH_SHORT).show();
+                        Snackbar retry = Snackbar.make(findViewById(R.id.create_event_layout), "Location not found" , Snackbar.LENGTH_LONG);
+                        retry.setAction("RETRY", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                try {
+                                    validateLocation(dir);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        retry.show();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

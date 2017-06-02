@@ -6,16 +6,20 @@ package dds.project.meet.logic;
 
 public class Card {
     private String time;
-    private String date;
+    private int dateDay;
+    private int dateMonth;
+    private int dateYear;
     private String name;
     private String location;
     private int persons;
     private int km;
     private String image;
 
-    public Card(String time, String date, String name, String location, int persons, int km) {
+    public Card(String time, int dateDay, int dateMonth, int dateYear, String name, String location, int persons, int km) {
         this.time = time;
-        this.date = date;
+        this.dateDay = dateDay;
+        this.dateMonth = dateMonth;
+        this.dateYear = dateYear;
         this.name = name;
         this.location = location;
         this.persons = persons;
@@ -30,12 +34,28 @@ public class Card {
         this.time = time;
     }
 
-    public String getDate() {
-        return date;
+    public int getDateDay() {
+        return dateDay;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDateDay(int dateDay) {
+        this.dateDay = dateDay;
+    }
+
+    public int getDateMonth() {
+        return dateMonth;
+    }
+
+    public void setDateMonth(int dateMonth) {
+        this.dateMonth = dateMonth;
+    }
+
+    public int getDateYear() {
+        return dateYear;
+    }
+
+    public void setDateYear(int dateYear) {
+        this.dateYear = dateYear;
     }
 
     public String getName() {
