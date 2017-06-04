@@ -5,9 +5,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import dds.project.meet.R;
 
@@ -27,7 +29,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
         public TextView km;
         public TextView pers;
         public TextView date;
-        //public ImageView image;
+        public ImageView image;
 
         public ViewHolder(View v) {
             super(v);
@@ -43,7 +45,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
             km = (TextView) v.findViewById(R.id.distance);
             pers = (TextView) v.findViewById(R.id.personsnumber);
             date = (TextView) v.findViewById(R.id.date);
-            //image = (ImageView) v.findViewById(R.id.eventImageView);
+            image = (ImageView) v.findViewById(R.id.eventImageView);
         }
 
     }
@@ -75,8 +77,6 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
         holder.date.setText(mDataset.get(position).getDateDay() + " " + months[mDataset.get(position).getDateMonth()]);
         holder.pers.setText(mDataset.get(position).getPersons() + " pers.");
         holder.km.setText(mDataset.get(position).getKm() + " km");
-        //Uri img = Uri.parse(mDataset.get(position).getImage());
-        //holder.image.setImageURI(img);
 
     }
 

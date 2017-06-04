@@ -17,6 +17,7 @@
     <string name="title_activity_real">real</string>
     <string name="username_label">Email</string>
     <string name="password_label">Password</string>
+    <string name="password_confirm_label">Repeat Password</string>
     <string name="title_activity_register">RegisterActivity</string>
     <string name="create_account">Create Account</string>
     <string name="login">Login</string>

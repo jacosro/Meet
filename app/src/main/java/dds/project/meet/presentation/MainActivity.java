@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     static ArrayList<Card> dataCards;
     public Originator originator;
     public CareTaker careTaker;
+    private TextView numberCards;
 
 
     @Override
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         originator = new Originator();
         careTaker = new CareTaker();
 
-        TextView numberCards = (TextView) findViewById(R.id.numberCards);
+        numberCards = (TextView) findViewById(R.id.numberCards);
         loadCards();
         numberCards.setText(dataCards.size() + " upcoming event(s)");
 
@@ -135,11 +136,13 @@ public class MainActivity extends AppCompatActivity {
     private void addCard(Card card) {
         Command addCard = new AddCardCommand(recyclerCards.getAdapter(), dataCards, card);
         addCard.execute();
+        numberCards.setText(dataCards.size() + " upcoming event(s)");
     }
 
     private void deleteCard(int adapterPosition) {
         Command deleteCard = new RemoveCardCommand(recyclerCards.getAdapter(), dataCards, adapterPosition);
         deleteCard.execute();
+        numberCards.setText(dataCards.size() + " upcoming event(s)");
     }
 
     private void moveCard(int adapterPositionOld, int adapterPositionNew) {
@@ -208,8 +211,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadCards() {
         Card one = new Card("10:30", 12 , 3 , 2016 , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5);
+        Card two = new Card("14:55", 17 , 5 , 2017 , "Comida La Vella", "ETSINF UPV", 7, 2);
         Command addCard = new AddCardCommand(recyclerCards.getAdapter(), dataCards, one);
         addCard.execute();
+
+        Command addCard2 = new AddCardCommand(recyclerCards.getAdapter(), dataCards, two);
+        addCard2.execute();
     }
 
     public void createCard(View v) {
