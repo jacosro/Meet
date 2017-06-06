@@ -2,14 +2,21 @@ package dds.project.meet.presentation;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,12 +53,15 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     boolean defaultMap = true;
     String locationEvent;
 
+    ImageButton back;
+
     RecyclerView recyclerParticipants;
     ArrayList<Participant> dataParticipant;
     private RecyclerView.LayoutManager layoutManagerCards;
     public static RecyclerView.Adapter adapterCards;
 
     String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,21 +90,37 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         TextView locationMap = (TextView) findViewById(R.id.location_map);
         nameEvent.setText(intent.getStringExtra("EXTRA_NAME"));
         timeEvent.setText(intent.getStringExtra("EXTRA_TIME"));
-        dateEvent.setText(intent.getIntExtra("EXTRA_DATE_DAY", 0) + " " + months[intent.getIntExtra("EXTRA_DATE_MONTH", 0)]);
+        dateEvent.setText(intent.getIntExtra("EXTRA_DATE_DAY", 0) + "" + correctSuperScript(intent.getIntExtra("EXTRA_DATE_DAY", 0)) + " " + months[intent.getIntExtra("EXTRA_DATE_MONTH", 0)]);
         locationMap.setText(intent.getStringExtra("EXTRA_LOCATION"));
 
-        if(locationEvent != null) defaultMap = false;
+        //if(locationEvent != null) defaultMap = false;
+
+
 
         if(googleServicesOK()) {
-            initMap();
+            //initMap();
         } else {
             Toast.makeText(this, "No map available", Toast.LENGTH_LONG).show();
         }
 
+        back = (ImageButton) findViewById(R.id.backButton);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish(); // <-- TODO Keep in memory?
+            }
+        });
+
+    }
+
+    private String correctSuperScript(int day) {
+        if(day > 20 && day % 10 == 1) return "st";
+        if(day > 20 && day % 10 == 2) return "nd";
+        return "th";
     }
 
     private void initMap() {
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
         Log.d("MAP_READY", "InitMap");
     }
@@ -140,20 +166,20 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        if(defaultMap) {
+
             try {
                 geoLocate("london");
                 Log.d("MAP_READY", "Everything Ok");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else {
+
             try {
                 geoLocate(locationEvent);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+
     }
 
 }

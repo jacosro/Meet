@@ -6,7 +6,6 @@
         <item name="colorPrimary">#673AB7</item>
         <item name="colorPrimaryDark">#55A89D</item>
         <item name="colorAccent">#FF4081</item>
-        <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">#55A89D</item>-->
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>

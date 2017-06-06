@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="32dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="68dp"
         android:text="@string/new_event"
         android:textAlignment="viewStart"
         android:textColor="@color/colorPrimary"
@@ -27,7 +27,6 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="48dp"
         android:alpha="0.1"
         android:fontFamily="Roboto"
         android:text="@string/friends"
@@ -35,7 +34,7 @@
         android:textColor="@color/colorPrimary"
         android:textSize="50sp"
         app:layout_constraintLeft_toRightOf="@+id/textView2"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/textView2" />
 
     <Button
         android:id="@+id/searchLocation"
@@ -215,7 +214,6 @@
                 android:layout_height="91dp"
                 android:backgroundTint="#00FFFFFF"
                 android:scaleType="fitXY"
-                android:tint="@color/colorPrimary"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -297,7 +295,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView2">
 
         <EditText
-            android:id="@+id/EditText2"
+            android:id="@+id/editTextName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/event_name" />
@@ -318,10 +316,11 @@
         android:layout_marginEnd="125dp">
 
         <EditText
+            android:id="@+id/editTextLocation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:hint="@string/where_to" />
+            android:hint="@string/where_to"
+            android:maxLines="1" />
     </android.support.design.widget.TextInputLayout>
 
 </android.support.constraint.ConstraintLayout>

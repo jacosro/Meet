@@ -4,7 +4,7 @@
     android:viewportWidth="194"
     android:viewportHeight="194">
     <path
-        android:fillColor="#ffffff"
+        android:fillColor="#53a39f"
         android:name="Ellipse 8 copy"
         android:pathData="m97 0c53.57 0 97 43.43 97 97c0 53.57 -43.43 97 -97 97c-53.57 0 -97 -43.43 -97 -97c0 -53.57 43.43 -97 97 -97z" />
     <path

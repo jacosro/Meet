@@ -2,6 +2,7 @@ package dds.project.meet.logic;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,10 +75,16 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
         holder.name.setText(mDataset.get(position).getName());
         holder.location.setText(mDataset.get(position).getLocation());
         holder.time.setText(mDataset.get(position).getTime());
-        holder.date.setText(mDataset.get(position).getDateDay() + " " + months[mDataset.get(position).getDateMonth()]);
+        holder.date.setText(mDataset.get(position).getDateDay() + "" + correctSuperScript(mDataset.get(position).getDateDay()) + " " + months[mDataset.get(position).getDateMonth()]);
         holder.pers.setText(mDataset.get(position).getPersons() + " pers.");
         holder.km.setText(mDataset.get(position).getKm() + " km");
 
+    }
+
+    private String correctSuperScript(int day) {
+        if(day > 20 && day % 10 == 1) return "st";
+        if(day > 20 && day % 10 == 2) return "nd";
+        return "th";
     }
 
     @Override
