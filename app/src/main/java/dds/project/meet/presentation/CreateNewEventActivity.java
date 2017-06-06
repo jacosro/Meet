@@ -109,7 +109,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
         dataMembers.add(new Participant("Cameron Luigi", "Alla", "654765876", "mgomezbors@gmail.com"));
         dataMembers.add(new Participant("Toad Bahilo", "Alla", "654765876", "mgomezbors@gmail.com"));
         dataMembers.add(new Participant("Diango Bros", "Alla", "654765876", "mgomezbors@gmail.com"));
-        dataMembers.add(new Participant("Esteban Bros", "Alla", "654765876", "mgomezbors@gmail.com"));
+        dataMembers.add(new Participant("Esteban Brosa", "Alla", "654765876", "mgomezbors@gmail.com"));
         adapterParticipants.notifyDataSetChanged();
     }
 
