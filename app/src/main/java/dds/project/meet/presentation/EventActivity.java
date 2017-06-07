@@ -59,7 +59,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     private TextView timeEvent;
     private TextView dateEvent;
     private TextView locationMap;
-    private SupportMapFragment mapFragment;
+    private SupportMapFragment googleMap;
 
     //Class fields
     private String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
@@ -76,7 +76,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         locationMap = (TextView) findViewById(R.id.location_map);
         back = (ImageButton) findViewById(R.id.backButton);
 
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
+        googleMap = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
 
         dataParticipant = new ArrayList<Participant>();
         recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
@@ -99,7 +99,9 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
 
 
         if(googleServicesOK()) {
-            initMap();
+            Log.d("MAP_READY", "Enterning...");
+            googleMap.getMapAsync(this);
+            Log.d("MAP_READY", "InitMap");
         } else {
             Toast.makeText(this, "No map available", Toast.LENGTH_LONG).show();
         }
@@ -126,11 +128,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         return "th";
     }
 
-    private void initMap() {
-
-        mapFragment.getMapAsync(this);
-        Log.d("MAP_READY", "InitMap");
-    }
 
     public boolean googleServicesOK() {
         GoogleApiAvailability api = GoogleApiAvailability.getInstance();
@@ -172,16 +169,10 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        map = googleMap;
-
-            try {
-                geoLocate("london");
-                Log.d("MAP_READY", "Everything Ok");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
+        LatLng sydney = new LatLng(-33.852, 151.211);
+        googleMap.addMarker(new MarkerOptions().position(sydney)
+                .title("Marker in Sydney"));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
 }

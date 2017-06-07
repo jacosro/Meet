@@ -230,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
         Command addCard2 = new AddCardCommand(recyclerCards.getAdapter(), dataCards, two);
         addCard2.execute();
 
+        numberCards.setText(dataCards.size() + " upcoming event(s)");
         adapterCards.notifyDataSetChanged();
     }
 
