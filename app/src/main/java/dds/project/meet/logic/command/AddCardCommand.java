@@ -22,7 +22,7 @@ import dds.project.meet.persistence.Persistence;
 
 public class AddCardCommand implements Command {
 
-    private FirebaseDatabase database;
+    private Persistence mPersistence;
     private RecyclerView.Adapter adapter;
     private List<Card> dataSet;
     private Card card;
@@ -37,7 +37,7 @@ public class AddCardCommand implements Command {
         this.dataSet = dataSet;
         this.card = card;
         this.position = position;
-        this.database = Persistence.getDB();
+        this.mPersistence = Persistence.getInstance();
     }
 
     @Override
@@ -52,6 +52,7 @@ public class AddCardCommand implements Command {
         }
 
         // Add card to database
+        /*
         int id = 0;
         Log.d("AddCardCommand", "Adding to database");
         database.getReference().child("cards").runTransaction(new Transaction.Handler() {
@@ -78,5 +79,6 @@ public class AddCardCommand implements Command {
                 }
             }
         });
+        */
     }
 }

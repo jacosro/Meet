@@ -95,7 +95,7 @@ public class RegisterActivity extends BaseActivity {
 
     private void doRegister(final String email, final String password) {
         showProgressDialog();
-        Persistence.getAuth().createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        mPersistence.createNewUser(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
@@ -106,11 +106,12 @@ public class RegisterActivity extends BaseActivity {
                                     ? "Email already registered"
                                     : "You are not connected";
 
-                    hideProgressDialog();
                     Toast.makeText(RegisterActivity.this, text, Toast.LENGTH_SHORT).show();
+                    hideProgressDialog();
                 }
             }
         });
+
     }
 
     private void loginOK(String email, String password) {

@@ -38,7 +38,7 @@ import dds.project.meet.logic.CardAdapter;
 import dds.project.meet.logic.RecyclerItemClickListener;
 import dds.project.meet.persistence.Persistence;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     // UI elements
     private TextView numberCards;
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void doSignOut() {
-        Persistence.getAuth().signOut();
+        mPersistence.doSignOut();
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
         finish();

@@ -7,10 +7,13 @@ import android.support.annotation.VisibleForTesting;
 import android.support.v4.net.ConnectivityManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 
+import dds.project.meet.persistence.Persistence;
+
 public class BaseActivity extends AppCompatActivity {
 
     @VisibleForTesting
     public ProgressDialog mProgressDialog;
+    public Persistence mPersistence = Persistence.getInstance();
 
     public void showProgressDialog() {
         if (mProgressDialog == null) {
