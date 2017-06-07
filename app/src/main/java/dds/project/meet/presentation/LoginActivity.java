@@ -33,7 +33,6 @@ public class LoginActivity extends BaseActivity {
     public static final String DEFAULT_EMAIL = "dds@project.com";
     public static final String DEFAULT_PASSWORD = "ddsproject";
 
-    public FirebaseAuth mFirebaseAuth;
     public EditText mEmailEditText;
     public EditText mPasswordEditText;
 
@@ -41,11 +40,9 @@ public class LoginActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mFirebaseAuth = Persistence.getAuth();
-
-        if (mFirebaseAuth.getCurrentUser() != null) {
+        if (mPersistence.getCurrentUser() != null) {
             Log.d(TAG, "User is logged in! Launching MainActivity");
-            loginCompleted(true);
+            loginCompleted();
         }
         Log.d(TAG, "User is not logged in");
 
@@ -109,12 +106,12 @@ public class LoginActivity extends BaseActivity {
 
     private void doSignIn(String email, String password) {
         showProgressDialog();
-        mFirebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+
+        mPersistence.doLogin(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-
                 if (task.isSuccessful()) {
-                    loginCompleted(true);
+                    loginCompleted();
                 } else {
                     String text =
                             isThePhoneConnected()
@@ -126,9 +123,9 @@ public class LoginActivity extends BaseActivity {
                     mPasswordEditText.getText().clear();
                     hideProgressDialog();
                 }
-
             }
         });
+
     }
 
     private boolean isEmailOK(String email) {
@@ -139,12 +136,10 @@ public class LoginActivity extends BaseActivity {
         return password.length() > 4;
     }
 
-    public void loginCompleted(boolean finish) {
+    public void loginCompleted() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
-        if (finish) {
-            finish();
-        }
+        finish();
     }
 
     @Override
