@@ -51,34 +51,7 @@ public class AddCardCommand implements Command {
             adapter.notifyItemInserted(adapter.getItemCount() - 1);
         }
 
-        // Add card to database
-        /*
-        int id = 0;
-        Log.d("AddCardCommand", "Adding to database");
-        database.getReference().child("cards").runTransaction(new Transaction.Handler() {
-            @Override
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                if (mutableData.getValue() == null) {
-                    Log.d("AddCardCommand", "mutable data is null. Setting value to 1");
-                    mutableData.setValue(1);
-                } else {
-                    int count = mutableData.getValue(Integer.class);
-                    mutableData.setValue(count + 1);
-                    Log.d("AddCardCommand", "mutable data is " + count + ". Setting value to "+ (count + 1));
-                }
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(DatabaseError databaseError, boolean success, DataSnapshot dataSnapshot) {
-                if (success) {
-                    Log.d("AddCardCommand", dataSnapshot.getValue().toString());
-                } else {
-                    Log.d("AddCardCommand", databaseError.getMessage());
-                    Log.d("AddCardCommand", "Menuda puta mierda");
-                }
-            }
-        });
-        */
+        // Add to database
+        mPersistence.addCard(card);
     }
 }

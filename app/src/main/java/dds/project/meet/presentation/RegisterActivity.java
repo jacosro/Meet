@@ -27,6 +27,8 @@ public class RegisterActivity extends BaseActivity {
     private EditText mEmailView;
     private EditText mPasswordView;
     private EditText mPasswordConfirmView;
+    private EditText mUsernameView;
+    private EditText mPhoneNumberView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,8 @@ public class RegisterActivity extends BaseActivity {
         mEmailView = (EditText) findViewById(R.id.email_register);
         mPasswordView = (EditText) findViewById(R.id.password_register);
         mPasswordConfirmView = (EditText) findViewById(R.id.password_confirm_register);
+        mUsernameView = (EditText) findViewById(R.id.username_register);
+        mPhoneNumberView = (EditText) findViewById(R.id.telephone_register);
         Button mEmailSignInButton = (Button) findViewById(R.id.register_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -57,11 +61,15 @@ public class RegisterActivity extends BaseActivity {
         mEmailView.setError(null);
         mPasswordView.setError(null);
         mPasswordConfirmView.setError(null);
+        mPhoneNumberView.setError(null);
+        mUsernameView.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
         String confirmPassword = mPasswordConfirmView.getText().toString();
+        String phoneNumber = mPhoneNumberView.getText().toString();
+        String username = mUsernameView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -86,16 +94,28 @@ public class RegisterActivity extends BaseActivity {
             cancel = true;
         }
 
+        if (!isPhoneNumberOK(phoneNumber)) {
+            mPhoneNumberView.setError("Please provide a valid phone number (Spain)");
+            focusView = mPhoneNumberView;
+            cancel = true;
+        }
+
+        if (!isUsernameOK(username)) {
+            mUsernameView.setError("Username already registered");
+            focusView = mUsernameView;
+            cancel = true;
+        }
+
         if (cancel) {
             focusView.requestFocus();
         } else {
-            doRegister(email, password);
+            doRegister(email, password, username, phoneNumber);
         }
     }
 
-    private void doRegister(final String email, final String password) {
+    private void doRegister(final String email, final String password, final String userName, final String phoneNumber) {
         showProgressDialog();
-        mPersistence.createNewUser(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        mPersistence.createNewUser(email, password, userName, phoneNumber).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
@@ -132,6 +152,14 @@ public class RegisterActivity extends BaseActivity {
 
     private boolean isPasswordOK(String password) {
         return password.length() > 4;
+    }
+
+    private boolean isUsernameOK(String username) {
+        return !username.matches(".*\\s.*"); // && !mPersistence.isUsernameTaken(username);
+    }
+
+    private boolean isPhoneNumberOK(String phoneNumber) {
+        return phoneNumber.length() == 9 && phoneNumber.matches("(6|7)[0-9]+");
     }
 }
 

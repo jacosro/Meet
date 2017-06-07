@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import java.util.List;
 
 import dds.project.meet.logic.Card;
+import dds.project.meet.persistence.Persistence;
 
 import static dds.project.meet.presentation.MainActivity.adapterCards;
 
@@ -18,12 +19,14 @@ public class RemoveCardCommand implements Command {
     private List<Card> dataSet;
     private Card card;
     private int position;
+    private Persistence mPersistence;
 
     public RemoveCardCommand(RecyclerView.Adapter adapter, List<Card> dataSet, Card card) {
         this.adapter = adapter;
         this.dataSet = dataSet;
         this.card = card;
         this.position = -1;
+        mPersistence = Persistence.getInstance();
     }
 
     public RemoveCardCommand(RecyclerView.Adapter adapter, List<Card> dataSet, int position) {
@@ -43,5 +46,8 @@ public class RemoveCardCommand implements Command {
                 adapter.notifyItemRemoved(position);
             }
         }
+
+        // Remove from database
+        mPersistence.removeCard(card);
     }
 }
