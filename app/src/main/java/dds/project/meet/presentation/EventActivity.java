@@ -49,28 +49,38 @@ import dds.project.meet.logic.RecyclerItemClickListener;
 
 public class EventActivity extends BaseActivity implements OnMapReadyCallback {
 
-    GoogleMap map;
-    boolean defaultMap = true;
-    String locationEvent;
-
-    ImageButton back;
-
-    RecyclerView recyclerParticipants;
-    ArrayList<Participant> dataParticipant;
+    //UI elements
+    private ImageButton back;
+    private RecyclerView recyclerParticipants;
+    private ArrayList<Participant> dataParticipant;
     private RecyclerView.LayoutManager layoutManagerCards;
-    public static RecyclerView.Adapter adapterCards;
+    private RecyclerView.Adapter adapterCards;
+    private TextView nameEvent;
+    private TextView timeEvent;
+    private TextView dateEvent;
+    private TextView locationMap;
+    private SupportMapFragment mapFragment;
 
-    String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-
+    //Class fields
+    private String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+    private GoogleMap map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_activity);
 
-        recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
+        nameEvent = (TextView) findViewById(R.id.name_event);
+        timeEvent = (TextView) findViewById(R.id.time_event);
+        dateEvent = (TextView) findViewById(R.id.date_event);
+        locationMap = (TextView) findViewById(R.id.location_map);
+        back = (ImageButton) findViewById(R.id.backButton);
+
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
 
         dataParticipant = new ArrayList<Participant>();
+        recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
+
 
         recyclerParticipants.setHasFixedSize(false);
         layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -78,32 +88,23 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
 
         adapterCards = new ParticipantOnEventAdapter(dataParticipant, this);
         recyclerParticipants.setAdapter(adapterCards);
-        dataParticipant.add(new Participant("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
-        dataParticipant.add(new Participant("Maria Bahilo", "Aqui", "654765876", "porlando@gmail.com"));
-        dataParticipant.add(new Participant("Sandra Castillo", "Aqui", "654765876", "porlando@gmail.com"));
+
+        loadDefaultparticipants();
 
         Intent intent = getIntent();
-
-        TextView nameEvent = (TextView) findViewById(R.id.name_event);
-        TextView timeEvent = (TextView) findViewById(R.id.time_event);
-        TextView dateEvent = (TextView) findViewById(R.id.date_event);
-        TextView locationMap = (TextView) findViewById(R.id.location_map);
         nameEvent.setText(intent.getStringExtra("EXTRA_NAME"));
         timeEvent.setText(intent.getStringExtra("EXTRA_TIME"));
         dateEvent.setText(intent.getIntExtra("EXTRA_DATE_DAY", 0) + "" + correctSuperScript(intent.getIntExtra("EXTRA_DATE_DAY", 0)) + " " + months[intent.getIntExtra("EXTRA_DATE_MONTH", 0)]);
         locationMap.setText(intent.getStringExtra("EXTRA_LOCATION"));
 
-        //if(locationEvent != null) defaultMap = false;
-
-
 
         if(googleServicesOK()) {
-            //initMap();
+            initMap();
         } else {
             Toast.makeText(this, "No map available", Toast.LENGTH_LONG).show();
         }
 
-        back = (ImageButton) findViewById(R.id.backButton);
+
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,6 +114,12 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
 
     }
 
+    private void loadDefaultparticipants() {
+        dataParticipant.add(new Participant("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
+        dataParticipant.add(new Participant("Maria Bahilo", "Aqui", "654765876", "porlando@gmail.com"));
+        dataParticipant.add(new Participant("Sandra Castillo", "Aqui", "654765876", "porlando@gmail.com"));
+    }
+
     private String correctSuperScript(int day) {
         if(day > 20 && day % 10 == 1) return "st";
         if(day > 20 && day % 10 == 2) return "nd";
@@ -120,7 +127,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     private void initMap() {
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
+
         mapFragment.getMapAsync(this);
         Log.d("MAP_READY", "InitMap");
     }
@@ -174,11 +181,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
                 e.printStackTrace();
             }
 
-            try {
-                geoLocate(locationEvent);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
     }
 

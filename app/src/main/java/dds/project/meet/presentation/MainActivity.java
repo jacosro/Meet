@@ -1,6 +1,7 @@
 package dds.project.meet.presentation;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import dds.project.meet.logic.CardFactory;
 import dds.project.meet.logic.command.AddCardCommand;
 import dds.project.meet.logic.command.Command;
 import dds.project.meet.logic.command.MoveCardCommand;
@@ -38,15 +40,19 @@ import dds.project.meet.persistence.Persistence;
 
 public class MainActivity extends AppCompatActivity {
 
-    private DrawerLayout drawerLayout;
+    // UI elements
+    private TextView numberCards;
+    private FloatingActionButton fab;
     private RecyclerView recyclerCards;
     public static RecyclerView.Adapter adapterCards;
     private RecyclerView.LayoutManager layoutManagerCards;
 
+    private DrawerLayout drawerLayout;
+
+    // Class fields
     static ArrayList<Card> dataCards;
-    public Originator originator;
-    public CareTaker careTaker;
-    private TextView numberCards;
+    private Originator originator;
+    private CareTaker careTaker;
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -56,21 +62,28 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         recyclerCards = (RecyclerView) findViewById(R.id.recycler_cards);
-
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        numberCards = (TextView) findViewById(R.id.numberCards);
         dataCards = new ArrayList<Card>();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.mainMeetTitle).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
-                createCard(v);
+            public boolean onLongClick(View v) {
+                doSignOut();
+                return true;
             }
         });
 
+        //Memento tools declaration
+        originator = new Originator();
+        careTaker = new CareTaker();
+
+
+
+        //Initalize RecyclerView
         recyclerCards.setHasFixedSize(true);
         layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerCards.setLayoutManager(layoutManagerCards);
-
         adapterCards = new CardAdapter(dataCards, this);
         recyclerCards.setAdapter(adapterCards);
 
@@ -82,23 +95,17 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
         );
-        //Gestures
+
+        //Gestures RecyclerView
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
         itemTouchHelper.attachToRecyclerView(recyclerCards);
 
-        //Memento tools declaration
-        originator = new Originator();
-        careTaker = new CareTaker();
-
-        numberCards = (TextView) findViewById(R.id.numberCards);
         loadCards();
-        numberCards.setText(dataCards.size() + " upcoming event(s)");
 
-        findViewById(R.id.mainMeetTitle).setOnLongClickListener(new View.OnLongClickListener() {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
-                doSignOut();
-                return true;
+            public void onClick(View v) {
+                createCard(v);
             }
         });
     }
@@ -133,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                         undoDelete.setAction("RESTORE", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                undoDeletion();
+                                addCard(originator.getState());
                             }
                         });
                         undoDelete.show();
@@ -157,10 +164,6 @@ public class MainActivity extends AppCompatActivity {
     private void moveCard(int adapterPositionOld, int adapterPositionNew) {
         Command moveCard = new MoveCardCommand(recyclerCards.getAdapter(), dataCards, adapterPositionOld, adapterPositionNew);
         moveCard.execute();
-    }
-
-    private void undoDeletion() {
-        addCard(originator.getState());
     }
 
 
@@ -226,14 +229,13 @@ public class MainActivity extends AppCompatActivity {
 
         Command addCard2 = new AddCardCommand(recyclerCards.getAdapter(), dataCards, two);
         addCard2.execute();
+
+        adapterCards.notifyDataSetChanged();
     }
 
     public void createCard(View v) {
         Intent intent = new Intent(this, CreateNewEventActivity.class);
-        startActivity(intent);
-        /*Card c = new CardFactory().getCard();
-        dataCards.add(c);
-        adapterCards.notifyDataSetChanged();*/
+        startActivityForResult(intent, 0);
     }
 
     public void openEvent(Card card) {
@@ -248,6 +250,32 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("EXTRA_DATE_YEAR", card.getDateYear());
 
         startActivity(intent);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
+            if (intent != null) {
+                Bundle extras = intent.getExtras();
+                if (extras != null) {
+                    String name = extras.getString("name");
+                    int day = extras.getInt("day");
+                    int month = extras.getInt("month");
+                    int year = extras.getInt("year");
+                    String address = extras.getString("address");
+                    String whatTimeLabel = extras.getString("whatTimeLabel");
+                    int participantsNum = extras.getInt("participantsNum");
+                    int distance = extras.getInt("distance");
+
+                    Card newCard = CardFactory.getCard(whatTimeLabel, day, month, year, name, address, participantsNum, distance);
+                    Command addCard = new AddCardCommand(recyclerCards.getAdapter(), dataCards, newCard);
+                    addCard.execute();
+                    adapterCards.notifyDataSetChanged();
+                    recyclerCards.smoothScrollToPosition(dataCards.size());
+
+                }
+            }
+        }
     }
 
 }

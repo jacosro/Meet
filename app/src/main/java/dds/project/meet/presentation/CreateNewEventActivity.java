@@ -3,9 +3,7 @@ package dds.project.meet.presentation;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -21,17 +19,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,38 +44,80 @@ import dds.project.meet.logic.RecyclerItemClickListener;
 
 public class CreateNewEventActivity extends AppCompatActivity {
 
-    String date, time, uriString;
-    ImageView eventImage;
-    ImageButton photo, when, whatTime;
-    RecyclerView recyclerParticipants;
-    Context context = this;
+    public static final int SELECTED_PICTURE = 1;
+    public static final String TAG = "CreateNewEventActivity";
 
-    EditText editTextName, editTextLocation;
-    TextView num;
+    // UI Elements
+    private EditText editTextName, editTextLocation;
+    private TextView participantsNumberLabel;
+    private RecyclerView recyclerParticipants;
+    private TextInputLayout location;
+    private TextInputLayout name;
+    private TextView whenLabel;
+    private TextView whatTimeLabel;
+    public static ArrayList<Participant> dataMembers;
+    private RecyclerView.LayoutManager layoutManagerParticipants;
+    private ParticipantAdapter adapterParticipants;
 
-    Boolean timePicked = false;
-    Boolean datePicked = false;
-
-    static ArrayList<Participant> dataMembers;
-    RecyclerView.LayoutManager layoutManagerParticipants;
-    ParticipantAdapter adapterParticipants;
-
-    private static int day, month, year;
     private FloatingActionButton doneFab;
+    private Button cancel;
+    private Button addPersons;
+    private Button searchLocation;
 
-    String[] months = {"Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."};
-    static final int SELECTED_PICTURE = 1;
+
+    //Class fields
+    private String date, time, uriString;
+    private ImageButton photo, when, whatTime;
+    private Boolean timePicked = false;
+    private Boolean datePicked = false;
+
+    private int day, month, year;
+    private String[] months = {"Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_event);
 
-        num = (TextView) findViewById(R.id.participantsNumber);
+        participantsNumberLabel = (TextView) findViewById(R.id.participantsNumber);
         editTextName = (EditText) findViewById(R.id.editTextName);
         editTextLocation = (EditText) findViewById(R.id.editTextLocation);
+        when = (ImageButton) findViewById(R.id.whenButton);
+        whatTime = (ImageButton) findViewById(R.id.whatTimeButton);
+        photo = (ImageButton) findViewById(R.id.photoButton);
+        cancel = (Button) findViewById(R.id.cancelButton);
+        recyclerParticipants = (RecyclerView) findViewById(R.id.recyclerParticipants);
+        doneFab = (FloatingActionButton) findViewById(R.id.doneFAB);
+        addPersons = (Button) findViewById(R.id.manageParticipants);
+        searchLocation = (Button) findViewById(R.id.searchLocation);
+        location = (TextInputLayout) findViewById(R.id.locationEditText);
+        whenLabel = (TextView) findViewById(R.id.whenLabel);
+        whatTimeLabel= (TextView) findViewById(R.id.whatTimeLabel);
+        name = (TextInputLayout) findViewById(R.id.nameEditText);
+        dataMembers = new ArrayList<Participant>();
 
-        loadMembersRecyclerView();
+
+        recyclerParticipants.setHasFixedSize(true);
+
+        layoutManagerParticipants = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        recyclerParticipants.setLayoutManager(layoutManagerParticipants);
+
+        adapterParticipants = new ParticipantAdapter(dataMembers, this);
+        recyclerParticipants.setAdapter(adapterParticipants);
+
+        recyclerParticipants.addOnItemTouchListener(
+                new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        Participant p = dataMembers.get(position);
+                        dataMembers.remove(position);
+                        adapterParticipants.notifyDataSetChanged();
+                        participantsNumberLabel.setText(dataMembers.size() + " participants");
+                    }
+                })
+        );
+
+        adapterParticipants.notifyDataSetChanged();
+
         loadMembers();
 
         setListeners();
@@ -113,35 +148,10 @@ public class CreateNewEventActivity extends AppCompatActivity {
         adapterParticipants.notifyDataSetChanged();
     }
 
-    private void loadMembersRecyclerView() {
-        recyclerParticipants = (RecyclerView) findViewById(R.id.recyclerParticipants);
-        dataMembers = new ArrayList<Participant>();
-
-        recyclerParticipants.setHasFixedSize(true);
-
-        layoutManagerParticipants = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        recyclerParticipants.setLayoutManager(layoutManagerParticipants);
-
-        adapterParticipants = new ParticipantAdapter(dataMembers, this);
-        recyclerParticipants.setAdapter(adapterParticipants);
-
-        recyclerParticipants.addOnItemTouchListener(
-                new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override public void onItemClick(View view, int position) {
-                        Participant p = dataMembers.get(position);
-                        dataMembers.remove(position);
-                        adapterParticipants.notifyDataSetChanged();
-                        num.setText(dataMembers.size() + " participants");
-                    }
-                })
-        );
-
-        adapterParticipants.notifyDataSetChanged();
-    }
 
     public void setListeners() {
 
-        when = (ImageButton) findViewById(R.id.whenButton);
+
         when.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,7 +159,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
             }
         });
 
-        whatTime = (ImageButton) findViewById(R.id.whatTimeButton);
+
         whatTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -158,27 +168,26 @@ public class CreateNewEventActivity extends AppCompatActivity {
         });
 
 
-        FloatingActionButton done = (FloatingActionButton) findViewById(R.id.doneFAB);
-        done.setOnClickListener(new View.OnClickListener() {
+        photo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                ((Activity) v.getContext()).startActivityForResult(photoPickerIntent, SELECTED_PICTURE);
+            }
+        });
+
+
+
+        doneFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 donePressed();
             }
         });
 
-        photo = (ImageButton) findViewById(R.id.photoButton);
-        photo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                ((Activity) v.getContext()).startActivityForResult(photoPickerIntent, SELECTED_PICTURE);
-                //startActivityForResult(i, SELECTED_PICTURE);
-            }
-        });
+        doneFab.hide();
 
-        Button cancel = (Button) findViewById(R.id.cancelButton);
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -186,54 +195,50 @@ public class CreateNewEventActivity extends AppCompatActivity {
             }
         });
 
-        final Button addPersons = (Button) findViewById(R.id.manageParticipants);
+
         addPersons.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addPersons.clearAnimation();
                 dataMembers.add(new Participant("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
                 adapterParticipants.notifyItemInserted(dataMembers.size());
-                num.setText(dataMembers.size() + " participants");
+                participantsNumberLabel.setText(dataMembers.size() + " participants");
                 recyclerParticipants.smoothScrollToPosition(dataMembers.size());
             }
         });
 
-        Button searchLocation = (Button) findViewById(R.id.searchLocation);
+
         searchLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TextInputLayout locationEditText = (TextInputLayout) findViewById(R.id.locationEditText);
                 try {
-                    final String dir = locationEditText.getEditText().getText().toString();
-                    if(validateLocation(dir)) {
-                        Log.d("LOCATION", "Correct Location");
-                        TextInputLayout location = (TextInputLayout) findViewById(R.id.locationEditText);
-                        location.getEditText().setText(getExactLocationName(dir));
+                    final String dir = location.getEditText().getText().toString();
+                    String searchResult = getExactLocationName(dir);
+                    if (searchResult != null) {
+                        location.getEditText().setText(searchResult);
                     } else {
-                        Snackbar retry = Snackbar.make(findViewById(R.id.create_event_layout), "Location not found" , Snackbar.LENGTH_LONG);
+                        Snackbar retry = Snackbar.make(findViewById(R.id.create_event_layout), "Location not found", Snackbar.LENGTH_LONG);
                         retry.setAction("RETRY", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 try {
-                                    validateLocation(dir);
+                                    getExactLocationName(dir);
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    Log.e(TAG, e.getMessage());
                                 }
                             }
                         });
                         retry.show();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG,e.getMessage());
                 }
             }
         });
 
-        TextView num = (TextView) findViewById(R.id.participantsNumber);
-        num.setText(dataMembers.size() + " participants");
 
-        doneFab = (FloatingActionButton) findViewById(R.id.doneFAB);
-        doneFab.hide();
+        participantsNumberLabel.setText(dataMembers.size() + " participants");
+
     }
 
     public void pickDate() {
@@ -244,14 +249,13 @@ public class CreateNewEventActivity extends AppCompatActivity {
 
         DatePickerDialog cal = new DatePickerDialog(CreateNewEventActivity.this, new DatePickerDialog.OnDateSetListener() {
             @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                CreateNewEventActivity.day = dayOfMonth;
-                CreateNewEventActivity.month = month;
-                CreateNewEventActivity.year = year; // <-- TODO Refactor
+            public void onDateSet(DatePicker view, int newYear, int newMonth, int dayOfMonth) {
+                day = dayOfMonth;
+                month = newMonth;
+                year = newYear;
 
                 date = dayOfMonth + " " + months[month];
-                TextView dS = (TextView) findViewById(R.id.whenLabel);
-                dS.setText(date);
+                whenLabel.setText(date);
                 when.setImageResource(R.drawable.calendars);
                 datePicked = true;
             }
@@ -271,6 +275,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 String minuteS = "", hourS = "";
+
                 if(minute < 10) {
                     minuteS =  "0" + minute;
                 } else minuteS = minute + "";
@@ -280,8 +285,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
                 } else hourS = hourOfDay + "";
 
                 time = hourS + ":" + minuteS;
-                TextView tS = (TextView) findViewById(R.id.whatTimeLabel);
-                tS.setText(time + "h");
+                whatTimeLabel.setText(time + "h");
                 whatTime.setImageResource(R.drawable.clocks);
                 timePicked = true;
             }
@@ -291,32 +295,32 @@ public class CreateNewEventActivity extends AppCompatActivity {
         if (datePicked) doneFab.show();
     }
 
-    public boolean validateLocation(String location) throws IOException {
-        Geocoder gc = new Geocoder(this);
-        List<Address> list = gc.getFromLocationName(location, 1);
-        if (list.size() >= 1) return true;
-        return false;
-    }
-
     public String getExactLocationName(String location) throws IOException {
         Geocoder gc = new Geocoder(this);
         List<Address> list = gc.getFromLocationName(location, 1);
-        String ret = list.get(0).getAddressLine(0) + " " + list.get(0).getCountryName();
-        return ret;
+        if (list.size() >= 1) return list.get(0).getAddressLine(0) + " " + list.get(0).getCountryName();
+        return null;
     }
 
 
-
     public void donePressed() {
-        TextInputLayout name = (TextInputLayout) findViewById(R.id.nameEditText);
-        TextView tS = (TextView) findViewById(R.id.whatTimeLabel);
-        TextView dS = (TextView) findViewById(R.id.whenLabel);
-
-
         if (constraintsAreOk()) {
-            Card newEvent = CardFactory.getCard(tS.getText().toString(), day, month, year, trimLabel(name.getEditText().getText().toString(), 25), trimLabel(editTextLocation.getText().toString(), 35), dataMembers.size(), 34);
-            MainActivity.dataCards.add(newEvent); // <- TODO Refactor to startActivityForResult in MainActivity
-            MainActivity.adapterCards.notifyDataSetChanged();
+
+            Bundle result = new Bundle();
+
+            result.putString("name", name.getEditText().getText().toString());
+            result.putInt("day", day);
+            result.putInt("day", month);
+            result.putInt("day", year);
+            result.putString("whatTimeLabel", whatTimeLabel.getText().toString());
+            result.putString("address", trimLabel(editTextLocation.getText().toString(), 35));
+            result.putInt("participantsNum", dataMembers.size());
+            result.putInt("distance", 34);
+
+
+            Intent intent = new Intent();
+            intent.putExtras(result);
+            setResult(Activity.RESULT_OK, intent);
 
             finish();
         }
@@ -345,7 +349,6 @@ public class CreateNewEventActivity extends AppCompatActivity {
         }
 
         if (!timePicked || !datePicked) return false;
-
 
         return true;
     }
