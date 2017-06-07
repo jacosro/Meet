@@ -65,7 +65,8 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     //Class fields
     private String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
     private GoogleMap map;
-    private int day, month, year;
+    private int dayE, monthE, yearE;
+    private String nameE, timeE, locationE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,12 +96,16 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         loadDefaultparticipants();
 
         Intent intent = getIntent();
-        nameEvent.setText(intent.getStringExtra("EXTRA_NAME"));
-        timeEvent.setText(intent.getStringExtra("EXTRA_TIME"));
-        day = intent.getIntExtra("EXTRA_DATE_DAY", 0);
-        month = intent.getIntExtra("EXTRA_DATE_MONTH", 0);
-        dateEvent.setText(day + "" + correctSuperScript(day) + " " + months[intent.getIntExtra("EXTRA_DATE_MONTH", 0)]);
-        locationMap.setText(intent.getStringExtra("EXTRA_LOCATION"));
+        nameE = intent.getStringExtra("EXTRA_NAME");
+        timeE = intent.getStringExtra("EXTRA_TIME");
+        dayE = intent.getIntExtra("EXTRA_DATE_DAY", 0);
+        monthE = intent.getIntExtra("EXTRA_DATE_MONTH", 0);
+        locationE = intent.getStringExtra("EXTRA_LOCATION");
+
+        nameEvent.setText(nameE);
+        timeEvent.setText(timeE);
+        dateEvent.setText(dayE + "" + correctSuperScript(dayE) + " " + months[monthE]);
+        locationMap.setText(locationE);
 
 
         if(googleServicesOK()) {
@@ -124,12 +129,12 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
             public void onClick(View v) {
                 Intent toEventSettings = new Intent(EventActivity.this, SettingsEventActivity.class);
 
-                toEventSettings.putExtra("EXTRA_NAME", nameEvent.toString());
-                toEventSettings.putExtra("EXTRA_LOCATION", locationMap.toString());
-                toEventSettings.putExtra("EXTRA_TIME", timeEvent.toString());
-                toEventSettings.putExtra("EXTRA_DATE_DAY", day);
-                toEventSettings.putExtra("EXTRA_DATE_MONTH", month);
-                toEventSettings.putExtra("EXTRA_DATE_YEAR", year);
+                toEventSettings.putExtra("EXTRA_NAME", nameE);
+                toEventSettings.putExtra("EXTRA_LOCATION", locationE);
+                toEventSettings.putExtra("EXTRA_TIME", timeE);
+                toEventSettings.putExtra("EXTRA_DATE_DAY", dayE);
+                toEventSettings.putExtra("EXTRA_DATE_MONTH", monthE);
+                toEventSettings.putExtra("EXTRA_DATE_YEAR", yearE);
 
                 startActivity(toEventSettings);
             }

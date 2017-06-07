@@ -15,6 +15,7 @@
     <string name="title_activity_real_drawer">RealDrawer</string>
     <string name="title_activity_sidebar">Sidebar</string>
     <string name="title_activity_real">real</string>
+    <string name="title_activity_event_settings">real</string>
     <string name="username_label">Email</string>
     <string name="password_label">Password</string>
     <string name="password_confirm_label">Repeat Password</string>

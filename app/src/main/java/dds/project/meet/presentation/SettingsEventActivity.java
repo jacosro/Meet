@@ -23,7 +23,8 @@ public class SettingsEventActivity extends AppCompatActivity {
     private TextView whatTimeLabel;
 
     //Class fields
-    private String day, month, year;
+    private int day, month, year;
+    private String[] months = {"Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +38,13 @@ public class SettingsEventActivity extends AppCompatActivity {
 
         Intent fromEvent = getIntent();
 
+        day = fromEvent.getIntExtra("EXTRA_DATE_DAY", 0);
+        month = fromEvent.getIntExtra("EXTRA_DATE_MONTH", 0);
+        year = fromEvent.getIntExtra("EXTRA_DATE_YEAR", 0);
         editTextName.setText(fromEvent.getStringExtra("EXTRA_NAME"));
         editTextLocation.setText(fromEvent.getStringExtra("EXTRA_LOCATION"));
-        day = fromEvent.getStringExtra("EXTRA_DATE_DAY");
-        month = fromEvent.getStringExtra("EXTRA_DATE_MONTH");
-        year = fromEvent.getStringExtra("EXTRA_DATE_YEAR");
         whatTimeLabel.setText(fromEvent.getStringExtra("EXTRA_TIME"));
+        whenLabel.setText(day + " " + months[month]);
 
         /*when.setOnClickListener(new View.OnClickListener() {
             @Override
