@@ -59,7 +59,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     private TextView timeEvent;
     private TextView dateEvent;
     private TextView locationMap;
-    private SupportMapFragment googleMap;
+    private MapFragment googleMap;
 
     //Class fields
     private String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
@@ -76,7 +76,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         locationMap = (TextView) findViewById(R.id.location_map);
         back = (ImageButton) findViewById(R.id.backButton);
 
-        googleMap = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
+        googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
 
         dataParticipant = new ArrayList<Participant>();
         recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
