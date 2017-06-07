@@ -60,10 +60,12 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     private TextView dateEvent;
     private TextView locationMap;
     private MapFragment googleMap;
+    private Button settingsButton;
 
     //Class fields
     private String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
     private GoogleMap map;
+    private int day, month, year;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +77,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         dateEvent = (TextView) findViewById(R.id.date_event);
         locationMap = (TextView) findViewById(R.id.location_map);
         back = (ImageButton) findViewById(R.id.backButton);
+        settingsButton = (Button) findViewById(R.id.settingsButton);
 
         googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
 
@@ -94,7 +97,9 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         Intent intent = getIntent();
         nameEvent.setText(intent.getStringExtra("EXTRA_NAME"));
         timeEvent.setText(intent.getStringExtra("EXTRA_TIME"));
-        dateEvent.setText(intent.getIntExtra("EXTRA_DATE_DAY", 0) + "" + correctSuperScript(intent.getIntExtra("EXTRA_DATE_DAY", 0)) + " " + months[intent.getIntExtra("EXTRA_DATE_MONTH", 0)]);
+        day = intent.getIntExtra("EXTRA_DATE_DAY", 0);
+        month = intent.getIntExtra("EXTRA_DATE_MONTH", 0);
+        dateEvent.setText(day + "" + correctSuperScript(day) + " " + months[intent.getIntExtra("EXTRA_DATE_MONTH", 0)]);
         locationMap.setText(intent.getStringExtra("EXTRA_LOCATION"));
 
 
@@ -111,6 +116,22 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 finish(); // <-- TODO Keep in memory?
+            }
+        });
+
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent toEventSettings = new Intent(EventActivity.this, SettingsEventActivity.class);
+
+                toEventSettings.putExtra("EXTRA_NAME", nameEvent.toString());
+                toEventSettings.putExtra("EXTRA_LOCATION", locationMap.toString());
+                toEventSettings.putExtra("EXTRA_TIME", timeEvent.toString());
+                toEventSettings.putExtra("EXTRA_DATE_DAY", day);
+                toEventSettings.putExtra("EXTRA_DATE_MONTH", month);
+                toEventSettings.putExtra("EXTRA_DATE_YEAR", year);
+
+                startActivity(toEventSettings);
             }
         });
 
