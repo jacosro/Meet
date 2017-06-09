@@ -1,0 +1,121 @@
+package dds.project.meet.persistence.dao.implementations;
+
+import android.util.Log;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import dds.project.meet.logic.Card;
+import dds.project.meet.persistence.Persistence;
+import dds.project.meet.persistence.QueryCallback;
+import dds.project.meet.persistence.dao.models.ICardDAO;
+
+/**
+ * Created by jacosro on 9/06/17.
+ */
+
+public class CardDAOImpl implements ICardDAO {
+
+    private static final String TAG = "CardDAO";
+
+    private FirebaseDatabase mFirebaseDatabase;
+
+    public CardDAOImpl() {
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+    }
+
+
+
+    @Override
+    public void addCard(Card card, QueryCallback<Boolean> callback) {
+        DatabaseReference ref = mFirebaseDatabase.getReference().child("cards");
+        final String key = ref.push().getKey();
+        ref.child(key).setValue(card);
+
+        card.setDBKey(key);
+
+        // Add to uid_cards table
+        final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
+        final String cardName = card.getName();
+
+        mFirebaseDatabase.getReference().child("users/" + uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String username = dataSnapshot.child("username").getValue(String.class);
+
+                DatabaseReference root = mFirebaseDatabase.getReference();
+
+                // Add to card_users
+                root.child("card_users").child(key).child(uid).setValue(username);
+
+                // Add to user_cards
+                root.child("user_cards").child(uid).child(key).setValue(cardName);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "AddCard failed: " + databaseError);
+            }
+        });
+
+    }
+
+    @Override
+    public void addAllCards(Collection<Card> collection) {
+
+    }
+
+    @Override
+    public void removeCard(Card card, QueryCallback<Boolean> callback) {
+        String key = card.getDBKey();
+
+        if (key != null) {
+            DatabaseReference root = mFirebaseDatabase.getReference();
+
+            // Remove from cards
+            root.child("cards").child(key).removeValue();
+
+            // Remove from card_users
+            root.child("card_users").child(key).removeValue();
+        } else {
+            Log.d(TAG, "Key of Card " + card.getName() + " is null!");
+        }
+    }
+
+    @Override
+    public void getAllCards(final QueryCallback<Collection<Card>> callback) {
+        final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
+
+        DatabaseReference ref = mFirebaseDatabase.getReference();
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<Card> list = new ArrayList<Card>();
+
+                // For each card key
+                for (DataSnapshot key : dataSnapshot.child("user_cards").getChildren()) {
+                    Card card = dataSnapshot.child("cards").child(key.getKey()).getValue(Card.class);
+                    list.add(card);
+                    // todo: if I put the callback here, will it load card one by one in MainActivity?
+                }
+
+                callback.result(list);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "getAllCards error! " + databaseError);
+                callback.result(null);
+            }
+        });
+    }
+}

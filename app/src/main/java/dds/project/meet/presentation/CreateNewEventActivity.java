@@ -9,7 +9,6 @@ import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -32,9 +31,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.Card;
-import dds.project.meet.logic.CardFactory;
-import dds.project.meet.logic.Participant;
+import dds.project.meet.logic.User;
 import dds.project.meet.logic.ParticipantAdapter;
 import dds.project.meet.logic.RecyclerItemClickListener;
 import dds.project.meet.logic.command.AddCardCommand;
@@ -57,7 +54,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
     private TextInputLayout name;
     private TextView whenLabel;
     private TextView whatTimeLabel;
-    public static ArrayList<Participant> dataMembers;
+    public static ArrayList<User> dataMembers;
     private RecyclerView.LayoutManager layoutManagerParticipants;
     private ParticipantAdapter adapterParticipants;
 
@@ -96,7 +93,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
         whenLabel = (TextView) findViewById(R.id.whenLabel);
         whatTimeLabel= (TextView) findViewById(R.id.whatTimeLabel);
         name = (TextInputLayout) findViewById(R.id.nameEditText);
-        dataMembers = new ArrayList<Participant>();
+        dataMembers = new ArrayList<User>();
 
 
         recyclerParticipants.setHasFixedSize(true);
@@ -110,7 +107,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
         recyclerParticipants.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        Participant p = dataMembers.get(position);
+                        User p = dataMembers.get(position);
                         dataMembers.remove(position);
                         adapterParticipants.notifyDataSetChanged();
                         participantsNumberLabel.setText(dataMembers.size() + " participants");
@@ -140,13 +137,13 @@ public class CreateNewEventActivity extends AppCompatActivity {
     }
 
     public void loadMembers() {
-        dataMembers.add(new Participant("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
-        dataMembers.add(new Participant("Maria Alpuente", "Alli", "654765876", "malpuente@gmail.com"));
-        dataMembers.add(new Participant("Mario Bros", "Alla", "654765876", "mgomezbors@gmail.com"));
-        dataMembers.add(new Participant("Cameron Luigi", "Alla", "654765876", "mgomezbors@gmail.com"));
-        dataMembers.add(new Participant("Toad Bahilo", "Alla", "654765876", "mgomezbors@gmail.com"));
-        dataMembers.add(new Participant("Diango Bros", "Alla", "654765876", "mgomezbors@gmail.com"));
-        dataMembers.add(new Participant("Esteban Brosa", "Alla", "654765876", "mgomezbors@gmail.com"));
+        dataMembers.add(new User("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
+        dataMembers.add(new User("Maria Alpuente", "Alli", "654765876", "malpuente@gmail.com"));
+        dataMembers.add(new User("Mario Bros", "Alla", "654765876", "mgomezbors@gmail.com"));
+        dataMembers.add(new User("Cameron Luigi", "Alla", "654765876", "mgomezbors@gmail.com"));
+        dataMembers.add(new User("Toad Bahilo", "Alla", "654765876", "mgomezbors@gmail.com"));
+        dataMembers.add(new User("Diango Bros", "Alla", "654765876", "mgomezbors@gmail.com"));
+        dataMembers.add(new User("Esteban Brosa", "Alla", "654765876", "mgomezbors@gmail.com"));
         adapterParticipants.notifyDataSetChanged();
     }
 
@@ -202,7 +199,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 addPersons.clearAnimation();
-                dataMembers.add(new Participant("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
+                dataMembers.add(new User("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
                 adapterParticipants.notifyItemInserted(dataMembers.size());
                 participantsNumberLabel.setText(dataMembers.size() + " participants");
                 recyclerParticipants.smoothScrollToPosition(dataMembers.size());

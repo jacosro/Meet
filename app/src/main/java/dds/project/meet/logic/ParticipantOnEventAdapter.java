@@ -19,7 +19,7 @@ import dds.project.meet.R;
 
 public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantOnEventAdapter.ViewHolder> {
 
-    private ArrayList<Participant> dataMembers;
+    private ArrayList<User> dataMembers;
     Context context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -38,7 +38,7 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
         }
     }
 
-    public ParticipantOnEventAdapter(ArrayList<Participant> myyDataset, Context context){
+    public ParticipantOnEventAdapter(ArrayList<User> myyDataset, Context context){
         dataMembers = myyDataset;
         this.context = context;
     }
