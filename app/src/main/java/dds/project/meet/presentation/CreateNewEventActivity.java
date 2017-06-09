@@ -250,7 +250,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
                 AlertDialog dialog = mBuilder.create();
                 dialog.show();
 
-                RecyclerView recyclerContacts = (RecyclerView) mView.findViewById(R.id.contactRecyclerView);
+                final RecyclerView recyclerContacts = (RecyclerView) mView.findViewById(R.id.contactRecyclerView);
                 recyclerContacts.setHasFixedSize(true);
 
                 LinearLayoutManager layoutManagerContacts = new LinearLayoutManager(CreateNewEventActivity.this, LinearLayoutManager.VERTICAL, false);
@@ -263,7 +263,8 @@ public class CreateNewEventActivity extends AppCompatActivity {
                         new RecyclerItemClickListener(CreateNewEventActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
                             @Override public void onItemClick(View view, int position) {
                                 addContactToMembers(dataContacts.get(position));
-                                dataContacts.remove(position);
+                                recyclerContacts.setSelected(true);
+                                //dataContacts.remove(position);
                                 adapterContacts.notifyDataSetChanged();
                             }
                         })
