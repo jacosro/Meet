@@ -24,6 +24,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import dds.project.meet.logic.CardFactory;
 import dds.project.meet.logic.command.AddCardCommand;
@@ -37,6 +38,7 @@ import dds.project.meet.logic.Card;
 import dds.project.meet.logic.CardAdapter;
 import dds.project.meet.logic.RecyclerItemClickListener;
 import dds.project.meet.persistence.Persistence;
+import dds.project.meet.persistence.QueryCallback;
 
 public class MainActivity extends BaseActivity {
 
@@ -222,6 +224,8 @@ public class MainActivity extends BaseActivity {
     }
 
     public void loadCards() {
+
+        /*
         Card one = new Card("10:30", 12 , 3 , 2016 , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5);
         Card two = new Card("14:55", 17 , 5 , 2017 , "Comida La Vella", "ETSINF UPV", 7, 2);
         Command addCard = new AddCardCommand(recyclerCards.getAdapter(), dataCards, one);
@@ -229,9 +233,16 @@ public class MainActivity extends BaseActivity {
 
         Command addCard2 = new AddCardCommand(recyclerCards.getAdapter(), dataCards, two);
         addCard2.execute();
-
+        */
+        mPersistence.getAllCards(new QueryCallback<Collection<Card>>() {
+            @Override
+            public void result(Collection<Card> data) {
+                for (Card card : data) {
+                    new AddCardCommand(adapterCards, dataCards, card).execute();
+                }
+            }
+        });
         numberCards.setText(dataCards.size() + " upcoming event(s)");
-        adapterCards.notifyDataSetChanged();
     }
 
     public void createCard(View v) {

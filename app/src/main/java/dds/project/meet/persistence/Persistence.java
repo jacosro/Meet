@@ -1,15 +1,9 @@
 package dds.project.meet.persistence;
 
-import android.accessibilityservice.GestureDescription;
-import android.content.Context;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringDef;
 import android.util.Log;
 
-import com.google.android.gms.fitness.data.Goal;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,18 +12,15 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 
 import dds.project.meet.logic.Card;
-import dds.project.meet.logic.command.Command;
 
 /**
  * Created by jacosro on 29/05/17.
@@ -109,7 +100,7 @@ public class Persistence {
 
     }
 
-    public void getAllUsernames(final QueryCallback<List<String>> callback) {
+    public void getAllUsernames(final QueryCallback<Collection<String>> callback) {
         Log.d(TAG, "Getting all usernames");
 
         DatabaseReference ref = mFirebaseDatabase.getReference().child("allUsernames");
@@ -134,30 +125,37 @@ public class Persistence {
     }
 
     public void addCard(Card card) {
-        Map<String, Object> data = card.toMap();
-
         DatabaseReference ref = mFirebaseDatabase.getReference().child("cards");
         final String key = ref.push().getKey();
-        ref.child(key).updateChildren(data);
+        ref.child(key).setValue(card);
+
+        card.setDBKey(key);
 
         // Add to uid_cards table
         final String uid = getUser().getUid();
+        final String cardName = card.getName();
+
         mFirebaseDatabase.getReference().child("users/" + uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String username = dataSnapshot.child("username").getValue(String.class);
 
-                DatabaseReference ref = mFirebaseDatabase.getReference().child("card_users");
-                ref.child(key).child(uid).setValue(username);
+                DatabaseReference root = mFirebaseDatabase.getReference();
+
+                // Add to card_users
+                root.child("card_users").child(key).child(uid).setValue(username);
+
+                // Add to user_cards
+                root.child("user_cards").child(uid).child(key).setValue(cardName);
+
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                Log.d(TAG, "AddCard failed: " + databaseError);
             }
         });
 
-        card.setDBKey(key);
 
     }
 
@@ -177,5 +175,31 @@ public class Persistence {
         }
     }
 
+    public void getAllCards(final QueryCallback<Collection<Card>> callback) {
+        final String uid = getUser().getUid();
+
+        DatabaseReference ref = mFirebaseDatabase.getReference();
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<Card> list = new ArrayList<Card>();
+
+                // For each card key
+                for (DataSnapshot key : dataSnapshot.child("user_cards").getChildren()) {
+                    Card card = dataSnapshot.child("cards").child(key.getKey()).getValue(Card.class);
+                    list.add(card);
+                    // todo: if I put the callback here, will it load card one by one in MainActivity?
+                }
+
+                callback.result(list);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "getAllCards error! " + databaseError);
+                callback.result(null);
+            }
+        });
+    }
 
 }

@@ -2,31 +2,18 @@ package dds.project.meet.presentation;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import dds.project.meet.R;
-import dds.project.meet.persistence.Persistence;
 import dds.project.meet.persistence.QueryCallback;
 
 public class RegisterActivity extends BaseActivity {
@@ -76,9 +63,9 @@ public class RegisterActivity extends BaseActivity {
         showProgressDialog();
 
         // Get now all usernames
-        mPersistence.getAllUsernames(new QueryCallback<List<String>>() {
+        mPersistence.getAllUsernames(new QueryCallback<Collection<String>>() {
             @Override
-            public void result(List<String> data) {
+            public void result(Collection<String> data) {
                 allUsernames.addAll(data);
 
                 mEmailView.setError(null);
@@ -140,7 +127,7 @@ public class RegisterActivity extends BaseActivity {
 
     }
 
-    private void doRegister(final String email, final String password, final String userName, final String phoneNumber) {
+    private void doRegister(final String email, final String password, String userName, String phoneNumber) {
         mPersistence.createNewUser(email, password, userName, phoneNumber, new QueryCallback<Boolean>() {
             @Override
             public void result(Boolean success) {
