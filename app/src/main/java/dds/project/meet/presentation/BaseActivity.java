@@ -3,6 +3,7 @@ package dds.project.meet.presentation;
 import android.app.ProgressDialog;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.net.ConnectivityManagerCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +14,13 @@ public class BaseActivity extends AppCompatActivity {
 
     @VisibleForTesting
     public ProgressDialog mProgressDialog;
-    public Persistence mPersistence = Persistence.getInstance();
+    public Persistence mPersistence;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mPersistence = Persistence.getInstance();
+    }
 
     public void showProgressDialog() {
         if (mProgressDialog == null) {

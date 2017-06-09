@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 
 import dds.project.meet.R;
+import dds.project.meet.persistence.QueryCallback;
 
 
 /**
@@ -104,10 +105,10 @@ public class LoginActivity extends BaseActivity {
     private void doSignIn(String email, String password) {
         showProgressDialog();
 
-        mPersistence.doLogin(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        mPersistence.doLogin(email, password, new QueryCallback<Boolean>() {
             @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
+            public void result(Boolean success) {
+                if (success) {
                     loginCompleted();
                 } else {
                     String text =
@@ -118,11 +119,10 @@ public class LoginActivity extends BaseActivity {
                     Toast.makeText(LoginActivity.this, text, Toast.LENGTH_SHORT).show();
                     mEmailEditText.getText().clear();
                     mPasswordEditText.getText().clear();
-                    hideProgressDialog();
                 }
+                hideProgressDialog();
             }
         });
-
     }
 
     private boolean isEmailOK(String email) {

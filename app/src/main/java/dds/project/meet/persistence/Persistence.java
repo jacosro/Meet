@@ -1,5 +1,6 @@
 package dds.project.meet.persistence;
 
+import android.accessibilityservice.GestureDescription;
 import android.content.Context;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import dds.project.meet.logic.Card;
+import dds.project.meet.logic.command.Command;
 
 /**
  * Created by jacosro on 29/05/17.
@@ -46,7 +48,7 @@ public class Persistence {
     private Persistence() {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mFirebaseStorage = FirebaseStorage.getInstance();
+        //mFirebaseStorage = FirebaseStorage.getInstance();
     }
 
     public static Persistence getInstance() {
@@ -61,20 +63,29 @@ public class Persistence {
         return mFirebaseAuth.getCurrentUser();
     }
 
-    public Task<AuthResult> createNewUser(final String email, final String password, final String username, final String phone) {
-        Task<AuthResult> task = mFirebaseAuth.createUserWithEmailAndPassword(email, password);
-
-        task.addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+    public void createNewUser(final String email, final String password, final String username, final String phone, final QueryCallback<Boolean> callback) {
+        Task<AuthResult> task =
+                mFirebaseAuth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
-            public void onSuccess(AuthResult authResult) {
-                writeNewUser(email, username, phone);
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                boolean success = task.isSuccessful();
+
+                if (success) {
+                    writeNewUser(email, username, phone);
+                }
+                callback.result(success);
             }
         });
-        return task;
     }
 
-    public Task<AuthResult> doLogin(String email, String password) {
-        return mFirebaseAuth.signInWithEmailAndPassword(email, password);
+    public void doLogin(final String email, final String password, final QueryCallback<Boolean> callback) {
+        mFirebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                callback.result(task.isSuccessful());
+            }
+        });
     }
 
     public void doSignOut() {
@@ -87,46 +98,39 @@ public class Persistence {
         String uid = getUser().getUid();
 
         // Add user to users
-        DatabaseReference users = root.child("users").child(uid);
-        users.child("username").setValue(username); // Add uid
-        users.child("email").setValue(email); // Add email
-        users.child("phone").setValue(phone); // Add phone number
+        DatabaseReference usersRef = root.child("users").child(uid);
+        usersRef.child("username").setValue(username); // Add uid
+        usersRef.child("email").setValue(email); // Add email
+        usersRef.child("phone").setValue(phone); // Add phone number
 
         // Add username to allUsernames
-        DatabaseReference usernames = root.child("allUsernames");
-        usernames.child(username).setValue(uid);
+        DatabaseReference usernamesRef = root.child("allUsernames");
+        usernamesRef.child(username).setValue(uid);
 
     }
 
-    /*     Can't check if an username exists :/      */
-    public boolean isUsernameTaken(final String newUsername) {
-        Log.d(TAG, "Defining ref");
-        DatabaseReference ref = mFirebaseDatabase.getReference().child("allUsernames");
-        return ref.child(newUsername) != null; // Returns the url. Never is null
+    public void getAllUsernames(final QueryCallback<List<String>> callback) {
+        Log.d(TAG, "Getting all usernames");
 
-        /*
+        DatabaseReference ref = mFirebaseDatabase.getReference().child("allUsernames");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "Inside of onDataChange!");
-                Iterable<DataSnapshot> uids = dataSnapshot.getChildren();
-                Log.d(TAG, uids.toString());
-                for (DataSnapshot uid : uids) {
-                    Log.d(TAG, uid.toString());
-                    if (uid.getValue(String.class).equals(newUsername)) {
-                        res[0] = true;
-                        break;
-                    }
+                List<String> res = new ArrayList<>();
+
+                for (DataSnapshot username : dataSnapshot.getChildren()) {
+                    res.add(username.getKey());
                 }
+
+                callback.result(res); // "Return" of the method
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                //handle databaseError
+                Log.d(TAG, "Error getting usernames!" + databaseError.toString());
             }
         });
-        return res[0];
-        */
     }
 
     public void addCard(Card card) {
@@ -142,7 +146,8 @@ public class Persistence {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String username = dataSnapshot.child("username").getValue(String.class);
-                DatabaseReference ref = mFirebaseDatabase.getReference().child("user_card");
+
+                DatabaseReference ref = mFirebaseDatabase.getReference().child("card_users");
                 ref.child(key).child(uid).setValue(username);
             }
 
@@ -158,15 +163,19 @@ public class Persistence {
 
     public void removeCard(Card card) {
         String key = card.getDBKey();
-        if (key != null) {
-            DatabaseReference ref = mFirebaseDatabase.getReference().child("cards");
-            ref.child(key).removeValue();
 
-            String uid = getUser().getUid();
-            ref = mFirebaseDatabase.getReference().child("user_card");
-            ref.child(key).removeValue();
+        if (key != null) {
+            DatabaseReference root = mFirebaseDatabase.getReference();
+
+            // Remove from cards
+            root.child("cards").child(key).removeValue();
+
+            // Remove from card_users
+            root.child("card_users").child(key).removeValue();
         } else {
             Log.d(TAG, "Key of Card " + card.getName() + " is null!");
         }
     }
+
+
 }

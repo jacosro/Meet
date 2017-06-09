@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -18,17 +19,28 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import dds.project.meet.R;
 import dds.project.meet.persistence.Persistence;
+import dds.project.meet.persistence.QueryCallback;
 
 public class RegisterActivity extends BaseActivity {
 
+    private static final String TAG = "RegisterActivityLog";
     // UI references.
     private EditText mEmailView;
     private EditText mPasswordView;
     private EditText mPasswordConfirmView;
     private EditText mUsernameView;
     private EditText mPhoneNumberView;
+
+    // All usernames list
+    private Set<String> allUsernames;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,13 +52,17 @@ public class RegisterActivity extends BaseActivity {
         mPasswordConfirmView = (EditText) findViewById(R.id.password_confirm_register);
         mUsernameView = (EditText) findViewById(R.id.username_register);
         mPhoneNumberView = (EditText) findViewById(R.id.telephone_register);
-        Button mEmailSignInButton = (Button) findViewById(R.id.register_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+
+        findViewById(R.id.register_button).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
             }
         });
+
+        allUsernames = new TreeSet<>();
+
+
 
     }
 
@@ -57,81 +73,90 @@ public class RegisterActivity extends BaseActivity {
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
-        mPasswordConfirmView.setError(null);
-        mPhoneNumberView.setError(null);
-        mUsernameView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
-        String confirmPassword = mPasswordConfirmView.getText().toString();
-        String phoneNumber = mPhoneNumberView.getText().toString();
-        String username = mUsernameView.getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
-
-        if (!password.equals(confirmPassword)) {
-            mPasswordConfirmView.setError("Passwords are not equal");
-            cancel = true;
-            focusView = mPasswordConfirmView;
-        }
-
-        // Check for a valid password, if the user entered one.
-        if (!isPasswordOK(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid email address.
-        if (!isEmailOK(email)) {
-            mEmailView.setError("This email is not valid");
-            focusView = mEmailView;
-            cancel = true;
-        }
-
-        if (!isPhoneNumberOK(phoneNumber)) {
-            mPhoneNumberView.setError("Please provide a valid phone number (Spain)");
-            focusView = mPhoneNumberView;
-            cancel = true;
-        }
-
-        if (!isUsernameOK(username)) {
-            mUsernameView.setError("Username already registered");
-            focusView = mUsernameView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            focusView.requestFocus();
-        } else {
-            doRegister(email, password, username, phoneNumber);
-        }
-    }
-
-    private void doRegister(final String email, final String password, final String userName, final String phoneNumber) {
         showProgressDialog();
-        mPersistence.createNewUser(email, password, userName, phoneNumber).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    loginOK(email, password);
-                } else {
-                    String text =
-                            isThePhoneConnected()
-                                    ? "Email already registered"
-                                    : "You are not connected";
 
-                    Toast.makeText(RegisterActivity.this, text, Toast.LENGTH_SHORT).show();
+        // Get now all usernames
+        mPersistence.getAllUsernames(new QueryCallback<List<String>>() {
+            @Override
+            public void result(List<String> data) {
+                allUsernames.addAll(data);
+
+                mEmailView.setError(null);
+                mPasswordView.setError(null);
+                mPasswordConfirmView.setError(null);
+                mPhoneNumberView.setError(null);
+                mUsernameView.setError(null);
+
+                // Store values at the time of the login attempt.
+                String email = mEmailView.getText().toString();
+                String password = mPasswordView.getText().toString();
+                String confirmPassword = mPasswordConfirmView.getText().toString();
+                String phoneNumber = mPhoneNumberView.getText().toString();
+                String username = mUsernameView.getText().toString();
+
+                boolean cancel = false;
+                View focusView = null;
+
+                if (!password.equals(confirmPassword)) {
+                    mPasswordConfirmView.setError("Passwords are not equal");
+                    cancel = true;
+                    focusView = mPasswordConfirmView;
+                }
+
+                // Check for a valid password, if the user entered one.
+                if (!isPasswordOK(password)) {
+                    mPasswordView.setError(getString(R.string.error_invalid_password));
+                    focusView = mPasswordView;
+                    cancel = true;
+                }
+
+                // Check for a valid email address.
+                if (!isEmailOK(email)) {
+                    mEmailView.setError("This email is not valid");
+                    focusView = mEmailView;
+                    cancel = true;
+                }
+
+                if (!isPhoneNumberOK(phoneNumber)) {
+                    mPhoneNumberView.setError("Please provide a valid phone number (Spain)");
+                    focusView = mPhoneNumberView;
+                    cancel = true;
+                }
+
+                if (!isUsernameOK(username)) {
+                    mUsernameView.setError("Username already registered");
+                    focusView = mUsernameView;
+                    cancel = true;
+                }
+
+                if (cancel) {
+                    focusView.requestFocus();
                     hideProgressDialog();
+                } else {
+                    doRegister(email, password, username, phoneNumber);
                 }
             }
         });
 
+    }
+
+    private void doRegister(final String email, final String password, final String userName, final String phoneNumber) {
+        mPersistence.createNewUser(email, password, userName, phoneNumber, new QueryCallback<Boolean>() {
+            @Override
+            public void result(Boolean success) {
+                if (success) {
+                    loginOK(email, password);
+                } else {
+                    String text =
+                            isThePhoneConnected()
+                                    ? "Unknown error :$"
+                                    : "Connection error";
+
+                    Toast.makeText(RegisterActivity.this, text, Toast.LENGTH_SHORT).show();
+                }
+                hideProgressDialog();
+            }
+        });
     }
 
     private void loginOK(String email, String password) {
@@ -155,7 +180,8 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private boolean isUsernameOK(String username) {
-        return !username.matches(".*\\s.*"); // && !mPersistence.isUsernameTaken(username);
+        return !username.matches(".*\\s.*")
+                && !allUsernames.contains(username);
     }
 
     private boolean isPhoneNumberOK(String phoneNumber) {
