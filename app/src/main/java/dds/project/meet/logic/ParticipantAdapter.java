@@ -3,18 +3,14 @@ package dds.project.meet.logic;
 import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import dds.project.meet.R;
 
@@ -24,7 +20,7 @@ import dds.project.meet.R;
 
 public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.ViewHolder> {
 
-    private ArrayList<Participant> dataMembers;
+    private ArrayList<User> dataMembers;
     Context context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -45,7 +41,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
         }
     }
 
-    public ParticipantAdapter(ArrayList<Participant> myyDataset, Context context){
+    public ParticipantAdapter(ArrayList<User> myyDataset, Context context){
         dataMembers = myyDataset;
         this.context = context;
     }

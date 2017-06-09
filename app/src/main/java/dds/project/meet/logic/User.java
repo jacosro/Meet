@@ -4,17 +4,25 @@ package dds.project.meet.logic;
  * Created by RaulCoroban on 28/04/2017.
  */
 
-public class Participant {
+public class User {
     private String name;
-    private String address;
+    private String username;
     private String telephone;
     private String email;
 
-    public Participant(String name, String address, String telephone, String email) {
+    public User(String name, String username, String telephone, String email) {
         this.name = name;
-        this.address = address;
+        this.username = username;
         this.telephone = telephone;
         this.email = email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
@@ -31,14 +39,6 @@ public class Participant {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 
     public String getTelephone() {

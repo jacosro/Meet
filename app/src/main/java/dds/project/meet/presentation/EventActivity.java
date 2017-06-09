@@ -2,21 +2,15 @@ package dds.project.meet.presentation;
 
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +21,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -36,12 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.Card;
-import dds.project.meet.logic.CardAdapter;
-import dds.project.meet.logic.Participant;
-import dds.project.meet.logic.ParticipantAdapter;
+import dds.project.meet.logic.User;
 import dds.project.meet.logic.ParticipantOnEventAdapter;
-import dds.project.meet.logic.RecyclerItemClickListener;
 
 /**
  * Created by RaulCoroban on 24/04/2017.
@@ -52,7 +41,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     //UI elements
     private ImageButton back;
     private RecyclerView recyclerParticipants;
-    private ArrayList<Participant> dataParticipant;
+    private ArrayList<User> dataUser;
     private RecyclerView.LayoutManager layoutManagerCards;
     private RecyclerView.Adapter adapterCards;
     private TextView nameEvent;
@@ -82,7 +71,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
 
         googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
 
-        dataParticipant = new ArrayList<Participant>();
+        dataUser = new ArrayList<User>();
         recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
 
 
@@ -90,7 +79,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerParticipants.setLayoutManager(layoutManagerCards);
 
-        adapterCards = new ParticipantOnEventAdapter(dataParticipant, this);
+        adapterCards = new ParticipantOnEventAdapter(dataUser, this);
         recyclerParticipants.setAdapter(adapterCards);
 
         loadDefaultparticipants();
@@ -143,9 +132,9 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     private void loadDefaultparticipants() {
-        dataParticipant.add(new Participant("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
-        dataParticipant.add(new Participant("Maria Bahilo", "Aqui", "654765876", "porlando@gmail.com"));
-        dataParticipant.add(new Participant("Sandra Castillo", "Aqui", "654765876", "porlando@gmail.com"));
+        dataUser.add(new User("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
+        dataUser.add(new User("Maria Bahilo", "Aqui", "654765876", "porlando@gmail.com"));
+        dataUser.add(new User("Sandra Castillo", "Aqui", "654765876", "porlando@gmail.com"));
     }
 
     private String correctSuperScript(int day) {
