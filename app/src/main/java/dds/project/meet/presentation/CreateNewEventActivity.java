@@ -1,18 +1,26 @@
 package dds.project.meet.presentation;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -31,11 +39,12 @@ import java.util.Calendar;
 import java.util.List;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.User;
+import dds.project.meet.logic.Card;
+import dds.project.meet.logic.CardFactory;
+import dds.project.meet.logic.ContactAdapter;
 import dds.project.meet.logic.ParticipantAdapter;
 import dds.project.meet.logic.RecyclerItemClickListener;
-import dds.project.meet.logic.command.AddCardCommand;
-import dds.project.meet.logic.command.Command;
+import dds.project.meet.logic.User;
 
 /**
  * Created by RaulCoroban on 10/04/2017.
@@ -45,6 +54,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
 
     public static final int SELECTED_PICTURE = 1;
     public static final String TAG = "CreateNewEventActivity";
+    public static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
 
     // UI Elements
     private EditText editTextName, editTextLocation;
@@ -55,8 +65,10 @@ public class CreateNewEventActivity extends AppCompatActivity {
     private TextView whenLabel;
     private TextView whatTimeLabel;
     public static ArrayList<User> dataMembers;
+    public static ArrayList<User> dataContacts;
     private RecyclerView.LayoutManager layoutManagerParticipants;
     private ParticipantAdapter adapterParticipants;
+    private ContactAdapter adapterContacts;
 
     private FloatingActionButton doneFab;
     private Button cancel;
@@ -69,6 +81,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
     private ImageButton photo, when, whatTime;
     private Boolean timePicked = false;
     private Boolean datePicked = false;
+    ArrayList<String> alContacts;
 
     private int day, month, year;
     private String[] months = {"Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."};
@@ -94,6 +107,9 @@ public class CreateNewEventActivity extends AppCompatActivity {
         whatTimeLabel= (TextView) findViewById(R.id.whatTimeLabel);
         name = (TextInputLayout) findViewById(R.id.nameEditText);
         dataMembers = new ArrayList<User>();
+        dataContacts = new ArrayList<User>();
+
+        alContacts = new ArrayList<String>();
 
 
         recyclerParticipants.setHasFixedSize(true);
@@ -117,9 +133,11 @@ public class CreateNewEventActivity extends AppCompatActivity {
 
         adapterParticipants.notifyDataSetChanged();
 
-        loadMembers();
+        //loadMembers();
 
         setListeners();
+
+
 
     }
 
@@ -147,6 +165,16 @@ public class CreateNewEventActivity extends AppCompatActivity {
         adapterParticipants.notifyDataSetChanged();
     }
 
+    public void addContactToMembers(User contact) {
+        dataMembers.add(contact);
+        adapterParticipants.notifyDataSetChanged();
+        participantsNumberLabel.setText(dataMembers.size() + " participants");
+    }
+
+    public void deleteContactFromMembers() {
+        dataMembers.remove(dataMembers.size());
+        participantsNumberLabel.setText(dataMembers.size() + " participants");
+    }
 
     public void setListeners() {
 
@@ -198,11 +226,52 @@ public class CreateNewEventActivity extends AppCompatActivity {
         addPersons.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addPersons.clearAnimation();
+                /*addPersons.clearAnimation();
                 dataMembers.add(new User("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
                 adapterParticipants.notifyItemInserted(dataMembers.size());
                 participantsNumberLabel.setText(dataMembers.size() + " participants");
                 recyclerParticipants.smoothScrollToPosition(dataMembers.size());
+                */
+
+                Thread load = new Thread() {
+                    public void run() {
+                        loadContactsFromPhone();
+                    }
+                };
+
+                load.start();
+
+                ActivityCompat.requestPermissions(CreateNewEventActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(CreateNewEventActivity.this);
+                View mView = getLayoutInflater().inflate(R.layout.contact_list, null);
+                mBuilder.setView(mView);
+
+                AlertDialog dialog = mBuilder.create();
+                dialog.show();
+
+                RecyclerView recyclerContacts = (RecyclerView) mView.findViewById(R.id.contactRecyclerView);
+                recyclerContacts.setHasFixedSize(true);
+
+                LinearLayoutManager layoutManagerContacts = new LinearLayoutManager(CreateNewEventActivity.this, LinearLayoutManager.VERTICAL, false);
+                recyclerContacts.setLayoutManager(layoutManagerContacts);
+
+                adapterContacts = new ContactAdapter(dataContacts, CreateNewEventActivity.this);
+                recyclerContacts.setAdapter(adapterContacts);
+
+                recyclerContacts.addOnItemTouchListener(
+                        new RecyclerItemClickListener(CreateNewEventActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
+                            @Override public void onItemClick(View view, int position) {
+                                addContactToMembers(dataContacts.get(position));
+                                dataContacts.remove(position);
+                                adapterContacts.notifyDataSetChanged();
+                            }
+                        })
+                );
+
+                adapterContacts.notifyDataSetChanged();
+
+
             }
         });
 
@@ -238,6 +307,45 @@ public class CreateNewEventActivity extends AppCompatActivity {
 
         participantsNumberLabel.setText(dataMembers.size() + " participants");
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                }
+                return;
+            }
+        }
+    }
+
+    private void loadContactsFromPhone() {
+        ContentResolver cr = CreateNewEventActivity.this.getContentResolver();
+        Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+        if(cursor.moveToFirst())
+        {
+            do {
+                String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+
+                if(Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0)
+                {
+                    Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = ?",new String[]{ id }, null);
+                    while (pCur.moveToNext())
+                    {
+                        String contactNumber = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        String contactName = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY));
+                        dataContacts.add(new User(contactName, "", contactNumber, ""));
+                        break;
+                    }
+                    pCur.close();
+                }
+
+            } while (cursor.moveToNext()) ;
+            //adapterContacts.notifyDataSetChanged();
+        }
     }
 
     public void pickDate() {

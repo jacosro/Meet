@@ -1,12 +1,10 @@
 package dds.project.meet.logic;
 
 import android.content.Context;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -15,48 +13,46 @@ import java.util.Random;
 import dds.project.meet.R;
 
 /**
- * Created by RaulCoroban on 28/04/2017.
+ * Created by RaulCoroban on 09/06/2017.
  */
 
-public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.ViewHolder> {
-
+public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHolder>{
     private ArrayList<User> dataMembers;
     Context context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView nameParticipant;
-        public TextView acroParticipant;
-        public CardView cardHolder;
-        public Button b;
+        public TextView nameContact;
+        public TextView phoneContact;
+        public TextView acroContact;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            nameParticipant = (TextView) itemView.findViewById(R.id.nameParticipant);
-            acroParticipant = (TextView) itemView.findViewById(R.id.acroParticipant);
-            b = (Button) itemView.findViewById(R.id.button2);
-            cardHolder = (CardView) itemView.findViewById(R.id.cardViewHolder);
+            nameContact = (TextView) itemView.findViewById(R.id.nameContact);
+            phoneContact = (TextView) itemView.findViewById(R.id.phoneContact);
+            acroContact = (TextView) itemView.findViewById(R.id.acroParticipant);
         }
     }
 
-    public ParticipantAdapter(ArrayList<User> myyDataset, Context context){
+    public ContactAdapter(ArrayList<User> myyDataset, Context context){
         dataMembers = myyDataset;
         this.context = context;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.participant, parent, false);
-        ViewHolder vh = new ViewHolder(v);
+    public ContactAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact, parent, false);
+        ContactAdapter.ViewHolder vh = new ContactAdapter.ViewHolder(v);
         return vh;
     }
 
     @Override
-    public void onBindViewHolder(final ParticipantAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(final ContactAdapter.ViewHolder holder, int position) {
         final String name = dataMembers.get(position).getName();
         String [] first = name.split("\\s");
-        holder.nameParticipant.setText(first[0]);
-        holder.cardHolder.setCardBackgroundColor(setRandomColor());
+        holder.nameContact.setText(first[0]);
+        holder.phoneContact.setText(dataMembers.get(position).getTelephone());
+
 
 
         String[] split = name.split("\\s");
@@ -66,8 +62,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
         } else {
             initials = split[0].substring(0, 2);
         }
-
-        holder.acroParticipant.setText(initials);
+        holder.acroContact.setText(initials);
     }
 
     @Override

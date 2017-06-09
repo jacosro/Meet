@@ -30,15 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.Card;
-import dds.project.meet.logic.CardAdapter;
-import dds.project.meet.logic.CardFactory;
-import dds.project.meet.logic.Participant;
-import dds.project.meet.logic.ParticipantAdapter;
+import dds.project.meet.logic.User;
 import dds.project.meet.logic.ParticipantOnEventAdapter;
-import dds.project.meet.logic.RecyclerItemClickListener;
-import dds.project.meet.logic.command.AddCardCommand;
-import dds.project.meet.logic.command.Command;
 
 /**
  * Created by RaulCoroban on 24/04/2017.
