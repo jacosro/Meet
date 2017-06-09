@@ -5,9 +5,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.Image;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -21,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -48,8 +52,10 @@ public class MainActivity extends BaseActivity {
     private RecyclerView recyclerCards;
     public static RecyclerView.Adapter adapterCards;
     private RecyclerView.LayoutManager layoutManagerCards;
+    private ImageView noEvents;
 
     private DrawerLayout drawerLayout;
+    private ConstraintLayout background;
 
     // Class fields
     static ArrayList<Card> dataCards;
@@ -66,6 +72,8 @@ public class MainActivity extends BaseActivity {
         recyclerCards = (RecyclerView) findViewById(R.id.recycler_cards);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         numberCards = (TextView) findViewById(R.id.numberCards);
+        noEvents = (ImageView) findViewById(R.id.noEvents);
+        background = (ConstraintLayout) findViewById(R.id.back);
         dataCards = new ArrayList<Card>();
 
         findViewById(R.id.mainMeetTitle).setOnLongClickListener(new View.OnLongClickListener() {
@@ -110,6 +118,15 @@ public class MainActivity extends BaseActivity {
                 createCard(v);
             }
         });
+
+        if(dataCards.size() > 0) {
+            noEvents.setVisibility(View.GONE);
+            background.setBackgroundResource(R.drawable.back);
+        } else {
+            noEvents.setVisibility(View.VISIBLE);
+            background.setBackgroundResource(R.drawable.full);
+        }
+
     }
 
     private void doSignOut() {
@@ -155,12 +172,25 @@ public class MainActivity extends BaseActivity {
         Command addCard = new AddCardCommand(recyclerCards.getAdapter(), dataCards, card);
         addCard.execute();
         numberCards.setText(dataCards.size() + " upcoming event(s)");
+
+        if(dataCards.size() > 0) {
+            noEvents.setVisibility(View.GONE);
+            background.setBackgroundResource(R.drawable.back);
+        }
     }
 
     private void deleteCard(int adapterPosition) {
         Command deleteCard = new RemoveCardCommand(recyclerCards.getAdapter(), dataCards, adapterPosition);
         deleteCard.execute();
-        numberCards.setText(dataCards.size() + " upcoming event(s)");
+
+        if(dataCards.size() > 0) {
+            numberCards.setText(dataCards.size() + " upcoming event(s)");
+        } else {
+            numberCards.setText("No events. No one loves you");
+            noEvents.setVisibility(View.VISIBLE);
+            background.setBackgroundResource(R.drawable.full);
+        }
+
     }
 
     private void moveCard(int adapterPositionOld, int adapterPositionNew) {
@@ -225,7 +255,6 @@ public class MainActivity extends BaseActivity {
 
     public void loadCards() {
 
-        /*
         Card one = new Card("10:30", 12 , 3 , 2016 , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5);
         Card two = new Card("14:55", 17 , 5 , 2017 , "Comida La Vella", "ETSINF UPV", 7, 2);
         Command addCard = new AddCardCommand(recyclerCards.getAdapter(), dataCards, one);
@@ -233,15 +262,15 @@ public class MainActivity extends BaseActivity {
 
         Command addCard2 = new AddCardCommand(recyclerCards.getAdapter(), dataCards, two);
         addCard2.execute();
-        */
-        mPersistence.getAllCards(new QueryCallback<Collection<Card>>() {
+
+        /*mPersistence.getAllCards(new QueryCallback<Collection<Card>>() {
             @Override
             public void result(Collection<Card> data) {
                 for (Card card : data) {
                     new AddCardCommand(adapterCards, dataCards, card).execute();
                 }
             }
-        });
+        });*/
         numberCards.setText(dataCards.size() + " upcoming event(s)");
     }
 
@@ -270,18 +299,17 @@ public class MainActivity extends BaseActivity {
             if (intent != null) {
                 Bundle extras = intent.getExtras();
                 if (extras != null) {
-                    String name = extras.getString("name");
-                    int day = extras.getInt("day");
-                    int month = extras.getInt("month");
-                    int year = extras.getInt("year");
-                    String address = extras.getString("address");
-                    String whatTimeLabel = extras.getString("whatTimeLabel");
-                    int participantsNum = extras.getInt("participantsNum");
-                    int distance = extras.getInt("distance");
+                    String name = extras.getString("EXTRA_NAME");
+                    int day = extras.getInt("EXTRA_DAY");
+                    int month = extras.getInt("EXTRA_MONTH");
+                    int year = extras.getInt("EXTRA_DISTANCE");
+                    String address = extras.getString("EXTRA_ADDRESS");
+                    String whatTimeLabel = extras.getString("EXTRA_TIME");
+                    int participantsNum = extras.getInt("EXTRA_PART_NUM");
+                    int distance = extras.getInt("EXTRA_DISTANCE");
 
                     Card newCard = CardFactory.getCard(whatTimeLabel, day, month, year, name, address, participantsNum, distance);
-                    Command addCard = new AddCardCommand(recyclerCards.getAdapter(), dataCards, newCard);
-                    addCard.execute();
+                    addCard(newCard);
                     adapterCards.notifyDataSetChanged();
                     recyclerCards.smoothScrollToPosition(dataCards.size());
 

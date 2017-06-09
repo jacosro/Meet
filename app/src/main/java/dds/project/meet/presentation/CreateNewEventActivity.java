@@ -37,6 +37,8 @@ import dds.project.meet.logic.CardFactory;
 import dds.project.meet.logic.Participant;
 import dds.project.meet.logic.ParticipantAdapter;
 import dds.project.meet.logic.RecyclerItemClickListener;
+import dds.project.meet.logic.command.AddCardCommand;
+import dds.project.meet.logic.command.Command;
 
 /**
  * Created by RaulCoroban on 10/04/2017.
@@ -285,7 +287,7 @@ public class CreateNewEventActivity extends AppCompatActivity {
                 } else hourS = hourOfDay + "";
 
                 time = hourS + ":" + minuteS;
-                whatTimeLabel.setText(time + "h");
+                whatTimeLabel.setText(time);
                 whatTime.setImageResource(R.drawable.clocks);
                 timePicked = true;
             }
@@ -308,14 +310,14 @@ public class CreateNewEventActivity extends AppCompatActivity {
 
             Bundle result = new Bundle();
 
-            result.putString("name", name.getEditText().getText().toString());
-            result.putInt("day", day);
-            result.putInt("day", month);
-            result.putInt("day", year);
-            result.putString("whatTimeLabel", whatTimeLabel.getText().toString());
-            result.putString("address", trimLabel(editTextLocation.getText().toString(), 35));
-            result.putInt("participantsNum", dataMembers.size());
-            result.putInt("distance", 34);
+            result.putString("EXTRA_NAME", name.getEditText().getText().toString());
+            result.putInt("EXTRA_DAY", day);
+            result.putInt("EXTRA_MONTH", month);
+            result.putInt("EXTRA_YEAR", year);
+            result.putString("EXTRA_TIME", whatTimeLabel.getText().toString());
+            result.putString("EXTRA_ADDRESS", trimLabel(editTextLocation.getText().toString(), 35));
+            result.putInt("EXTRA_PART_NUM", dataMembers.size());
+            result.putInt("EXTRA_DISTANCE", 34);
 
 
             Intent intent = new Intent();
@@ -352,6 +354,4 @@ public class CreateNewEventActivity extends AppCompatActivity {
 
         return true;
     }
-
-
 }

@@ -7,9 +7,7 @@
     android:layout_height="fill_parent"
     android:scrollbarStyle="insideOverlay">
 
-    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -169,7 +167,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/city" />
+            app:srcCompat="@drawable/city_square" />
 
         <TextView
             android:id="@+id/date_event"
@@ -181,11 +179,12 @@
             android:layout_marginStart="8dp"
             android:text="17 June"
             android:textColor="@color/cardview_shadow_start_color"
-            android:textSize="14sp"
+            android:textSize="16dp"
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/name_event" />
+            android:layout_marginTop="32dp"
+            app:layout_constraintTop_toBottomOf="@+id/nav_header_image" />
 
         <TextView
             android:id="@+id/time_event"
@@ -195,13 +194,13 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
             android:text="14:44"
             android:textColor="#55A89D"
             android:textSize="24sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/nav_header_image" />
+            android:layout_marginTop="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/name_event" />
 
         <TextView
             android:id="@+id/name_event"
@@ -211,15 +210,15 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="0dp"
             android:text="Comida La Vella"
             android:textColor="@color/cardview_dark_background"
-            android:textSize="24sp"
-            app:layout_constraintHorizontal_bias="0.497"
+            android:textSize="26dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/time_event" />
+            app:layout_constraintTop_toBottomOf="@+id/date_event" />
 
-        <fragment xmlns:map="http://schemas.android.com/apk/res-auto"
+        <fragment
             android:id="@+id/mapFragment"
             android:name="com.google.android.gms.maps.MapFragment"
             android:layout_width="0dp"
@@ -228,11 +227,12 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/date_event"/>
+            app:layout_constraintTop_toBottomOf="@+id/time_event"
+            android:layout_marginTop="17dp"
+            />
 
         <LinearLayout
             android:id="@+id/linearLayout2"

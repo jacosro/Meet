@@ -15,8 +15,8 @@
             android:id="@+id/imageView5"
             android:layout_width="match_parent"
             android:layout_height="250dp"
-            app:srcCompat="@drawable/city"
-            android:scaleType="centerCrop"/>
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/city_square" />
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/create_event_layout"
@@ -151,7 +151,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView2">
 
                 <EditText
-                    android:id="@+id/editTextName"
+                    android:id="@+id/editTextNameSettings"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/event_name"

@@ -1,5 +1,6 @@
 package dds.project.meet.presentation;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -38,10 +39,13 @@ import java.util.List;
 import dds.project.meet.R;
 import dds.project.meet.logic.Card;
 import dds.project.meet.logic.CardAdapter;
+import dds.project.meet.logic.CardFactory;
 import dds.project.meet.logic.Participant;
 import dds.project.meet.logic.ParticipantAdapter;
 import dds.project.meet.logic.ParticipantOnEventAdapter;
 import dds.project.meet.logic.RecyclerItemClickListener;
+import dds.project.meet.logic.command.AddCardCommand;
+import dds.project.meet.logic.command.Command;
 
 /**
  * Created by RaulCoroban on 24/04/2017.
@@ -136,7 +140,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
                 toEventSettings.putExtra("EXTRA_DATE_MONTH", monthE);
                 toEventSettings.putExtra("EXTRA_DATE_YEAR", yearE);
 
-                startActivity(toEventSettings);
+                startActivityForResult(toEventSettings, Activity.RESULT_OK);
             }
         });
 
@@ -189,7 +193,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
                 .title(locality)
                 .position(new LatLng(latitude, longitude));
         map.addMarker(mo);
-        Toast.makeText(this, "Perfect!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Place found!", Toast.LENGTH_SHORT).show();
         Log.d("MAP_READY", "Searched");
     }
 
@@ -199,6 +203,36 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         googleMap.addMarker(new MarkerOptions().position(sydney)
                 .title("Marker in Sydney"));
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
+            if (intent != null) {
+                Bundle extras = intent.getExtras();
+                if (extras != null) {
+                    String nameNew = extras.getString("EXTRA_NAME");
+                    int day = extras.getInt("EXTRA_DAY");
+                    int month = extras.getInt("EXTRA_MONTH");
+                    int year = extras.getInt("EXTRA_DISTANCE");
+                    String address = extras.getString("EXTRA_ADDRESS");
+                    String whatTimeLabel = extras.getString("EXTRA_TIME");
+
+                    nameE = nameNew; nameEvent.setText(nameNew);
+                    dayE = day; monthE = month; yearE = year; dateEvent.setText(day + "" + correctSuperScript(day) + " " + months[month]);
+                    locationE = address; locationMap.setText(address);
+                    try {
+                        geoLocate(address);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    timeE = whatTimeLabel; timeEvent.setText(whatTimeLabel);
+
+
+                }
+            }
+        }
     }
 
 }
