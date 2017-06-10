@@ -51,13 +51,5 @@ public class AddCardCommand implements Command {
             dataSet.add(card);
             adapter.notifyItemInserted(adapter.getItemCount() - 1);
         }
-
-        // Add to database
-        mPersistence.cardDAO.addCard(card, new QueryCallback<Boolean>() {
-            @Override
-            public void result(Boolean data) {
-                // Nothing
-            }
-        });
     }
 }

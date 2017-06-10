@@ -38,6 +38,7 @@ public class Persistence {
     public ICardDAO cardDAO;
 
     private Persistence() {
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         userDAO = new UserDAOImpl();
         cardDAO = new CardDAOImpl();
     }

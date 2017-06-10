@@ -1,20 +1,14 @@
 package dds.project.meet.presentation;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,8 +16,6 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,6 +24,7 @@ import java.util.Collection;
 
 import dds.project.meet.logic.CardFactory;
 import dds.project.meet.logic.command.AddCardCommand;
+import dds.project.meet.logic.command.NewCardCommand;
 import dds.project.meet.logic.command.Command;
 import dds.project.meet.logic.command.MoveCardCommand;
 import dds.project.meet.logic.command.RemoveCardCommand;
@@ -41,7 +34,6 @@ import dds.project.meet.R;
 import dds.project.meet.logic.Card;
 import dds.project.meet.logic.CardAdapter;
 import dds.project.meet.logic.RecyclerItemClickListener;
-import dds.project.meet.persistence.Persistence;
 import dds.project.meet.persistence.QueryCallback;
 
 public class MainActivity extends BaseActivity {
@@ -159,7 +151,7 @@ public class MainActivity extends BaseActivity {
                         undoDelete.setAction("RESTORE", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                addCard(originator.getState());
+                                new NewCardCommand(adapterCards, dataCards, originator.getState()).execute();
                             }
                         });
                         undoDelete.show();
@@ -254,7 +246,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void loadCards() {
-
+        /*
         Card one = new Card("10:30", 12 , 3 , 2016 , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5);
         Card two = new Card("14:55", 17 , 5 , 2017 , "Comida La Vella", "ETSINF UPV", 7, 2);
         Command addCard = new AddCardCommand(recyclerCards.getAdapter(), dataCards, one);
@@ -262,15 +254,13 @@ public class MainActivity extends BaseActivity {
 
         Command addCard2 = new AddCardCommand(recyclerCards.getAdapter(), dataCards, two);
         addCard2.execute();
-
-        /*mPersistence.getAllCards(new QueryCallback<Collection<Card>>() {
+        */
+        mPersistence.cardDAO.getAllCards(new QueryCallback<Card>() {
             @Override
-            public void result(Collection<Card> data) {
-                for (Card card : data) {
-                    new AddCardCommand(adapterCards, dataCards, card).execute();
-                }
+            public void result(Card data) {
+                addCard(data);
             }
-        });*/
+        });
         numberCards.setText(dataCards.size() + " upcoming event(s)");
     }
 
@@ -309,10 +299,7 @@ public class MainActivity extends BaseActivity {
                     int distance = extras.getInt("EXTRA_DISTANCE");
 
                     Card newCard = CardFactory.getCard(whatTimeLabel, day, month, year, name, address, participantsNum, distance);
-                    addCard(newCard);
-                    adapterCards.notifyDataSetChanged();
-                    recyclerCards.smoothScrollToPosition(dataCards.size());
-
+                    new NewCardCommand(adapterCards, dataCards, newCard).execute();
                 }
             }
         }

@@ -57,10 +57,6 @@ public class CardDAOImpl implements ICardDAO {
 
                 // Add to card_users
                 rootRef.child("card_users").child(key).child(uid).setValue(username);
-
-                // Add to user_cards
-                rootRef.child("user_cards").child(uid).child(key).setValue(cardName);
-
             }
 
             @Override
@@ -78,8 +74,8 @@ public class CardDAOImpl implements ICardDAO {
 
     @Override
     public void removeCard(Card card, QueryCallback<Boolean> callback) {
+        Log.d(TAG + "::removeCard", "Card: " + card);
         String key = card.getDBKey();
-        String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
 
         if (key != null) {
             // Remove from cards
@@ -88,34 +84,47 @@ public class CardDAOImpl implements ICardDAO {
             // Remove from card_users
             rootRef.child("card_users").child(key).removeValue();
 
-            //Remove from user_cards
-            rootRef.child("user_cards").child(uid).child(key).removeValue();
         } else {
             Log.d(TAG, "Key of Card " + card.getName() + " is null!");
         }
     }
 
     @Override
-    public void getAllCards(final QueryCallback<Collection<Card>> callback) {
-
-        rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    public void getCardByKey(final String key, final QueryCallback<Card> callback) {
+        rootRef.child("cards").orderByKey().equalTo(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                List<Card> list = new ArrayList<>();
-
-                // For each card key
-                for (DataSnapshot key : dataSnapshot.child("user_cards").getChildren()) {
-                    Card card = dataSnapshot.child("cards").child(key.getKey()).getValue(Card.class);
-                    list.add(card);
-                    // todo: if I put the callback here, will it load card one by one in MainActivity?
-                }
-
-                callback.result(list);
+                Card card = dataSnapshot.child(key).getValue(Card.class);
+                card.setDBKey(key);
+                Log.d(TAG, "Got card: " + card);
+                callback.result(card);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "getAllCards error! " + databaseError);
+                Log.d(TAG, "Error getting card by key: " + databaseError);
+                callback.result(null);
+            }
+        });
+    }
+
+    @Override
+    public void getAllCards(final QueryCallback<Card> callback) {
+        Log.d(TAG, "Getting all cards");
+        String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
+
+        rootRef.child("card_users").orderByChild(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot card : dataSnapshot.getChildren()) {
+                    Log.d(TAG, card.getKey());
+                    getCardByKey(card.getKey(), callback);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "Error getting all cards: " + databaseError);
                 callback.result(null);
             }
         });

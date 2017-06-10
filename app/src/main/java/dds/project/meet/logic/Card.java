@@ -20,6 +20,10 @@ public class Card {
 
     private String DBKey;
 
+    public Card() {
+
+    }
+
     public Card(String time, int dateDay, int dateMonth, int dateYear, String name, String location, int persons, int km) {
         this.time = time;
         this.dateDay = dateDay;
@@ -125,5 +129,9 @@ public class Card {
         map.put("image", image);
 
         return map;
+    }
+
+    public String toString() {
+        return name;
     }
 }

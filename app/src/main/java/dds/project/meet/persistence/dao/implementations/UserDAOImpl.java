@@ -46,11 +46,13 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void createNewUser(final String email, String password, final String username, final String phone, final QueryCallback<Boolean> callback) {
+        Log.d(TAG + "::createNewUser", "Start");
         mFirebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         boolean success = task.isSuccessful();
+                        Log.d(TAG + "::createNewUser", "Create new user successfully: " + success);
 
                         if (success) {
                             DatabaseReference root = mFirebaseDatabase.getReference();
@@ -128,13 +130,12 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void getAllUsernames(final QueryCallback<Collection<String>> callback) {
-        Log.d(TAG, "Getting all usernames");
+        Log.d(TAG + "::getAllUsername", "Getting all usernames");
 
         DatabaseReference ref = mFirebaseDatabase.getReference().child("allUsernames");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG, "Inside of onDataChange!");
                 List<String> res = new ArrayList<>();
 
                 for (DataSnapshot username : dataSnapshot.getChildren()) {
