@@ -67,6 +67,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
 
         recyclerCards = (RecyclerView) findViewById(R.id.recycler_cards);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         numberCards = (TextView) findViewById(R.id.numberCards);
         noEvents = (ImageView) findViewById(R.id.noEvents);
@@ -122,10 +123,10 @@ public class MainActivity extends BaseActivity {
 
         if(dataCards.size() > 0) {
             noEvents.setVisibility(View.GONE);
-            //background.setBackgroundResource(R.drawable.back);
+            background.setBackgroundResource(R.drawable.back);
         } else {
             noEvents.setVisibility(View.VISIBLE);
-            //background.setBackgroundResource(R.drawable.full);
+            background.setBackgroundResource(R.drawable.full);
         }
 
         setupToolbar();
@@ -217,6 +218,7 @@ public class MainActivity extends BaseActivity {
                             @Override
                             public void onClick(View v) {
                                 new NewCardCommand(adapterCards, dataCards, originator.getState()).execute();
+                                careTaker.undo();
                             }
                         });
                         undoDelete.show();
@@ -232,7 +234,7 @@ public class MainActivity extends BaseActivity {
 
         if(dataCards.size() > 0) {
             noEvents.setVisibility(View.GONE);
-            //background.setBackgroundResource(R.drawable.back);
+            background.setBackgroundResource(R.drawable.back);
         }
     }
 
@@ -245,7 +247,7 @@ public class MainActivity extends BaseActivity {
         } else {
             numberCards.setText("No events. No one loves you");
             noEvents.setVisibility(View.VISIBLE);
-            //background.setBackgroundResource(R.drawable.full);
+            background.setBackgroundResource(R.drawable.full);
         }
 
     }
@@ -285,7 +287,7 @@ public class MainActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
+
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
@@ -305,7 +307,6 @@ public class MainActivity extends BaseActivity {
                 break;
         }
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
