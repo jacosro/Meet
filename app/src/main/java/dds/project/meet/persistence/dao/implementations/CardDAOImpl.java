@@ -1,5 +1,6 @@
 package dds.project.meet.persistence.dao.implementations;
 
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -9,6 +10,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.NotActiveException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,16 +29,18 @@ public class CardDAOImpl implements ICardDAO {
     private static final String TAG = "CardDAO";
 
     private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference rootRef;
 
     public CardDAOImpl() {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
+        rootRef = mFirebaseDatabase.getReference();
     }
 
 
 
     @Override
     public void addCard(Card card, QueryCallback<Boolean> callback) {
-        DatabaseReference ref = mFirebaseDatabase.getReference().child("cards");
+        DatabaseReference ref = rootRef.child("cards");
         final String key = ref.push().getKey();
         ref.child(key).setValue(card);
 
@@ -46,18 +50,16 @@ public class CardDAOImpl implements ICardDAO {
         final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
         final String cardName = card.getName();
 
-        mFirebaseDatabase.getReference().child("users/" + uid).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String username = dataSnapshot.child("username").getValue(String.class);
 
-                DatabaseReference root = mFirebaseDatabase.getReference();
-
                 // Add to card_users
-                root.child("card_users").child(key).child(uid).setValue(username);
+                rootRef.child("card_users").child(key).child(uid).setValue(username);
 
                 // Add to user_cards
-                root.child("user_cards").child(uid).child(key).setValue(cardName);
+                rootRef.child("user_cards").child(uid).child(key).setValue(cardName);
 
             }
 
@@ -77,15 +79,17 @@ public class CardDAOImpl implements ICardDAO {
     @Override
     public void removeCard(Card card, QueryCallback<Boolean> callback) {
         String key = card.getDBKey();
+        String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
 
         if (key != null) {
-            DatabaseReference root = mFirebaseDatabase.getReference();
-
             // Remove from cards
-            root.child("cards").child(key).removeValue();
+            rootRef.child("cards").child(key).removeValue();
 
             // Remove from card_users
-            root.child("card_users").child(key).removeValue();
+            rootRef.child("card_users").child(key).removeValue();
+
+            //Remove from user_cards
+            rootRef.child("user_cards").child(uid).child(key).removeValue();
         } else {
             Log.d(TAG, "Key of Card " + card.getName() + " is null!");
         }
@@ -93,13 +97,11 @@ public class CardDAOImpl implements ICardDAO {
 
     @Override
     public void getAllCards(final QueryCallback<Collection<Card>> callback) {
-        final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
 
-        DatabaseReference ref = mFirebaseDatabase.getReference();
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                List<Card> list = new ArrayList<Card>();
+                List<Card> list = new ArrayList<>();
 
                 // For each card key
                 for (DataSnapshot key : dataSnapshot.child("user_cards").getChildren()) {

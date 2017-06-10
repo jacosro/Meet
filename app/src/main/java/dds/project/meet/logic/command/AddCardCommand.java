@@ -15,6 +15,7 @@ import java.util.List;
 
 import dds.project.meet.logic.Card;
 import dds.project.meet.persistence.Persistence;
+import dds.project.meet.persistence.QueryCallback;
 
 /**
  * Created by jacosro on 14/05/17.
@@ -52,6 +53,11 @@ public class AddCardCommand implements Command {
         }
 
         // Add to database
-        mPersistence.addCard(card);
+        mPersistence.cardDAO.addCard(card, new QueryCallback<Boolean>() {
+            @Override
+            public void result(Boolean data) {
+                // Nothing
+            }
+        });
     }
 }

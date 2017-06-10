@@ -130,7 +130,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void doSignOut() {
-        mPersistence.doSignOut();
+        mPersistence.userDAO.doSignOut();
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
         finish();

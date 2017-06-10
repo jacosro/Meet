@@ -38,7 +38,7 @@ public class LoginActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (mPersistence.getUser() != null) {
+        if (mPersistence.userDAO.getCurrentUser() != null) {
             Log.d(TAG, "User is logged in! Launching MainActivity");
             loginCompleted();
         }
@@ -105,7 +105,7 @@ public class LoginActivity extends BaseActivity {
     private void doSignIn(String email, String password) {
         showProgressDialog();
 
-        mPersistence.doLogin(email, password, new QueryCallback<Boolean>() {
+        mPersistence.userDAO.doLogin(email, password, new QueryCallback<Boolean>() {
             @Override
             public void result(Boolean success) {
                 if (success) {

@@ -6,6 +6,7 @@ import java.util.List;
 
 import dds.project.meet.logic.Card;
 import dds.project.meet.persistence.Persistence;
+import dds.project.meet.persistence.QueryCallback;
 
 import static dds.project.meet.presentation.MainActivity.adapterCards;
 
@@ -48,6 +49,11 @@ public class RemoveCardCommand implements Command {
         }
 
         // Remove from database
-        mPersistence.removeCard(card);
+        mPersistence.cardDAO.removeCard(card, new QueryCallback<Boolean>() {
+            @Override
+            public void result(Boolean data) {
+                // Nothing
+            }
+        });
     }
 }

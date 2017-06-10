@@ -63,7 +63,7 @@ public class RegisterActivity extends BaseActivity {
         showProgressDialog();
 
         // Get now all usernames
-        mPersistence.getAllUsernames(new QueryCallback<Collection<String>>() {
+        mPersistence.userDAO.getAllUsernames(new QueryCallback<Collection<String>>() {
             @Override
             public void result(Collection<String> data) {
                 allUsernames.addAll(data);
@@ -128,7 +128,7 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void doRegister(final String email, final String password, String userName, String phoneNumber) {
-        mPersistence.createNewUser(email, password, userName, phoneNumber, new QueryCallback<Boolean>() {
+        mPersistence.userDAO.createNewUser(email, password, userName, phoneNumber, new QueryCallback<Boolean>() {
             @Override
             public void result(Boolean success) {
                 if (success) {
