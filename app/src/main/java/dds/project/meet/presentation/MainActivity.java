@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -37,7 +40,7 @@ import dds.project.meet.logic.memento.CareTaker;
 import dds.project.meet.logic.memento.Originator;
 import dds.project.meet.persistence.QueryCallback;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     // UI elements
     private TextView numberCards;
@@ -49,9 +52,10 @@ public class MainActivity extends BaseActivity {
     private View tabBar;
     private View coloredBackgroundView;
     private View toolbarContainer;
-    private View toolbar;
+    private Toolbar toolbar;
 
     private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
     private ConstraintLayout background;
 
     // Class fields
@@ -66,6 +70,9 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+
         recyclerCards = (RecyclerView) findViewById(R.id.recycler_cards);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         numberCards = (TextView) findViewById(R.id.numberCards);
@@ -74,8 +81,17 @@ public class MainActivity extends BaseActivity {
         tabBar = findViewById(R.id.fake_tab);
         coloredBackgroundView = findViewById(R.id.colored_background_view);
         toolbarContainer = findViewById(R.id.toolbar_vbox);
-        toolbar = findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         dataCards = new ArrayList<Card>();
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        drawerLayout.addDrawerListener(toggle);
+
+        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.bringToFront();
 
         findViewById(R.id.mainMeetTitle).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -285,31 +301,6 @@ public class MainActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        switch (id){
-            case R.id.nav_home:
-                Toast.makeText(this, "Home", Toast.LENGTH_LONG).show();
-                break;
-            case R.id.nav_spaces:
-                Toast.makeText(this, "Spaces", Toast.LENGTH_LONG).show();
-                break;
-            case R.id.nav_contacts:
-                Toast.makeText(this, "Contacts", Toast.LENGTH_LONG).show();
-                break;
-            case R.id.nav_focus:
-                Toast.makeText(this, "Focus", Toast.LENGTH_LONG).show();
-                break;
-        }
-
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
     public void loadCards() {
         /*
         Card one = new Card("10:30", 12 , 3 , 2016 , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5);
@@ -370,4 +361,26 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id){
+            case R.id.nav_home:
+                Toast.makeText(this, "Home", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.nav_spaces:
+                Toast.makeText(this, "Spaces", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.nav_contacts:
+                Toast.makeText(this, "Contacts", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.nav_focus:
+                Toast.makeText(this, "Focus", Toast.LENGTH_LONG).show();
+                break;
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return false;
+    }
 }

@@ -81,10 +81,6 @@
                 android:value=".presentation.MainActivity" />
         </activity>
         <activity
-            android:name=".presentation.SidebarActivity"
-            android:label="@string/title_activity_sidebar"
-            android:theme="@style/AppTheme" />
-        <activity
             android:name=".presentation.RegisterActivity"
             android:label="@string/title_activity_register"></activity>
         <activity android:name=".presentation.SettingsEventActivity"
