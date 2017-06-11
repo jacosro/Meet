@@ -171,6 +171,7 @@ public class CreateNewEventActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SELECTED_PICTURE && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
+            uriString = uri.toString();
             photo.setImageURI(Uri.parse(uriString));
             photo.setImageResource(R.drawable.cameras);
             mCard.setImage(uri);
@@ -358,7 +359,7 @@ public class CreateNewEventActivity extends BaseActivity {
                     public void onClick(View v) {
                         dialog.hide();
                         descriptionButton.setText("Change Description");
-                        mCard.setDescription(((EditText) mView.findViewById(R.id.descriptionEditText)).getText().toString());
+                        mCard.setDescription(((TextInputLayout) mView.findViewById(R.id.descriptionEditText)).getEditText().getText().toString());
                     }
                 });
 
@@ -544,9 +545,9 @@ public class CreateNewEventActivity extends BaseActivity {
 
 
     public void donePressed() {
+        mCard.setPersons(dataMembers.size());
         if (constraintsAreOk()) {
             mCard.setName(editTextName.getText().toString());
-            mCard.setPersons(dataMembers.size());
             mPersistence.cardDAO.addCard(mCard, new QueryCallback<Boolean>() {
                 @Override
                 public void result(Boolean data) {
@@ -587,6 +588,11 @@ public class CreateNewEventActivity extends BaseActivity {
 
         if (mCard.getTime() == null) {
             Toast.makeText(this, "Please, select a time for the event", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (mCard.getImage() == null) {
+            Toast.makeText(this, "Please, select an image for the event", Toast.LENGTH_SHORT).show();
             return false;
         }
 

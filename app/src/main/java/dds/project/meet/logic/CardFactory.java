@@ -10,7 +10,7 @@ public class CardFactory {
         return new Card("00:00", 12 , 5, 2016, "Something goo", "Road to Nowhere", 0, 0, "la");
     }
 
-    public static Card getCard(String time, int dateDay, int dateMonth, int dateYear, String name, String location, int persons, int km){
-        return new Card(time, dateDay, dateMonth, dateYear , name, location, persons, km, "la" );
+    public static Card getCard(String time, int dateDay, int dateMonth, int dateYear, String name, String location, int persons, int km, String desc){
+        return new Card(time, dateDay, dateMonth, dateYear , name, location, persons, km, desc);
     }
 }

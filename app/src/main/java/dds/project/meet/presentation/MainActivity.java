@@ -317,7 +317,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     int participantsNum = extras.getInt("EXTRA_PART_NUM");
                     int distance = extras.getInt("EXTRA_DISTANCE");
 
-                    Card newCard = CardFactory.getCard(whatTimeLabel, day, month, year, name, address, participantsNum, distance);
+                    Card newCard = CardFactory.getCard(whatTimeLabel, day, month, year, name, address, participantsNum, distance, "dfsdghjhgeagsdhfjhhgre");
                     new NewCardCommand(adapterCards, newCard).execute();
                 }
             }
