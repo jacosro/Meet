@@ -45,7 +45,7 @@ public class CardDAOImpl implements ICardDAO {
     public void addCard(final Card card, final QueryCallback<Boolean> callback) {
         DatabaseReference ref = rootRef.child("cards");
         final String key = ref.push().getKey();
-        final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
+        final String uid = Persistence.getInstance().userDAO.getCurrentFirebaseUser().getUid();
 
         // Set fields to card
         card.setOwner(uid);
@@ -134,7 +134,7 @@ public class CardDAOImpl implements ICardDAO {
     @Override
     public void getAllCards(final QueryCallback<Card> callback) {
         Log.d(TAG, "Getting all cards");
-        final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
+        final String uid = Persistence.getInstance().userDAO.getCurrentFirebaseUser().getUid();
         Log.d(TAG, "uid = " + uid);
 
         rootRef.child("card_users").addListenerForSingleValueEvent(new ValueEventListener() {

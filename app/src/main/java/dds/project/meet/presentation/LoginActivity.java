@@ -3,16 +3,11 @@ package dds.project.meet.presentation;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 
 import dds.project.meet.R;
 import dds.project.meet.logic.User;
@@ -39,7 +34,7 @@ public class LoginActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (mPersistence.userDAO.getCurrentUser() != null) {
+        if (mPersistence.userDAO.getCurrentFirebaseUser() != null) {
             Log.d(TAG, "User is logged in! Launching MainActivity");
             loginCompleted();
         }

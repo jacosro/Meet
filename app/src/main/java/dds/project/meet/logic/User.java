@@ -1,5 +1,9 @@
 package dds.project.meet.logic;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 /**
  * Created by RaulCoroban on 28/04/2017.
  */
@@ -12,6 +16,9 @@ public class User implements Comparable<User> {
 
     private String uid;
 
+    public User() {
+
+    }
 
     public User(String name, String username, String telephone, String email) {
         this.name = name;
@@ -60,8 +67,24 @@ public class User implements Comparable<User> {
         this.telephone = telephone;
     }
 
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put("name", name);
+        map.put("email", email);
+        map.put("username", username);
+        map.put("phone", telephone);
+        map.put("uid", uid);
+
+        return map;
+    }
+
     @Override
     public int compareTo(User user) {
         return username.compareTo(user.username);
+    }
+
+    public String toString() {
+        return String.format("User[%s, %s, %s, %s, %s]", name, telephone, username, email, uid);
     }
 }

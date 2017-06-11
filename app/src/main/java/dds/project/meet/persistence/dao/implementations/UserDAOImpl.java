@@ -35,6 +35,8 @@ public class UserDAOImpl implements IUserDAO {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference rootRef;
 
+    private User mUser;
+
     public UserDAOImpl() {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -42,8 +44,18 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
-    public FirebaseUser getCurrentUser() {
+    public FirebaseUser getCurrentFirebaseUser() {
         return mFirebaseAuth.getCurrentUser();
+    }
+
+    @Override
+    public void setCurrentUser(User user) {
+        mUser = user;
+    }
+
+    @Override
+    public User getCurrentUser() {
+        return mUser;
     }
 
     @Override
@@ -57,16 +69,14 @@ public class UserDAOImpl implements IUserDAO {
                         Log.d(TAG + "::createNewUser", "Create new user successfully: " + success);
 
                         if (success) {
-                            user.setUid(getCurrentUser().getUid());
-
-                            DatabaseReference root = mFirebaseDatabase.getReference();
-                            String uid = getCurrentUser().getUid();
+                            String uid = getCurrentFirebaseUser().getUid();
+                            user.setUid(uid);
 
                             // Add user to users
-                            root.child("users").child(uid).setValue(user);
+                            rootRef.child("users").child(uid).setValue(user);
 
                             // Add username to allUsernames
-                            root.child("allUsernames").child(user.getUsername()).setValue(uid);
+                            rootRef.child("allUsernames").child(user.getUsername()).setValue(uid);
 
                         }
                         callback.result(success);
@@ -91,10 +101,10 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void findUserByUid(final String uid, final QueryCallback<User> callback) {
-        mFirebaseDatabase.getReference().child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.child(uid).getValue(User.class);
+                User user = dataSnapshot.getValue(User.class);
                 callback.result(user);
             }
 

@@ -15,7 +15,10 @@ import dds.project.meet.persistence.QueryCallback;
 
 public interface IUserDAO {
 
-    FirebaseUser getCurrentUser();
+    FirebaseUser getCurrentFirebaseUser();
+    void setCurrentUser(User user);
+    User getCurrentUser();
+
     void createNewUser(User user, String password, QueryCallback<Boolean> callback);
     void doLogin(User user, String password, QueryCallback<Boolean> callback);
     void doSignOut();

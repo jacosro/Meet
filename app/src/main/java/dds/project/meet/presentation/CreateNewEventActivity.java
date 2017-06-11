@@ -122,7 +122,7 @@ public class CreateNewEventActivity extends BaseActivity {
         dataContacts = new ArrayList<>();
         mCard = CardFactory.getCard();
 
-        String uid = mPersistence.userDAO.getCurrentUser().getUid();
+        String uid = mPersistence.userDAO.getCurrentFirebaseUser().getUid();
         mPersistence.userDAO.findUserByUid(uid, new QueryCallback<User>() {
             @Override
             public void result(User data) {
