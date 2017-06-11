@@ -3,8 +3,11 @@ package dds.project.meet.presentation;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +20,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -26,18 +30,24 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.User;
+import dds.project.meet.logic.GPSTracker;
 import dds.project.meet.logic.ParticipantOnEventAdapter;
+import dds.project.meet.logic.User;
 
 /**
  * Created by RaulCoroban on 24/04/2017.
  */
 
 public class EventActivity extends BaseActivity implements OnMapReadyCallback {
+
+    public static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 0;
+    public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    public static final String TAG = "EventActivity";
 
     //UI elements
     private ImageButton back;
@@ -51,12 +61,16 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     private TextView locationMap;
     private MapFragment googleMap;
     private Button settingsButton;
+    private Button directionsButton;
+    private  TextView realDistance;
 
     //Class fields
     private String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
     private GoogleMap map;
     private int dayE, monthE, yearE;
     private String nameE, timeE, locationE;
+    private LocationListener mLocationListener;
+    private LatLng eventLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +83,11 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         locationMap = (TextView) findViewById(R.id.location_map);
         back = (ImageButton) findViewById(R.id.backButton);
         settingsButton = (Button) findViewById(R.id.settingsButton);
+        directionsButton = (Button) findViewById(R.id.directionsButton);
+        realDistance = (TextView) findViewById(R.id.realDistance);
 
         googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
+
 
         dataUser = new ArrayList<User>();
         recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
@@ -130,6 +147,17 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
             }
         });
 
+        directionsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent toTrash = new Intent(EventActivity.this, TrashActivity.class);
+                startActivity(toTrash);
+            }
+        });
+
+
+
+
     }
 
     private void loadDefaultparticipants() {
@@ -183,12 +211,43 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         Log.d("MAP_READY", "Searched");
     }
 
+    private LatLng getLatLng(String address) throws IOException {
+        Geocoder gc = new Geocoder(this);
+        List<Address> list = gc.getFromLocationName(address, 1);
+        if (list.size() > 0) {
+        Address add = list.get(0);
+
+        String locality = add.getLocality();
+
+        double latitude = add.getLatitude();
+        double longitude = add.getLongitude();
+
+        return new LatLng(latitude, longitude);
+
+        } return null;
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        LatLng sydney = new LatLng(-33.852, 151.211);
-        googleMap.addMarker(new MarkerOptions().position(sydney)
-                .title("Marker in Sydney"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        try {
+            eventLocation = getLatLng(locationE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (eventLocation != null) {
+            googleMap.addMarker(new MarkerOptions().position(eventLocation)
+                    .title("Marker in Sydney"));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(eventLocation, 15));
+
+            GPSTracker gps = new GPSTracker(this);
+            if (gps.canGetLocation()) {
+                DecimalFormat df = new DecimalFormat("#.0");
+                LatLng myLocationLatLng = new LatLng(gps.getLatitude(), gps.getLongitude());
+                Toast.makeText(this, myLocationLatLng.toString(), Toast.LENGTH_LONG).show();
+                realDistance.setText(df.format(calculateDistanceBetween(myLocationLatLng, eventLocation)) + " km");
+            }
+        }
     }
 
     @Override
@@ -219,6 +278,40 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
                 }
             }
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                }
+                return;
+            }
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                }
+                return;
+            }
+        }
+    }
+
+    public double calculateDistanceBetween(LatLng latLng1, LatLng latLng2) {
+        Location loc1 = new Location(LocationManager.GPS_PROVIDER);
+        Location loc2 = new Location(LocationManager.GPS_PROVIDER);
+
+        loc1.setLatitude(latLng1.latitude);
+        loc1.setLongitude(latLng1.longitude);
+
+        loc2.setLatitude(latLng2.latitude);
+        loc2.setLongitude(latLng2.longitude);
+
+
+        return loc1.distanceTo(loc2)/1000;
     }
 
 }

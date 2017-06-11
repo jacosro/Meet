@@ -24,8 +24,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 import dds.project.meet.R;
 import dds.project.meet.logic.Card;
 import dds.project.meet.logic.CardAdapter;
@@ -33,7 +31,6 @@ import dds.project.meet.logic.CardFactory;
 import dds.project.meet.logic.RecyclerItemClickListener;
 import dds.project.meet.logic.command.AddCardCommand;
 import dds.project.meet.logic.command.Command;
-import dds.project.meet.logic.command.MoveCardCommand;
 import dds.project.meet.logic.command.NewCardCommand;
 import dds.project.meet.logic.command.RemoveCardCommand;
 import dds.project.meet.logic.memento.CareTaker;
@@ -53,6 +50,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private View coloredBackgroundView;
     private View toolbarContainer;
     private Toolbar toolbar;
+
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -222,7 +220,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                         undoDelete.setAction("RESTORE", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                new NewCardCommand(adapterCards, dataCards, originator.getState()).execute();
+                                new NewCardCommand(adapterCards, originator.getState()).execute();
                                 careTaker.undo();
                             }
                         });

@@ -4,7 +4,7 @@
     android:viewportWidth="1080"
     android:viewportHeight="1920">
     <path
-        android:fillColor="#5daf9d"
+        android:fillColor="#FFFFFF"
         android:name="Back copy 2"
         android:pathData="m1 -1341h1104c2.2 0 4 1.8 4 4v1989c0 2.2 -1.8 4 -4 4h-1104c-2.2 0 -4 -1.8 -4 -4v-1989c0 -2.2 1.8 -4 4 -4z" />
 </vector>
