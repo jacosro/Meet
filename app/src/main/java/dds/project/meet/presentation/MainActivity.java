@@ -90,14 +90,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.bringToFront();
 
-        findViewById(R.id.mainMeetTitle).setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                doSignOut();
-                return true;
-            }
-        });
-
         //Memento tools declaration
         originator = new Originator();
         careTaker = new CareTaker();
@@ -189,13 +181,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 return toolbarContainer.getTranslationY() - dy > 0;
             }
         });
-    }
-
-    private void doSignOut() {
-        mPersistence.userDAO.doSignOut();
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
-        finish();
     }
 
     private ItemTouchHelper.Callback createHelperCallback(){
@@ -355,6 +340,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 break;
             case R.id.nav_focus:
                 Toast.makeText(this, "Focus", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.nav_logout:
+                mPersistence.userDAO.doSignOut();
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                finish();
                 break;
         }
 

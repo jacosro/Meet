@@ -70,8 +70,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     //Class fields
     private String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
     private GoogleMap map;
-    private int dayE, monthE, yearE;
-    private String nameE, timeE, locationE;
+    private Card mCard;
     private LocationListener mLocationListener;
     private LatLng eventLocation;
 
@@ -95,17 +94,34 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         mPersistence.cardDAO.getCardByKey(key, new QueryCallback<Card>() {
             @Override
             public void result(Card data) {
-                nameEvent.setText(nameE);
-                timeEvent.setText(timeE);
-                dateEvent.setText(dayE + "" + correctSuperScript(dayE) + " " + months[monthE]);
-                locationMap.setText(locationE);
+                mCard = data;
+
+                Log.d(TAG, data.toString());
+
+                nameEvent.setText(mCard.getName());
+                timeEvent.setText(mCard.getTime());
+                dateEvent.setText(mCard.getDateDay() + "" + correctSuperScript(mCard.getDateDay()) + " " + months[mCard.getDateMonth()]);
+                locationMap.setText(mCard.getLocation());
 
 
+                googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
 
+                if(googleServicesOK()) {
+                    Log.d("MAP_READY", "Enterning...");
+                    googleMap.getMapAsync(EventActivity.this);
+                    Log.d("MAP_READY", "InitMap");
+                } else {
+                    Toast.makeText(EventActivity.this, "No map available", Toast.LENGTH_LONG).show();
+                }
+
+                try {
+                    geoLocate(mCard.getLocation());
+                } catch (IOException e) {
+                    Log.d(TAG, "IOException: " + e);
+                }
             }
         });
 
-        googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
 
 
         dataUser = new ArrayList<User>();
@@ -131,19 +147,11 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
 
 
 
-        if(googleServicesOK()) {
-            Log.d("MAP_READY", "Enterning...");
-            googleMap.getMapAsync(this);
-            Log.d("MAP_READY", "InitMap");
-        } else {
-            Toast.makeText(this, "No map available", Toast.LENGTH_LONG).show();
-        }
-
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish(); // <-- TODO Keep in memory?
+                finish();
             }
         });
 
@@ -152,14 +160,14 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
             public void onClick(View v) {
                 Intent toEventSettings = new Intent(EventActivity.this, SettingsEventActivity.class);
 
-                toEventSettings.putExtra("EXTRA_NAME", nameE);
-                toEventSettings.putExtra("EXTRA_LOCATION", locationE);
-                toEventSettings.putExtra("EXTRA_TIME", timeE);
-                toEventSettings.putExtra("EXTRA_DATE_DAY", dayE);
-                toEventSettings.putExtra("EXTRA_DATE_MONTH", monthE);
-                toEventSettings.putExtra("EXTRA_DATE_YEAR", yearE);
+                toEventSettings.putExtra("EXTRA_NAME", mCard.getName());
+                toEventSettings.putExtra("EXTRA_LOCATION", mCard.getLocation());
+                toEventSettings.putExtra("EXTRA_TIME", mCard.getTime());
+                toEventSettings.putExtra("EXTRA_DATE_DAY", mCard.getDateDay());
+                toEventSettings.putExtra("EXTRA_DATE_MONTH", mCard.getDateMonth());
+                toEventSettings.putExtra("EXTRA_DATE_YEAR", mCard.getDateYear());
 
-                startActivityForResult(toEventSettings, Activity.RESULT_OK);
+                startActivity(toEventSettings);
             }
         });
 
@@ -246,7 +254,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         try {
-            eventLocation = getLatLng(locationE);
+            eventLocation = getLatLng(mCard.getLocation());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -262,36 +270,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
                 LatLng myLocationLatLng = new LatLng(gps.getLatitude(), gps.getLongitude());
                 Toast.makeText(this, myLocationLatLng.toString(), Toast.LENGTH_LONG).show();
                 realDistance.setText(df.format(calculateDistanceBetween(myLocationLatLng, eventLocation)) + " km");
-            }
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-        if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
-            if (intent != null) {
-                Bundle extras = intent.getExtras();
-                if (extras != null) {
-                    String nameNew = extras.getString("EXTRA_NAME");
-                    int day = extras.getInt("EXTRA_DAY");
-                    int month = extras.getInt("EXTRA_MONTH");
-                    int year = extras.getInt("EXTRA_DISTANCE");
-                    String address = extras.getString("EXTRA_ADDRESS");
-                    String whatTimeLabel = extras.getString("EXTRA_TIME");
-
-                    nameE = nameNew; nameEvent.setText(nameNew);
-                    dayE = day; monthE = month; yearE = year; dateEvent.setText(day + "" + correctSuperScript(day) + " " + months[month]);
-                    locationE = address; locationMap.setText(address);
-                    try {
-                        geoLocate(address);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    timeE = whatTimeLabel; timeEvent.setText(whatTimeLabel);
-
-
-                }
             }
         }
     }
