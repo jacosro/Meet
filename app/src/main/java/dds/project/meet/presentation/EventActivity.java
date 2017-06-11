@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,9 +36,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dds.project.meet.R;
+import dds.project.meet.logic.Card;
 import dds.project.meet.logic.GPSTracker;
 import dds.project.meet.logic.ParticipantOnEventAdapter;
 import dds.project.meet.logic.User;
+import dds.project.meet.persistence.QueryCallback;
 
 /**
  * Created by RaulCoroban on 24/04/2017.
@@ -86,6 +89,22 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         directionsButton = (Button) findViewById(R.id.directionsButton);
         realDistance = (TextView) findViewById(R.id.realDistance);
 
+        Intent intent = getIntent();
+        String key = intent.getStringExtra("key");
+
+        mPersistence.cardDAO.getCardByKey(key, new QueryCallback<Card>() {
+            @Override
+            public void result(Card data) {
+                nameEvent.setText(nameE);
+                timeEvent.setText(timeE);
+                dateEvent.setText(dayE + "" + correctSuperScript(dayE) + " " + months[monthE]);
+                locationMap.setText(locationE);
+
+
+
+            }
+        });
+
         googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
 
 
@@ -102,17 +121,14 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
 
         loadDefaultparticipants();
 
-        Intent intent = getIntent();
+        /*
         nameE = intent.getStringExtra("EXTRA_NAME");
         timeE = intent.getStringExtra("EXTRA_TIME");
         dayE = intent.getIntExtra("EXTRA_DATE_DAY", 0);
         monthE = intent.getIntExtra("EXTRA_DATE_MONTH", 0);
         locationE = intent.getStringExtra("EXTRA_LOCATION");
+        */
 
-        nameEvent.setText(nameE);
-        timeEvent.setText(timeE);
-        dateEvent.setText(dayE + "" + correctSuperScript(dayE) + " " + months[monthE]);
-        locationMap.setText(locationE);
 
 
         if(googleServicesOK()) {

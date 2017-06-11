@@ -302,6 +302,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public void openEvent(Card card) {
         Intent intent = new Intent(this, EventActivity.class);
 
+        /*
         intent.putExtra("EXTRA_NAME", card.getName());
         intent.putExtra("EXTRA_LOCATION", card.getLocation());
         intent.putExtra("EXTRA_TIME", card.getTime());
@@ -309,6 +310,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         intent.putExtra("EXTRA_DATE_DAY", card.getDateDay());
         intent.putExtra("EXTRA_DATE_MONTH", card.getDateMonth());
         intent.putExtra("EXTRA_DATE_YEAR", card.getDateYear());
+        */
+
+        intent.putExtra("key", card.getDbKey());
 
         startActivity(intent);
     }
