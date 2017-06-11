@@ -16,12 +16,13 @@ import dds.project.meet.persistence.QueryCallback;
 public interface IUserDAO {
 
     FirebaseUser getCurrentUser();
-    void createNewUser(String email, String password, String username, String phone, QueryCallback<Boolean> callback);
-    void doLogin(String email, String password, QueryCallback<Boolean> callback);
+    void createNewUser(User user, String password, QueryCallback<Boolean> callback);
+    void doLogin(User user, String password, QueryCallback<Boolean> callback);
     void doSignOut();
 
-    void getUserByUid(String uid, QueryCallback<User> callback);
-    void getUserByUsername(String username, QueryCallback<User> callback);
+    void findUserByUid(String uid, QueryCallback<User> callback);
+    void findUserByUsername(String username, QueryCallback<User> callback);
+    void findUserByEmail(String email, QueryCallback<User> callback);
 
     void removeUserFromCard(Card card, User user, QueryCallback<Boolean> callback);
 

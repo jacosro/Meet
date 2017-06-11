@@ -47,6 +47,7 @@ import java.util.TreeSet;
 
 import dds.project.meet.R;
 import dds.project.meet.logic.Card;
+import dds.project.meet.logic.CardFactory;
 import dds.project.meet.logic.ContactAdapter;
 import dds.project.meet.logic.ParticipantAdapter;
 import dds.project.meet.logic.RecyclerItemClickListener;
@@ -86,6 +87,7 @@ public class CreateNewEventActivity extends BaseActivity {
     private Button locationButton;
     private Button descriptionButton;
 
+    private User mUser;
 
     //Class fields
     private String uriString;
@@ -118,6 +120,17 @@ public class CreateNewEventActivity extends BaseActivity {
         name = (TextInputLayout) findViewById(R.id.nameEditText);
         dataMembers = new ArrayList<User>();
         dataContacts = new ArrayList<>();
+        mCard = CardFactory.getCard();
+
+        String uid = mPersistence.userDAO.getCurrentUser().getUid();
+        mPersistence.userDAO.findUserByUid(uid, new QueryCallback<User>() {
+            @Override
+            public void result(User data) {
+                mUser = data;
+                dataMembers.add(data);
+                adapterParticipants.notifyItemInserted(dataMembers.size() - 1);
+            }
+        });
 
 
         recyclerParticipants.setHasFixedSize(true);
@@ -131,7 +144,12 @@ public class CreateNewEventActivity extends BaseActivity {
         recyclerParticipants.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        deleteContactFromMembers(dataMembers.get(position));
+                        User user = dataMembers.get(position);
+                        if (mUser.compareTo(user) != 0) {
+                            deleteContactFromMembers(user);
+                        } else {
+                            Toast.makeText(CreateNewEventActivity.this, "You cannot remove yourself!", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 })
         );
@@ -191,10 +209,13 @@ public class CreateNewEventActivity extends BaseActivity {
 
     public void deleteContactFromMembers(User contact) {
         dataMembers.remove(contact);
+
         Set<User> sorted = new TreeSet<>(dataContacts);
         sorted.add(contact);
+
         dataContacts.clear();
         dataContacts.addAll(sorted);
+
         adapterContacts.notifyDataSetChanged();
         adapterParticipants.notifyDataSetChanged();
         participantsNumberLabel.setText(dataMembers.size() + " participants");

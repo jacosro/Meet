@@ -47,9 +47,9 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
-    public void createNewUser(final String email, String password, final String username, final String phone, final QueryCallback<Boolean> callback) {
+    public void createNewUser(final User user, String password, final QueryCallback<Boolean> callback) {
         Log.d(TAG + "::createNewUser", "Start");
-        mFirebaseAuth.createUserWithEmailAndPassword(email, password)
+        mFirebaseAuth.createUserWithEmailAndPassword(user.getEmail(), password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -57,18 +57,17 @@ public class UserDAOImpl implements IUserDAO {
                         Log.d(TAG + "::createNewUser", "Create new user successfully: " + success);
 
                         if (success) {
+                            user.setUid(getCurrentUser().getUid());
+
                             DatabaseReference root = mFirebaseDatabase.getReference();
                             String uid = getCurrentUser().getUid();
 
                             // Add user to users
-                            DatabaseReference usersRef = root.child("users").child(uid);
-                            usersRef.child("username").setValue(username); // Add uid
-                            usersRef.child("email").setValue(email); // Add email
-                            usersRef.child("phone").setValue(phone); // Add phone number
+                            root.child("users").child(uid).setValue(user);
 
                             // Add username to allUsernames
-                            DatabaseReference usernamesRef = root.child("allUsernames");
-                            usernamesRef.child(username).setValue(uid);
+                            root.child("allUsernames").child(user.getUsername()).setValue(uid);
+
                         }
                         callback.result(success);
                     }
@@ -76,8 +75,8 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
-    public void doLogin(final String email, final String password, final QueryCallback<Boolean> callback) {
-        mFirebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+    public void doLogin(User user, String password, final QueryCallback<Boolean> callback) {
+        mFirebaseAuth.signInWithEmailAndPassword(user.getEmail(), password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 callback.result(task.isSuccessful());
@@ -91,7 +90,7 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
-    public void getUserByUid(final String uid, final QueryCallback<User> callback) {
+    public void findUserByUid(final String uid, final QueryCallback<User> callback) {
         mFirebaseDatabase.getReference().child("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -108,12 +107,11 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
-    public void getUserByUsername(final String username, final QueryCallback<User> callback) {
-        mFirebaseDatabase.getReference().addListenerForSingleValueEvent(new ValueEventListener() {
+    public void findUserByUsername(final String username, final QueryCallback<User> callback) {
+        rootRef.child("users").orderByChild("username").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String uid = dataSnapshot.child("allUsernames").child(username).getValue(String.class);
-                User user = dataSnapshot.child("users").child(uid).getValue(User.class);
+                User user = dataSnapshot.getValue(User.class);
                 callback.result(user);
             }
 
@@ -126,27 +124,33 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
+    public void findUserByEmail(String email, final QueryCallback<User> callback) {
+        rootRef.child("users").orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
+                callback.result(user);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "findByEmail error " + databaseError);
+                callback.result(null);
+            }
+        });
+    }
+
+    @Override
     public void removeUserFromCard(Card card, User user, final QueryCallback<Boolean> callback) {
-        final String key = card.getDbKey();
-        String username = user.getUsername();
+        String key = card.getDbKey();
+        String uid = user.getUid();
 
-        if (key != null) {
-            rootRef.child("allUsernames").child(username).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    String uid = dataSnapshot.getValue(String.class);
-
-                    rootRef.child("card_users").child(key).child(uid).removeValue();
-
-                    callback.result(true);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    callback.result(false);
-                }
-            });
-
+        if (key != null && uid != null) {
+            rootRef.child("card_users").child(key).child(user.getUid()).removeValue();
+            callback.result(true);
+        } else {
+            Log.d(TAG, "Card key or uid null!");
+            callback.result(false);
         }
     }
 

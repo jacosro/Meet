@@ -10,11 +10,22 @@ public class User implements Comparable<User> {
     private String telephone;
     private String email;
 
+    private String uid;
+
+
     public User(String name, String username, String telephone, String email) {
         this.name = name;
         this.username = username;
         this.telephone = telephone;
         this.email = email;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getUsername() {
@@ -51,6 +62,6 @@ public class User implements Comparable<User> {
 
     @Override
     public int compareTo(User user) {
-        return name.compareTo(user.name);
+        return username.compareTo(user.username);
     }
 }

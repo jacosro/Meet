@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 
 import dds.project.meet.R;
+import dds.project.meet.logic.User;
 import dds.project.meet.persistence.QueryCallback;
 
 
@@ -80,7 +81,7 @@ public class LoginActivity extends BaseActivity {
         View failed = null;
 
         String email = mEmailEditText.getText().toString();
-        String password = mPasswordEditText.getText().toString();
+        final String password = mPasswordEditText.getText().toString();
 
         if (!isPasswordOK(password)) {
             cancel = true;
@@ -98,14 +99,19 @@ public class LoginActivity extends BaseActivity {
             hideProgressDialog();
             failed.requestFocus();
         } else {
-            doSignIn(email, password);
+            mPersistence.userDAO.findUserByEmail(email, new QueryCallback<User>() {
+                @Override
+                public void result(User data) {
+                    doSignIn(data, password);
+                }
+            });
         }
     }
 
-    private void doSignIn(String email, String password) {
+    private void doSignIn(User user, String password) {
         showProgressDialog();
 
-        mPersistence.userDAO.doLogin(email, password, new QueryCallback<Boolean>() {
+        mPersistence.userDAO.doLogin(user, password, new QueryCallback<Boolean>() {
             @Override
             public void result(Boolean success) {
                 if (success) {
@@ -143,10 +149,15 @@ public class LoginActivity extends BaseActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             if (intent != null && intent.getExtras() != null) {
+                String name = intent.getExtras().getString("name");
                 String email = intent.getExtras().getString("email");
+                String username = intent.getExtras().getString("username");
                 String password = intent.getExtras().getString("password");
+                String phone = intent.getExtras().getString("phone");
 
-                doSignIn(email, password);
+                User user = new User(name, username, phone, email);
+
+                doSignIn(user, password);
             }
         }
     }

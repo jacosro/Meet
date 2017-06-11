@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import dds.project.meet.R;
+import dds.project.meet.logic.User;
 import dds.project.meet.persistence.QueryCallback;
 
 public class RegisterActivity extends BaseActivity {
@@ -128,7 +129,8 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void doRegister(final String email, final String password, String userName, String phoneNumber) {
-        mPersistence.userDAO.createNewUser(email, password, userName, phoneNumber, new QueryCallback<Boolean>() {
+        User user = new User("Me", userName, phoneNumber, email);
+        mPersistence.userDAO.createNewUser(user, password, new QueryCallback<Boolean>() {
             @Override
             public void result(Boolean success) {
                 if (success) {

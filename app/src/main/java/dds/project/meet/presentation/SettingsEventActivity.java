@@ -44,8 +44,6 @@ public class SettingsEventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_settings);
 
-        editTextNameSettings = (EditText) findViewById(R.id.editTextNameSettings);
-        editTextLocation = (EditText) findViewById(R.id.editTextLocation);
         whenLabel = (TextView) findViewById(R.id.whenLabel);
         whatTimeLabel = (TextView) findViewById(R.id.whatTimeLabel);
         whatTimeButton = (ImageButton) findViewById(R.id.whatTimeButton);
