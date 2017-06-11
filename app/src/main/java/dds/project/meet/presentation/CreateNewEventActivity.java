@@ -14,7 +14,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -39,8 +38,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.Card;
-import dds.project.meet.logic.CardFactory;
 import dds.project.meet.logic.ContactAdapter;
 import dds.project.meet.logic.ParticipantAdapter;
 import dds.project.meet.logic.RecyclerItemClickListener;
@@ -64,8 +61,8 @@ public class CreateNewEventActivity extends AppCompatActivity {
     private TextInputLayout name;
     private TextView whenLabel;
     private TextView whatTimeLabel;
-    public static ArrayList<User> dataMembers;
-    public static ArrayList<User> dataContacts;
+    public ArrayList<User> dataMembers;
+    public ArrayList<User> dataContacts;
     private RecyclerView.LayoutManager layoutManagerParticipants;
     private ParticipantAdapter adapterParticipants;
     private ContactAdapter adapterContacts;
@@ -345,7 +342,8 @@ public class CreateNewEventActivity extends AppCompatActivity {
                 }
 
             } while (cursor.moveToNext()) ;
-            //adapterContacts.notifyDataSetChanged();
+            adapterContacts.notifyDataSetChanged();
+            Log.d(TAG, dataContacts.size() + "");
         }
     }
 

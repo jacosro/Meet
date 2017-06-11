@@ -358,11 +358,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         if(adapterCards.getItemCount() > 0) {
             noEvents.setVisibility(View.GONE);
-            //background.setBackgroundResource(R.drawable.back);
+            background.setBackgroundResource(R.drawable.back);
         } else {
             numberCards.setText("No events. No one loves you");
             noEvents.setVisibility(View.VISIBLE);
-            //background.setBackgroundResource(R.drawable.full);
+            background.setBackgroundResource(R.drawable.full);
         }
     }
 }
