@@ -60,7 +60,12 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         if (split.length == 2) {
             initials = (split[0].substring(0, 1)+ split[1].substring(0, 1)).toUpperCase();
         } else {
-            initials = split[0].substring(0, 2);
+            if (split[0].length() == 1) {
+                initials = split[0].substring(0, 1);
+            } else {
+                initials = split[0].substring(0, 2);
+
+            }
         }
         holder.acroContact.setText(initials);
     }
