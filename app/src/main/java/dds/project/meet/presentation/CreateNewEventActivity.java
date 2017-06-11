@@ -321,11 +321,11 @@ public class CreateNewEventActivity extends AppCompatActivity {
     }
 
     private void loadContactsFromPhone() {
-        ContentResolver cr = CreateNewEventActivity.this.getContentResolver();
+        ContentResolver cr = getContentResolver();
         Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-        if(cursor.moveToFirst())
+        if(cursor != null)
         {
-            do {
+            while(cursor.moveToNext()) {
                 String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
 
                 if(Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0)
@@ -341,7 +341,8 @@ public class CreateNewEventActivity extends AppCompatActivity {
                     pCur.close();
                 }
 
-            } while (cursor.moveToNext()) ;
+            }
+            cursor.close();
             adapterContacts.notifyDataSetChanged();
             Log.d(TAG, dataContacts.size() + "");
         }

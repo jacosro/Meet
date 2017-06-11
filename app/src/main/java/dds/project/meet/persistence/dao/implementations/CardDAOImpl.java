@@ -121,7 +121,7 @@ public class CardDAOImpl implements ICardDAO {
                 for (DataSnapshot card : dataSnapshot.getChildren()) {
                     String key = card.getKey();
                     Log.d(TAG, key);
-                    if (card.hasChild(uid)) {
+                    if (card.child(uid).exists()) {
                         getCardByKey(key, callback);
                     }
                 }
