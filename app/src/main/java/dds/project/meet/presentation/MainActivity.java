@@ -281,10 +281,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         Command addCard2 = new AddCardCommand(recyclerCards.getAdapter(), dataCards, two);
         addCard2.execute();
         */
+        showProgressDialog();
         mPersistence.cardDAO.getAllCards(new QueryCallback<Card>() {
             @Override
             public void result(Card data) {
-                addCard(data);
+                if (data != null) {
+                    addCard(data);
+                } else {
+                    hideProgressDialog();
+                }
             }
         });
     }

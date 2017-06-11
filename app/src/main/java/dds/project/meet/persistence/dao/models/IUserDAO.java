@@ -25,4 +25,5 @@ public interface IUserDAO {
 
     void getAllUsersOfCard(Card card, QueryCallback<List<User>> callback);
     void getAllUsernames(QueryCallback<Collection<String>> callback);
+    void getAllPhoneNumbers(QueryCallback<Collection<String>> callback);
 }

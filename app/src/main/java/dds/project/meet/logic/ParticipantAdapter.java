@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import dds.project.meet.R;
@@ -20,7 +21,7 @@ import dds.project.meet.R;
 
 public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.ViewHolder> {
 
-    private ArrayList<User> dataMembers;
+    private List<User> dataMembers;
     Context context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -39,7 +40,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
         }
     }
 
-    public ParticipantAdapter(ArrayList<User> myyDataset, Context context){
+    public ParticipantAdapter(List<User> myyDataset, Context context){
         dataMembers = myyDataset;
         this.context = context;
     }

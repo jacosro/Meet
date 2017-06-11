@@ -4,7 +4,7 @@ package dds.project.meet.logic;
  * Created by RaulCoroban on 28/04/2017.
  */
 
-public class User {
+public class User implements Comparable<User> {
     private String name;
     private String username;
     private String telephone;
@@ -49,4 +49,8 @@ public class User {
         this.telephone = telephone;
     }
 
+    @Override
+    public int compareTo(User user) {
+        return name.compareTo(user.name);
+    }
 }

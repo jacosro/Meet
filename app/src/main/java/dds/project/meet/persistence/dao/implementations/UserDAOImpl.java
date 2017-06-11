@@ -29,14 +29,16 @@ import dds.project.meet.persistence.dao.models.IUserDAO;
 
 public class UserDAOImpl implements IUserDAO {
 
-    private static final String TAG = "UserDAO";
+    private static final String TAG = "userDAO";
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference rootRef;
 
     public UserDAOImpl() {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
+        rootRef = mFirebaseDatabase.getReference();
     }
 
     @Override
@@ -148,6 +150,28 @@ public class UserDAOImpl implements IUserDAO {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.d(TAG, "Error getting usernames!" + databaseError.toString());
+            }
+        });
+    }
+
+    @Override
+    public void getAllPhoneNumbers(final QueryCallback<Collection<String>> callback) {
+        rootRef.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<String> res = new ArrayList<String>();
+
+                for (DataSnapshot user : dataSnapshot.getChildren()) {
+                    Object phone = user.child("phone").getValue();
+                    Log.d(TAG, "Phone: " + phone);
+                    res.add(phone.toString());
+                }
+                callback.result(res);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.result(new ArrayList<String>());
             }
         });
     }

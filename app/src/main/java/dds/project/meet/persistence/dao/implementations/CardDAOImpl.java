@@ -125,6 +125,7 @@ public class CardDAOImpl implements ICardDAO {
                         getCardByKey(key, callback);
                     }
                 }
+                callback.result(null);
             }
 
             @Override

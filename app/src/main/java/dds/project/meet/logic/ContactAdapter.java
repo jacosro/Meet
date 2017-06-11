@@ -8,7 +8,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import dds.project.meet.R;
 
@@ -17,7 +19,7 @@ import dds.project.meet.R;
  */
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHolder>{
-    private ArrayList<User> dataMembers;
+    private List<User> dataMembers;
     Context context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -34,7 +36,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         }
     }
 
-    public ContactAdapter(ArrayList<User> myyDataset, Context context){
+    public ContactAdapter(List<User> myyDataset, Context context){
         dataMembers = myyDataset;
         this.context = context;
     }
@@ -49,15 +51,14 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
     @Override
     public void onBindViewHolder(final ContactAdapter.ViewHolder holder, int position) {
         final String name = dataMembers.get(position).getName();
-        String [] first = name.split("\\s");
-        holder.nameContact.setText(first[0]);
+        holder.nameContact.setText(name);
         holder.phoneContact.setText(dataMembers.get(position).getTelephone());
 
 
 
         String[] split = name.split("\\s");
         String initials;
-        if (split.length == 2) {
+        if (split.length >= 2) {
             initials = (split[0].substring(0, 1)+ split[1].substring(0, 1)).toUpperCase();
         } else {
             if (split[0].length() == 1) {
@@ -80,5 +81,9 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         Random r = new Random();
         int selectColor = r.nextInt(colors.length);
         return colors[selectColor];
+    }
+
+    public User get(int position) {
+        return dataMembers.get(position);
     }
 }
