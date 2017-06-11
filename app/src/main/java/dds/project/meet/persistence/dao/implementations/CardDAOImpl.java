@@ -112,14 +112,18 @@ public class CardDAOImpl implements ICardDAO {
     @Override
     public void getAllCards(final QueryCallback<Card> callback) {
         Log.d(TAG, "Getting all cards");
-        String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
+        final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
+        Log.d(TAG, "uid = " + uid);
 
-        rootRef.child("card_users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child("card_users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot card : dataSnapshot.getChildren()) {
-                    Log.d(TAG, card.getKey());
-                    getCardByKey(card.getKey(), callback);
+                    String key = card.getKey();
+                    Log.d(TAG, key);
+                    if (card.hasChild(uid)) {
+                        getCardByKey(key, callback);
+                    }
                 }
             }
 
