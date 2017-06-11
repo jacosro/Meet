@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -37,25 +40,25 @@ import dds.project.meet.logic.memento.CareTaker;
 import dds.project.meet.logic.memento.Originator;
 import dds.project.meet.persistence.QueryCallback;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     // UI elements
     private TextView numberCards;
     private FloatingActionButton fab;
     private RecyclerView recyclerCards;
-    public static RecyclerView.Adapter adapterCards;
+    private CardAdapter adapterCards;
     private RecyclerView.LayoutManager layoutManagerCards;
     private ImageView noEvents;
     private View tabBar;
     private View coloredBackgroundView;
     private View toolbarContainer;
-    private View toolbar;
+    private Toolbar toolbar;
 
     private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
     private ConstraintLayout background;
 
     // Class fields
-    static ArrayList<Card> dataCards;
     private Originator originator;
     private CareTaker careTaker;
 
@@ -66,6 +69,9 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+
         recyclerCards = (RecyclerView) findViewById(R.id.recycler_cards);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -75,8 +81,16 @@ public class MainActivity extends BaseActivity {
         tabBar = findViewById(R.id.fake_tab);
         coloredBackgroundView = findViewById(R.id.colored_background_view);
         toolbarContainer = findViewById(R.id.toolbar_vbox);
-        toolbar = findViewById(R.id.toolbar);
-        dataCards = new ArrayList<Card>();
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        drawerLayout.addDrawerListener(toggle);
+
+        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.bringToFront();
 
         findViewById(R.id.mainMeetTitle).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -96,13 +110,13 @@ public class MainActivity extends BaseActivity {
         recyclerCards.setHasFixedSize(true);
         layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerCards.setLayoutManager(layoutManagerCards);
-        adapterCards = new CardAdapter(dataCards, this);
+        adapterCards = new CardAdapter();
         recyclerCards.setAdapter(adapterCards);
 
         recyclerCards.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        Card c = dataCards.get(position);
+                        Card c = adapterCards.get(position);
                         openEvent(c);
                     }
                 })
@@ -121,17 +135,9 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        if(dataCards.size() > 0) {
-            noEvents.setVisibility(View.GONE);
-            background.setBackgroundResource(R.drawable.back);
-        } else {
-            noEvents.setVisibility(View.VISIBLE);
-            background.setBackgroundResource(R.drawable.full);
-        }
-
         setupToolbar();
         setupRecyclerView();
-
+        refreshUI();
     }
 
     @Override
@@ -146,7 +152,7 @@ public class MainActivity extends BaseActivity {
     }
     private void setupRecyclerView() {
 
-        recyclerCards.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerCards.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
@@ -200,13 +206,12 @@ public class MainActivity extends BaseActivity {
 
                     @Override
                     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                        moveCard(viewHolder.getAdapterPosition(), target.getAdapterPosition());
                         return true;
                     }
 
                     @Override
                     public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
-                        Card aux = dataCards.get(viewHolder.getAdapterPosition());
+                        Card aux = adapterCards.get(viewHolder.getAdapterPosition());
                         String name = aux.getName();
 
                         originator.setState(aux);
@@ -228,35 +233,16 @@ public class MainActivity extends BaseActivity {
     }
 
     private void addCard(Card card) {
-        Command addCard = new AddCardCommand(recyclerCards.getAdapter(), dataCards, card);
+        Command addCard = new AddCardCommand(adapterCards, card);
         addCard.execute();
-        numberCards.setText(dataCards.size() + " upcoming event(s)");
-
-        if(dataCards.size() > 0) {
-            noEvents.setVisibility(View.GONE);
-            background.setBackgroundResource(R.drawable.back);
-        }
+        refreshUI();
     }
 
     private void deleteCard(int adapterPosition) {
-        Command deleteCard = new RemoveCardCommand(recyclerCards.getAdapter(), dataCards, adapterPosition);
+        Command deleteCard = new RemoveCardCommand(adapterCards, adapterPosition);
         deleteCard.execute();
-
-        if(dataCards.size() > 0) {
-            numberCards.setText(dataCards.size() + " upcoming event(s)");
-        } else {
-            numberCards.setText("No events. No one loves you");
-            noEvents.setVisibility(View.VISIBLE);
-            background.setBackgroundResource(R.drawable.full);
-        }
-
+        refreshUI();
     }
-
-    private void moveCard(int adapterPositionOld, int adapterPositionNew) {
-        Command moveCard = new MoveCardCommand(recyclerCards.getAdapter(), dataCards, adapterPositionOld, adapterPositionNew);
-        moveCard.execute();
-    }
-
 
     @Override
     public void onBackPressed() {
@@ -287,30 +273,6 @@ public class MainActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        switch (id){
-            case R.id.nav_home:
-                Toast.makeText(this, "Home", Toast.LENGTH_LONG).show();
-                break;
-            case R.id.nav_spaces:
-                Toast.makeText(this, "Spaces", Toast.LENGTH_LONG).show();
-                break;
-            case R.id.nav_contacts:
-                Toast.makeText(this, "Contacts", Toast.LENGTH_LONG).show();
-                break;
-            case R.id.nav_focus:
-                Toast.makeText(this, "Focus", Toast.LENGTH_LONG).show();
-                break;
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
     public void loadCards() {
         /*
         Card one = new Card("10:30", 12 , 3 , 2016 , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5);
@@ -327,7 +289,6 @@ public class MainActivity extends BaseActivity {
                 addCard(data);
             }
         });
-        numberCards.setText(dataCards.size() + " upcoming event(s)");
     }
 
     public void createCard(View v) {
@@ -365,10 +326,45 @@ public class MainActivity extends BaseActivity {
                     int distance = extras.getInt("EXTRA_DISTANCE");
 
                     Card newCard = CardFactory.getCard(whatTimeLabel, day, month, year, name, address, participantsNum, distance);
-                    new NewCardCommand(adapterCards, dataCards, newCard).execute();
+                    new NewCardCommand(adapterCards, newCard).execute();
                 }
             }
         }
     }
 
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id){
+            case R.id.nav_home:
+                Toast.makeText(this, "Home", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.nav_spaces:
+                Toast.makeText(this, "Spaces", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.nav_contacts:
+                Toast.makeText(this, "Contacts", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.nav_focus:
+                Toast.makeText(this, "Focus", Toast.LENGTH_LONG).show();
+                break;
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return false;
+    }
+
+    private void refreshUI() {
+        numberCards.setText(adapterCards.getItemCount() + " upcoming event(s)");
+
+        if(adapterCards.getItemCount() > 0) {
+            noEvents.setVisibility(View.GONE);
+            //background.setBackgroundResource(R.drawable.back);
+        } else {
+            numberCards.setText("No events. No one loves you");
+            noEvents.setVisibility(View.VISIBLE);
+            //background.setBackgroundResource(R.drawable.full);
+        }
+    }
 }

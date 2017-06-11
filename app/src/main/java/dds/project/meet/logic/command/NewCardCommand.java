@@ -1,10 +1,12 @@
 package dds.project.meet.logic.command;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import java.util.List;
 
 import dds.project.meet.logic.Card;
+import dds.project.meet.logic.CardAdapter;
 import dds.project.meet.persistence.Persistence;
 import dds.project.meet.persistence.QueryCallback;
 
@@ -15,31 +17,23 @@ import dds.project.meet.persistence.QueryCallback;
 public class NewCardCommand implements Command {
 
     private Persistence mPersistence;
-    private RecyclerView.Adapter adapter;
-    private List<Card> dataSet;
+    private CardAdapter adapter;
     private Card card;
-    private int position;
 
-    public NewCardCommand(RecyclerView.Adapter adapter, List<Card> dataSet, Card card) {
-        this(adapter, dataSet, card, -1);
-    }
-
-    public NewCardCommand(RecyclerView.Adapter adapter, List<Card> dataSet, Card card, int position) {
+    public NewCardCommand(CardAdapter adapter, Card card) {
         this.adapter = adapter;
-        this.dataSet = dataSet;
         this.card = card;
-        this.position = position;
         this.mPersistence = Persistence.getInstance();
     }
 
     @Override
     public void execute() {
-        new AddCardCommand(adapter, dataSet, card, position).execute();
+        adapter.add(card);
 
         mPersistence.cardDAO.addCard(card, new QueryCallback<Boolean>() {
             @Override
             public void result(Boolean data) {
-                // Nothing
+                Log.d("NewCard", "New card added: " + data);
             }
         });
     }

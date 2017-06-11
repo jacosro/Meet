@@ -48,5 +48,6 @@ dependencies {
 
 dependencies {
     compile 'com.google.firebase:firebase-auth:10.2.6'
+    compile 'org.jetbrains:annotations-java5:15.0'
 }
 apply plugin: 'com.google.gms.google-services'

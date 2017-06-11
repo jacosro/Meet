@@ -1,19 +1,14 @@
 package dds.project.meet.persistence.dao.implementations;
 
-import android.provider.ContactsContract;
 import android.util.Log;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.NotActiveException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import dds.project.meet.logic.Card;
 import dds.project.meet.persistence.Persistence;
@@ -39,12 +34,12 @@ public class CardDAOImpl implements ICardDAO {
 
 
     @Override
-    public void addCard(Card card, QueryCallback<Boolean> callback) {
+    public void addCard(Card card, final QueryCallback<Boolean> callback) {
         DatabaseReference ref = rootRef.child("cards");
         final String key = ref.push().getKey();
         ref.child(key).setValue(card);
 
-        card.setDBKey(key);
+        card.setDbKey(key);
 
         // Add to uid_cards table
         final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
@@ -57,10 +52,13 @@ public class CardDAOImpl implements ICardDAO {
 
                 // Add to card_users
                 rootRef.child("card_users").child(key).child(uid).setValue(username);
+
+                callback.result(true);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                callback.result(false);
                 Log.d(TAG, "AddCard failed: " + databaseError);
             }
         });
@@ -75,7 +73,7 @@ public class CardDAOImpl implements ICardDAO {
     @Override
     public void removeCard(Card card, QueryCallback<Boolean> callback) {
         Log.d(TAG + "::removeCard", "Card: " + card);
-        String key = card.getDBKey();
+        String key = card.getDbKey();
 
         if (key != null) {
             // Remove from cards
@@ -84,7 +82,10 @@ public class CardDAOImpl implements ICardDAO {
             // Remove from card_users
             rootRef.child("card_users").child(key).removeValue();
 
+            callback.result(true);
+
         } else {
+            callback.result(false);
             Log.d(TAG, "Key of Card " + card.getName() + " is null!");
         }
     }
@@ -95,7 +96,7 @@ public class CardDAOImpl implements ICardDAO {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Card card = dataSnapshot.child(key).getValue(Card.class);
-                card.setDBKey(key);
+                card.setDbKey(key);
                 Log.d(TAG, "Got card: " + card);
                 callback.result(card);
             }
