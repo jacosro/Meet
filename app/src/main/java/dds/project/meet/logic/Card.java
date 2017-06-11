@@ -7,7 +7,7 @@ import java.util.Map;
  * Created by RaulCoroban on 15/04/2017.
  */
 
-public class Card {
+public class Card implements Comparable<Card> {
     private String time;
     private int dateDay;
     private int dateMonth;
@@ -18,7 +18,7 @@ public class Card {
     private int km;
     private String image;
 
-    private String DBKey;
+    private String dbKey;
 
     public Card() {
 
@@ -35,12 +35,12 @@ public class Card {
         this.km = km;
     }
 
-    public String getDBKey() {
-        return DBKey;
+    public String getDbKey() {
+        return dbKey;
     }
 
-    public void setDBKey(String DBKey) {
-        this.DBKey = DBKey;
+    public void setDbKey(String dbKey) {
+        this.dbKey = dbKey;
     }
 
     public String getTime() {
@@ -133,5 +133,34 @@ public class Card {
 
     public String toString() {
         return name;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (!(o instanceof Card))
+            return false;
+
+        Card card = (Card) o;
+
+        return dbKey.equals(card.dbKey) & compareTo(card) == 0 & name.equals(card.name) & location.equals(card.location) &
+                persons == card.persons & km == card.km & image.equals(card.image);
+    }
+
+    public int compareTo(Card card) {
+        if (card.dateYear == dateYear) {
+            if (card.dateMonth == dateMonth) {
+                if (card.dateDay == dateDay) {
+                    return time.compareTo(card.time);
+                } else {
+                    return dateDay - card.dateDay;
+                }
+            } else {
+                return dateMonth - card.dateMonth;
+            }
+        } else {
+            return dateYear - card.dateYear;
+        }
     }
 }

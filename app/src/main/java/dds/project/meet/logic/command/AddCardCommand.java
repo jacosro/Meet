@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 
 import dds.project.meet.logic.Card;
+import dds.project.meet.logic.CardAdapter;
 import dds.project.meet.persistence.Persistence;
 import dds.project.meet.persistence.QueryCallback;
 
@@ -23,33 +24,22 @@ import dds.project.meet.persistence.QueryCallback;
 
 public class AddCardCommand implements Command {
 
-    private Persistence mPersistence;
-    private RecyclerView.Adapter adapter;
-    private List<Card> dataSet;
+    private CardAdapter adapter;
     private Card card;
     private int position;
 
-    public AddCardCommand(RecyclerView.Adapter adapter, List<Card> dataSet, Card card) {
-        this(adapter, dataSet, card, -1);
+    public AddCardCommand(CardAdapter adapter, Card card) {
+        this(adapter, card, -1);
     }
 
-    public AddCardCommand(RecyclerView.Adapter adapter, List<Card> dataSet, Card card, int position) {
+    public AddCardCommand(CardAdapter adapter, Card card, int position) {
         this.adapter = adapter;
-        this.dataSet = dataSet;
         this.card = card;
         this.position = position;
-        this.mPersistence = Persistence.getInstance();
     }
 
     @Override
     public void execute() {
-        // Add card to layout
-        if (position >= 0) {
-            dataSet.add(position, card);
-            adapter.notifyItemInserted(position);
-        } else {
-            dataSet.add(card);
-            adapter.notifyItemInserted(adapter.getItemCount() - 1);
-        }
+        adapter.add(card);
     }
 }
