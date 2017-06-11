@@ -34,7 +34,7 @@ public class CardDAOImpl implements ICardDAO {
 
 
     @Override
-    public void addCard(Card card, QueryCallback<Boolean> callback) {
+    public void addCard(Card card, final QueryCallback<Boolean> callback) {
         DatabaseReference ref = rootRef.child("cards");
         final String key = ref.push().getKey();
         ref.child(key).setValue(card);
@@ -52,10 +52,13 @@ public class CardDAOImpl implements ICardDAO {
 
                 // Add to card_users
                 rootRef.child("card_users").child(key).child(uid).setValue(username);
+
+                callback.result(true);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                callback.result(false);
                 Log.d(TAG, "AddCard failed: " + databaseError);
             }
         });
@@ -79,7 +82,10 @@ public class CardDAOImpl implements ICardDAO {
             // Remove from card_users
             rootRef.child("card_users").child(key).removeValue();
 
+            callback.result(true);
+
         } else {
+            callback.result(false);
             Log.d(TAG, "Key of Card " + card.getName() + " is null!");
         }
     }

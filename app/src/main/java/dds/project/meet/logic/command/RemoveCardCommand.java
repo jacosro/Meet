@@ -1,6 +1,9 @@
 package dds.project.meet.logic.command;
 
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+
+import java.util.List;
 
 import dds.project.meet.logic.Card;
 import dds.project.meet.logic.CardAdapter;
@@ -35,7 +38,7 @@ public class RemoveCardCommand implements Command {
         mPersistence.cardDAO.removeCard(card, new QueryCallback<Boolean>() {
             @Override
             public void result(Boolean data) {
-                Log.d("RemoveCard", "Remove card " + data);
+                Log.d("RemoveCard", "Remove card: " + data);
             }
         });
     }
