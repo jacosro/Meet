@@ -37,14 +37,15 @@ public class CardDAOImpl implements ICardDAO {
     public void addCard(Card card, final QueryCallback<Boolean> callback) {
         DatabaseReference ref = rootRef.child("cards");
         final String key = ref.push().getKey();
+        final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
+
+        card.setOwner(uid);
+
         ref.child(key).setValue(card);
 
         card.setDbKey(key);
 
         // Add to uid_cards table
-        final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
-        final String cardName = card.getName();
-
         rootRef.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -74,6 +75,7 @@ public class CardDAOImpl implements ICardDAO {
     public void removeCard(Card card, QueryCallback<Boolean> callback) {
         Log.d(TAG + "::removeCard", "Card: " + card);
         String key = card.getDbKey();
+        String owner = card.getOwner();
 
         if (key != null) {
             // Remove from cards

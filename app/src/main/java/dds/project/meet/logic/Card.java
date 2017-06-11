@@ -18,6 +18,7 @@ public class Card implements Comparable<Card> {
     private int km;
     private String image;
 
+    private String owner;
     private String dbKey;
 
     public Card() {
@@ -33,6 +34,14 @@ public class Card implements Comparable<Card> {
         this.location = location;
         this.persons = persons;
         this.km = km;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     public String getDbKey() {
