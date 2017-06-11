@@ -1,6 +1,5 @@
 package dds.project.meet.presentation;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,7 +19,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -38,7 +36,6 @@ import java.util.List;
 import dds.project.meet.R;
 import dds.project.meet.logic.Card;
 import dds.project.meet.logic.GPSTracker;
-import dds.project.meet.logic.ParticipantOnEventAdapter;
 import dds.project.meet.logic.User;
 import dds.project.meet.persistence.QueryCallback;
 
@@ -132,8 +129,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerParticipants.setLayoutManager(layoutManagerCards);
 
-        adapterCards = new ParticipantOnEventAdapter(dataUser, this);
-        recyclerParticipants.setAdapter(adapterCards);
+
 
         loadDefaultparticipants();
 

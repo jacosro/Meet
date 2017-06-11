@@ -11,7 +11,7 @@ public class CardD extends Card {
     private Timestamp stampTime;
 
     public CardD (Card c, Timestamp t) {
-        super(c.getTime(), c.getDateDay(), c.getDateMonth(), c.getDateYear(), c.getName(), c.getLocation(), c.getPersons(), c.getKm());
+        super(c.getTime(), c.getDateDay(), c.getDateMonth(), c.getDateYear(), c.getName(), c.getLocation(), c.getPersons(), c.getKm(), );
         this.stampTime = t;
     }
 

@@ -6,10 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -29,13 +27,11 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
         public TextView nameParticipant;
         public TextView acroParticipant;
         public CardView cardHolder;
-        public Button b;
 
         public ViewHolder(View itemView) {
             super(itemView);
             nameParticipant = (TextView) itemView.findViewById(R.id.nameParticipant);
             acroParticipant = (TextView) itemView.findViewById(R.id.acroParticipant);
-            b = (Button) itemView.findViewById(R.id.button2);
             cardHolder = (CardView) itemView.findViewById(R.id.cardViewHolder);
         }
     }

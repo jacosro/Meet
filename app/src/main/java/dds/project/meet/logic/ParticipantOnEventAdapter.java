@@ -1,17 +1,23 @@
 package dds.project.meet.logic;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 import dds.project.meet.R;
+import dds.project.meet.persistence.Persistence;
+import dds.project.meet.persistence.QueryCallback;
 
 /**
  * Created by RaulCoroban on 28/04/2017.
@@ -20,6 +26,7 @@ import dds.project.meet.R;
 public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantOnEventAdapter.ViewHolder> {
 
     private ArrayList<User> dataMembers;
+    Card card;
     Context context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -28,6 +35,7 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
         public TextView acroParticipant;
         public TextView distanceParticipant;
         public CardView c;
+        public Button remove;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -35,10 +43,11 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
             distanceParticipant = (TextView) itemView.findViewById(R.id.distanceParticipant);
             acroParticipant = (TextView) itemView.findViewById(R.id.acroParticipant);
             c = (CardView) itemView.findViewById(R.id.cardView2);
+            remove = (Button) itemView.findViewById(R.id.removeButton);
         }
     }
 
-    public ParticipantOnEventAdapter(ArrayList<User> myyDataset, Context context){
+    public ParticipantOnEventAdapter(ArrayList<User> myyDataset, Context context, Card card){
         dataMembers = myyDataset;
         this.context = context;
     }
@@ -51,11 +60,35 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
     }
 
     @Override
-    public void onBindViewHolder(ParticipantOnEventAdapter.ViewHolder holder, int position) {
-        String name = dataMembers.get(position).getName();
+    public void onBindViewHolder(ParticipantOnEventAdapter.ViewHolder holder, final int position) {
+        final String name = dataMembers.get(position).getName();
         holder.nameParticipant.setText(name);
-        //holder.distanceParticipant.setText(dataMembers.get(position).getEmail());
 
+        if(Persistence.getInstance().userDAO.getCurrentUser().equals(card.getOwner())) {
+            holder.remove.setVisibility(View.VISIBLE);
+            holder.remove.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new AlertDialog.Builder(context)
+                            .setTitle("Closing application")
+                            .setMessage("Are you sure you want to remove \" " + name + " \" from participants?")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Persistence.getInstance().userDAO.removeUserFromCard(card, dataMembers.get(position), new QueryCallback<Boolean>() {
+                                        @Override
+                                        public void result(Boolean data) {
+                                            Log.d("USER KICKED ON ASS", "Hasta luego Maricarmen");
+                                        }
+                                    });
+                                }
+                            }).setNegativeButton("No", null).show();
+                }
+            });
+
+        } else {
+            holder.remove.setVisibility(View.INVISIBLE);
+        }
         holder.c.setCardBackgroundColor(setRandomColor());
 
         String[] split = name.split("\\s");

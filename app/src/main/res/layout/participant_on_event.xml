@@ -6,43 +6,6 @@
     android:layout_height="70dp">
 
     <android.support.v7.widget.CardView
-        android:id="@+id/cardView45"
-        android:layout_width="90dp"
-        android:layout_height="36dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:foregroundGravity="center"
-        app:cardBackgroundColor="#f3a356"
-        app:cardCornerRadius="18dp"
-        app:cardElevation="0dp"
-        app:cardPreventCornerOverlap="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <Button
-                android:id="@+id/button2"
-                style="@style/WhiteButton"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:backgroundTint="#FFFFFF"
-                android:fontFamily="Roboto"
-                android:text="Alert"
-                android:textAllCaps="false"
-                android:textColor="#ffffff"
-                android:textSize="14dp" />
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
-
-    <android.support.v7.widget.CardView
         android:id="@+id/cardView2"
         android:layout_width="55dp"
         android:layout_height="55dp"
@@ -96,5 +59,22 @@
         android:textSize="14dp"
         app:layout_constraintLeft_toRightOf="@+id/cardView2"
         app:layout_constraintTop_toBottomOf="@+id/nameParticipant" />
+
+    <Button
+        android:id="@+id/removeButton"
+        android:layout_width="115dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/round_button_orange"
+        android:text="Remove"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.6"
+        tools:layout_editor_absoluteX="288dp"
+        tools:layout_editor_absoluteY="11dp" />
 
 </android.support.constraint.ConstraintLayout>

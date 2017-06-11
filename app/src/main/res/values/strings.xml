@@ -32,7 +32,8 @@
     <string name="when">When?</string>
     <string name="what_time">What Time?</string>
     <string name="photo">Photo</string>
-    <string name="search">Search</string>
+    <string name="search">+ Add Location</string>
+    <string name="desc">+ Add Description</string>
     <string name="friends">Friends</string>
     <string name="action_sign_in_short">Loading...</string>
     <string name="default_event_date">25th MARCH</string>

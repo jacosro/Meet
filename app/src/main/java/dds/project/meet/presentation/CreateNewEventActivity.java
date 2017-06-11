@@ -17,11 +17,9 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -32,6 +30,12 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,6 +46,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import dds.project.meet.R;
+import dds.project.meet.logic.Card;
 import dds.project.meet.logic.ContactAdapter;
 import dds.project.meet.logic.ParticipantAdapter;
 import dds.project.meet.logic.RecyclerItemClickListener;
@@ -56,6 +61,7 @@ import dds.project.meet.persistence.QueryCallback;
 public class CreateNewEventActivity extends BaseActivity {
 
     public static final int SELECTED_PICTURE = 1;
+    public static final int SELECTED_LOCATION = 2;
     public static final String TAG = "CreateNewEventActivity";
     public static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
 
@@ -77,16 +83,17 @@ public class CreateNewEventActivity extends BaseActivity {
     private FloatingActionButton doneFab;
     private Button cancel;
     private Button addPersons;
-    private Button searchLocation;
+    private Button locationButton;
+    private Button descriptionButton;
 
 
     //Class fields
-    private String date, time, uriString;
+    private String uriString;
     private ImageButton photo, when, whatTime;
     private Boolean timePicked = false;
     private Boolean datePicked = false;
+    private Card mCard;
 
-    private int day, month, year;
     private String[] months = {"Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."};
 
     @Override
@@ -96,7 +103,6 @@ public class CreateNewEventActivity extends BaseActivity {
 
         participantsNumberLabel = (TextView) findViewById(R.id.participantsNumber);
         editTextName = (EditText) findViewById(R.id.editTextName);
-        editTextLocation = (EditText) findViewById(R.id.editTextLocation);
         when = (ImageButton) findViewById(R.id.whenButton);
         whatTime = (ImageButton) findViewById(R.id.whatTimeButton);
         photo = (ImageButton) findViewById(R.id.photoButton);
@@ -104,7 +110,8 @@ public class CreateNewEventActivity extends BaseActivity {
         recyclerParticipants = (RecyclerView) findViewById(R.id.recyclerParticipants);
         doneFab = (FloatingActionButton) findViewById(R.id.doneFAB);
         addPersons = (Button) findViewById(R.id.manageParticipants);
-        searchLocation = (Button) findViewById(R.id.searchLocation);
+        locationButton = (Button) findViewById(R.id.locationButton);
+        descriptionButton = (Button) findViewById(R.id.descriptionButton);
         location = (TextInputLayout) findViewById(R.id.locationEditText);
         whenLabel = (TextView) findViewById(R.id.whenLabel);
         whatTimeLabel= (TextView) findViewById(R.id.whatTimeLabel);
@@ -148,6 +155,18 @@ public class CreateNewEventActivity extends BaseActivity {
             Uri uri = data.getData();
             photo.setImageURI(Uri.parse(uriString));
             photo.setImageResource(R.drawable.cameras);
+            mCard.setImage(uri);
+        }
+
+        if(requestCode == SELECTED_LOCATION && data != null) {
+            if(resultCode == RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(this, data);
+                mCard.setLocation(place.getAddress().toString());
+
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Log.d(TAG, "Place not found");
+                Toast.makeText(CreateNewEventActivity.this, "Cannot find place :(", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -231,14 +250,6 @@ public class CreateNewEventActivity extends BaseActivity {
         addPersons.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*addPersons.clearAnimation();
-                dataMembers.add(new User("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
-                adapterParticipants.notifyItemInserted(dataMembers.size());
-                participantsNumberLabel.setText(dataMembers.size() + " participants");
-                recyclerParticipants.smoothScrollToPosition(dataMembers.size());
-                */
-
-
                 ActivityCompat.requestPermissions(CreateNewEventActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
 
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(CreateNewEventActivity.this);
@@ -304,31 +315,96 @@ public class CreateNewEventActivity extends BaseActivity {
         });
 
 
-        searchLocation.setOnClickListener(new View.OnClickListener() {
+        descriptionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    final String dir = location.getEditText().getText().toString();
-                    String searchResult = getExactLocationName(dir);
-                    if (searchResult != null) {
-                        location.getEditText().setText(searchResult);
-                    } else {
-                        Snackbar retry = Snackbar.make(findViewById(R.id.create_event_layout), "Location not found", Snackbar.LENGTH_LONG);
-                        retry.setAction("RETRY", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                try {
-                                    getExactLocationName(dir);
-                                } catch (IOException e) {
-                                    Log.e(TAG, e.getMessage());
-                                }
-                            }
-                        });
-                        retry.show();
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(CreateNewEventActivity.this);
+                final View mView = getLayoutInflater().inflate(R.layout.description_event, null);
+                mBuilder.setView(mView);
+
+                final AlertDialog dialog = mBuilder.create();
+                dialog.show();
+
+                mView.findViewById(R.id.cancelButton).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.hide();
                     }
-                } catch (IOException e) {
-                    Log.e(TAG,e.getMessage());
+                });
+
+                mView.findViewById(R.id.doneButton).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.hide();
+                        descriptionButton.setText("Change Description");
+                        mCard.setDescription(((EditText) mView.findViewById(R.id.descriptionEditText)).getText().toString());
+                    }
+                });
+
+
+            }
+        });
+
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                try {
+                    Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY).build(CreateNewEventActivity.this);
+                    startActivityForResult(intent, SELECTED_LOCATION);
+                    locationButton.setText("Change Location");
+                } catch (GooglePlayServicesRepairableException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "Repairable " + e);
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "Services not available " + e);
                 }
+
+                /*AlertDialog.Builder mBuilder = new AlertDialog.Builder(CreateNewEventActivity.this);
+                final View mView = getLayoutInflater().inflate(R.layout.location_event, null);
+                mBuilder.setView(mView);
+
+                final AlertDialog dialog = mBuilder.create();
+                dialog.show();
+
+                final EditText setLocation = (EditText) mView.findViewById(R.id.locationEditText);
+                final RecyclerView recyclerLocations = (RecyclerView) mView.findViewById(R.id.recyclerViewLocations);
+                recyclerLocations.setHasFixedSize(false);
+
+                RecyclerView.LayoutManager layoutManagerLocations = new LinearLayoutManager(CreateNewEventActivity.this, LinearLayoutManager.VERTICAL, false);
+                recyclerLocations.setLayoutManager(layoutManagerLocations);
+                final List<Address> listAddress = new ArrayList<Address>();
+
+                final LocationAdapter adapterLocations = new LocationAdapter(listAddress, CreateNewEventActivity.this);
+                recyclerLocations.setAdapter(adapterLocations);
+
+                mView.findViewById(R.id.searchButton).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Geocoder gc = new Geocoder(CreateNewEventActivity.this);
+                        listAddress.clear();
+                        try {
+                            listAddress.addAll(gc.getFromLocationName(setLocation.getText().toString(), 50));
+                            adapterLocations.notifyDataSetChanged();
+
+
+                            final List<Address> finalListAddress = listAddress;
+                            recyclerLocations.addOnItemTouchListener(
+                                    new RecyclerItemClickListener(CreateNewEventActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
+                                        @Override public void onItemClick(View view, int position) {
+                                            Toast.makeText(CreateNewEventActivity.this, finalListAddress.get(position).toString(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }));
+
+                        } catch (IOException e) {
+                            Log.d(TAG, "Esto no va ni patras");
+                        }
+
+                    }
+                });
+*/
+
             }
         });
 
@@ -393,12 +469,11 @@ public class CreateNewEventActivity extends BaseActivity {
         DatePickerDialog cal = new DatePickerDialog(CreateNewEventActivity.this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int newYear, int newMonth, int dayOfMonth) {
-                day = dayOfMonth;
-                month = newMonth;
-                year = newYear;
+                mCard.setDateDay(dayOfMonth);
+                mCard.setDateMonth(newMonth);
+                mCard.setDateYear(newYear);
 
-                date = dayOfMonth + " " + months[month];
-                whenLabel.setText(date);
+                whenLabel.setText(dayOfMonth + " " + months[newMonth]);
                 when.setImageResource(R.drawable.calendars);
                 datePicked = true;
             }
@@ -427,7 +502,8 @@ public class CreateNewEventActivity extends BaseActivity {
                     hourS = "0" + hourOfDay;
                 } else hourS = hourOfDay + "";
 
-                time = hourS + ":" + minuteS;
+                String time = hourS + ":" + minuteS;
+                mCard.setTime(time);
                 whatTimeLabel.setText(time);
                 whatTime.setImageResource(R.drawable.clocks);
                 timePicked = true;
@@ -448,50 +524,50 @@ public class CreateNewEventActivity extends BaseActivity {
 
     public void donePressed() {
         if (constraintsAreOk()) {
-
-            Bundle result = new Bundle();
-
-            result.putString("EXTRA_NAME", name.getEditText().getText().toString());
-            result.putInt("EXTRA_DAY", day);
-            result.putInt("EXTRA_MONTH", month);
-            result.putInt("EXTRA_YEAR", year);
-            result.putString("EXTRA_TIME", whatTimeLabel.getText().toString());
-            result.putString("EXTRA_ADDRESS", trimLabel(editTextLocation.getText().toString(), 35));
-            result.putInt("EXTRA_PART_NUM", dataMembers.size());
-            result.putInt("EXTRA_DISTANCE", 34);
-
-
-            Intent intent = new Intent();
-            intent.putExtras(result);
-            setResult(Activity.RESULT_OK, intent);
-
+            mCard.setName(editTextName.getText().toString());
+            mCard.setPersons(dataMembers.size());
+            mPersistence.cardDAO.addCard(mCard, new QueryCallback<Boolean>() {
+                @Override
+                public void result(Boolean data) {
+                    Log.d(TAG, "Add card " + data);
+                }
+            });
             finish();
         }
-
-
-    }
-
-    private String trimLabel(String s, int limit) {
-        if(s.length() >= limit) {
-            return s.substring(0, limit);
-        }
-        else return s;
     }
 
     private boolean constraintsAreOk() {
         editTextName.setError(null);
-        editTextLocation.setError(null);
 
         if (editTextName.length() < 1) {
             editTextName.setError("Your event must have a name!");
             return false;
         }
-        if (editTextLocation.length() < 1) {
-            editTextLocation.setError("Your event must have a location!");
+
+        if (mCard.getDescription() == null ) {
+            Toast.makeText(this, "Please, set a description", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        if (!timePicked || !datePicked) return false;
+        if (mCard.getLocation() == null ) {
+            Toast.makeText(this, "Please, set a location", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (mCard.getPersons() <= 0) {
+            Toast.makeText(this, "Please, select at least one participant", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (mCard.getDateYear() < 2017 ) {
+            Toast.makeText(this, "Please, select a date for the event", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (mCard.getTime() == null) {
+            Toast.makeText(this, "Please, select a time for the event", Toast.LENGTH_SHORT).show();
+            return false;
+        }
 
         return true;
     }

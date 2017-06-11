@@ -7,10 +7,10 @@ package dds.project.meet.logic;
 public class CardFactory {
 
     public Card getCard(){
-        return new Card("00:00", 12 , 5, 2016, "Something goo", "Road to Nowhere", 0, 0);
+        return new Card("00:00", 12 , 5, 2016, "Something goo", "Road to Nowhere", 0, 0, );
     }
 
     public static Card getCard(String time, int dateDay, int dateMonth, int dateYear, String name, String location, int persons, int km){
-        return new Card(time, dateDay, dateMonth, dateYear , name, location, persons, km);
+        return new Card(time, dateDay, dateMonth, dateYear , name, location, persons, km, );
     }
 }

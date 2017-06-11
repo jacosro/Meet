@@ -243,8 +243,8 @@ public class TrashActivity extends BaseActivity {
     public void loadCards() {
         int index = 0;
 
-        Card one = new Card("10:30", 12 , 3 , 2016 , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5);
-        Card two = new Card("10:30", 12 , 3 , 2016 , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5);
+        Card one = new Card("10:30", 12 , 3 , 2016 , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5, );
+        Card two = new Card("10:30", 12 , 3 , 2016 , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5, );
         CardD oneD = new CardD(one, new Timestamp(System.currentTimeMillis()));
         CardD twoD = new CardD(two, new Timestamp(System.currentTimeMillis()));
         dataCardsTrash.add(oneD);
