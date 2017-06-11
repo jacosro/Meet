@@ -126,6 +126,31 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
+    public void removeUserFromCard(Card card, User user, final QueryCallback<Boolean> callback) {
+        final String key = card.getDbKey();
+        String username = user.getUsername();
+
+        if (key != null) {
+            rootRef.child("allUsernames").child(username).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    String uid = dataSnapshot.getValue(String.class);
+
+                    rootRef.child("card_users").child(key).child(uid).removeValue();
+
+                    callback.result(true);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    callback.result(false);
+                }
+            });
+
+        }
+    }
+
+    @Override
     public void getAllUsersOfCard(Card card, QueryCallback<List<User>> callback) {
 
     }

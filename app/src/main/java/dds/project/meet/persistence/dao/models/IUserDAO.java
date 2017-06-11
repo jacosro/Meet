@@ -23,6 +23,8 @@ public interface IUserDAO {
     void getUserByUid(String uid, QueryCallback<User> callback);
     void getUserByUsername(String username, QueryCallback<User> callback);
 
+    void removeUserFromCard(Card card, User user, QueryCallback<Boolean> callback);
+
     void getAllUsersOfCard(Card card, QueryCallback<List<User>> callback);
     void getAllUsernames(QueryCallback<Collection<String>> callback);
     void getAllPhoneNumbers(QueryCallback<Collection<String>> callback);
