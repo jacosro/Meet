@@ -1,5 +1,6 @@
 package dds.project.meet.presentation;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -8,6 +9,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,7 +21,13 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.places.PlaceLikelihood;
+import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +35,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.plus.Plus;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -62,7 +71,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     private MapFragment googleMap;
     private Button settingsButton;
     private Button directionsButton;
-    private  TextView realDistance;
+    private TextView realDistance;
 
     //Class fields
     private String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
@@ -103,7 +112,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
 
                 googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
 
-                if(googleServicesOK()) {
+                if (googleServicesOK()) {
                     Log.d("MAP_READY", "Enterning...");
                     googleMap.getMapAsync(EventActivity.this);
                     Log.d("MAP_READY", "InitMap");
@@ -120,7 +129,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         });
 
 
-
         dataUser = new ArrayList<User>();
         recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
 
@@ -128,7 +136,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         recyclerParticipants.setHasFixedSize(false);
         layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerParticipants.setLayoutManager(layoutManagerCards);
-
 
 
         loadDefaultparticipants();
@@ -140,8 +147,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         monthE = intent.getIntExtra("EXTRA_DATE_MONTH", 0);
         locationE = intent.getStringExtra("EXTRA_LOCATION");
         */
-
-
 
 
         back.setOnClickListener(new View.OnClickListener() {
@@ -176,8 +181,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         });
 
 
-
-
     }
 
     private void loadDefaultparticipants() {
@@ -187,8 +190,8 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     private String correctSuperScript(int day) {
-        if(day > 20 && day % 10 == 1) return "st";
-        if(day > 20 && day % 10 == 2) return "nd";
+        if (day > 20 && day % 10 == 1) return "st";
+        if (day > 20 && day % 10 == 2) return "nd";
         return "th";
     }
 
@@ -211,7 +214,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         map.moveCamera(update);
     }
 
-    public void geoLocate(String location) throws IOException{
+    public void geoLocate(String location) throws IOException {
         Geocoder gc = new Geocoder(this);
         List<Address> list = gc.getFromLocationName(location, 1);
         Address add = list.get(0);
@@ -235,16 +238,17 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         Geocoder gc = new Geocoder(this);
         List<Address> list = gc.getFromLocationName(address, 1);
         if (list.size() > 0) {
-        Address add = list.get(0);
+            Address add = list.get(0);
 
-        String locality = add.getLocality();
+            String locality = add.getLocality();
 
-        double latitude = add.getLatitude();
-        double longitude = add.getLongitude();
+            double latitude = add.getLatitude();
+            double longitude = add.getLongitude();
 
-        return new LatLng(latitude, longitude);
+            return new LatLng(latitude, longitude);
 
-        } return null;
+        }
+        return null;
     }
 
     @Override
@@ -255,6 +259,37 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
             e.printStackTrace();
         }
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
+        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) this)
+                .addOnConnectionFailedListener((GoogleApiClient.OnConnectionFailedListener) this).addApi(Plus.API)
+                .addScope(Plus.SCOPE_PLUS_LOGIN).build();
+        Log.d(TAG, " Initialized google plus api client");
+
+
+        PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
+        result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
+            @Override
+            public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
+                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
+                    Log.i(TAG, String.format("Place '%s' has likelihood: %g",
+                            placeLikelihood.getPlace().getName(),
+                            placeLikelihood.getLikelihood()));
+                }
+                likelyPlaces.release();
+            }
+        });
+        
         if (eventLocation != null) {
             googleMap.addMarker(new MarkerOptions().position(eventLocation)
                     .title("Marker in Sydney"));
