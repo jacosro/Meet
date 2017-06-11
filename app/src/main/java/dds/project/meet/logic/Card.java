@@ -1,5 +1,7 @@
 package dds.project.meet.logic;
 
+import android.net.Uri;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +18,7 @@ public class Card implements Comparable<Card> {
     private String location;
     private int persons;
     private int km;
-    private String image;
+    private Uri image;
 
     private String owner;
     private String dbKey;
@@ -116,28 +118,12 @@ public class Card implements Comparable<Card> {
         this.km = km;
     }
 
-    public String getImage() {
+    public Uri getImage() {
         return image;
     }
 
-    public void setImage(String image) {
+    public void setImage(Uri image) {
         this.image = image;
-    }
-
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
-
-        map.put("time", time);
-        map.put("dateDay", dateDay);
-        map.put("dateMonth", dateMonth);
-        map.put("dateYear", dateYear);
-        map.put("name", name);
-        map.put("location", location);
-        map.put("persons", persons);
-        map.put("km", km);
-        map.put("image", image);
-
-        return map;
     }
 
     public String toString() {

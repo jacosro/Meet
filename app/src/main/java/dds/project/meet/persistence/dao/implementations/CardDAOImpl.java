@@ -1,12 +1,18 @@
 package dds.project.meet.persistence.dao.implementations;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.Collection;
 
@@ -24,26 +30,29 @@ public class CardDAOImpl implements ICardDAO {
     private static final String TAG = "CardDAO";
 
     private FirebaseDatabase mFirebaseDatabase;
+    private FirebaseStorage mFirebaseStorage;
     private DatabaseReference rootRef;
 
     public CardDAOImpl() {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFirebaseStorage = FirebaseStorage.getInstance();
         rootRef = mFirebaseDatabase.getReference();
     }
 
 
 
     @Override
-    public void addCard(Card card, final QueryCallback<Boolean> callback) {
+    public void addCard(final Card card, final QueryCallback<Boolean> callback) {
         DatabaseReference ref = rootRef.child("cards");
         final String key = ref.push().getKey();
         final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
 
+        // Set fields to card
         card.setOwner(uid);
-
-        ref.child(key).setValue(card);
-
         card.setDbKey(key);
+
+        // Add to cards
+        ref.child(key).setValue(card);
 
         // Add to uid_cards table
         rootRef.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -63,6 +72,17 @@ public class CardDAOImpl implements ICardDAO {
                 Log.d(TAG, "AddCard failed: " + databaseError);
             }
         });
+
+        StorageReference storageRef = mFirebaseStorage.getReference();
+        storageRef.child(key).putFile(card.getImage()).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.d(TAG, "Could not upload image!: " + card.getImage());
+                }
+            }
+        });
+
 
     }
 

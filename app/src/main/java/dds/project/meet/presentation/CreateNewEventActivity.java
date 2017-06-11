@@ -146,7 +146,6 @@ public class CreateNewEventActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SELECTED_PICTURE && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
-            uriString = uri.toString();
             photo.setImageURI(Uri.parse(uriString));
             photo.setImageResource(R.drawable.cameras);
         }
@@ -496,4 +495,5 @@ public class CreateNewEventActivity extends BaseActivity {
 
         return true;
     }
+
 }
