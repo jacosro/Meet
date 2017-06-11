@@ -114,7 +114,7 @@ public class CardDAOImpl implements ICardDAO {
         Log.d(TAG, "Getting all cards");
         String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
 
-        rootRef.child("card_users").orderByChild(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child("card_users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot card : dataSnapshot.getChildren()) {
