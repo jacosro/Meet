@@ -16,7 +16,6 @@ import dds.project.meet.persistence.QueryCallback;
 public interface IUserDAO {
 
     FirebaseUser getCurrentFirebaseUser();
-    void setCurrentUser(User user);
     User getCurrentUser();
 
     void createNewUser(User user, String password, QueryCallback<Boolean> callback);
@@ -29,6 +28,7 @@ public interface IUserDAO {
 
     void removeUserFromCard(Card card, User user, QueryCallback<Boolean> callback);
 
+    void getAllUsers(QueryCallback<Collection<User>> callback);
     void getAllUsersOfCard(Card card, QueryCallback<List<User>> callback);
     void getAllUsernames(QueryCallback<Collection<String>> callback);
     void getAllPhoneNumbers(QueryCallback<Collection<String>> callback);

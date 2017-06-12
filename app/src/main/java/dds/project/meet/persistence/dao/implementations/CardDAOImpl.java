@@ -3,6 +3,7 @@ package dds.project.meet.persistence.dao.implementations;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.common.api.Api;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -15,8 +16,11 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import dds.project.meet.logic.Card;
+import dds.project.meet.logic.User;
 import dds.project.meet.persistence.Persistence;
 import dds.project.meet.persistence.QueryCallback;
 import dds.project.meet.persistence.dao.models.ICardDAO;
@@ -43,8 +47,7 @@ public class CardDAOImpl implements ICardDAO {
 
     @Override
     public void addCard(final Card card, final QueryCallback<Boolean> callback) {
-        DatabaseReference ref = rootRef.child("cards");
-        final String key = ref.push().getKey();
+        final String key = rootRef.child("cards").push().getKey();
         final String uid = Persistence.getInstance().userDAO.getCurrentFirebaseUser().getUid();
 
         // Set fields to card
@@ -52,37 +55,29 @@ public class CardDAOImpl implements ICardDAO {
         card.setDbKey(key);
 
         // Add to cards
-        ref.child(key).setValue(card);
+        rootRef.child("cards").child(key).setValue(card);
 
-        // Add to uid_cards table
-        rootRef.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String username = dataSnapshot.child("username").getValue(String.class);
+        Log.d(TAG, "Added to cards table");
+        Map<String, Object> map = new HashMap<String, Object>(card.getParticipants().size());
 
-                // Add to card_users
-                rootRef.child("card_users").child(key).child(uid).setValue(username);
+        for (User user : card.getParticipants()) {
+            map.put(user.getUid(), user.getUsername());
+        }
+        rootRef.child("card_users").child(key).setValue(map);
 
-                callback.result(true);
-            }
+        Log.d(TAG, "Added to card_users table");
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                callback.result(false);
-                Log.d(TAG, "AddCard failed: " + databaseError);
-            }
-        });
+        callback.result(true);
 
+        /*
         StorageReference storageRef = mFirebaseStorage.getReference();
         storageRef.child(key).putFile(card.getImage()).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                if (!task.isSuccessful()) {
-                    Log.d(TAG, "Could not upload image!: " + card.getImage());
-                }
+                Log.d(TAG, "Upload image: " + task.isSuccessful());
             }
         });
-
+        */
 
     }
 
@@ -146,6 +141,7 @@ public class CardDAOImpl implements ICardDAO {
                     if (card.child(uid).exists()) {
                         getCardByKey(key, callback);
                     }
+
                 }
                 callback.result(null);
             }

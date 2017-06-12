@@ -1,5 +1,6 @@
 package dds.project.meet.logic;
 
+import java.io.ObjectStreamException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -81,10 +82,26 @@ public class User implements Comparable<User> {
 
     @Override
     public int compareTo(User user) {
-        return username.compareTo(user.username);
+        return name.compareTo(user.name);
     }
 
     public String toString() {
         return String.format("User[%s, %s, %s, %s, %s]", name, telephone, username, email, uid);
+    }
+
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+
+        if (!(o instanceof User))
+            return false;
+
+        User user = (User) o;
+
+        return user.uid.equals(uid) &&
+                user.name.equals(name) &&
+                user.username.equals(username) &&
+                user.telephone.equals(telephone) &&
+                user.email.equals(email);
     }
 }

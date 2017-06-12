@@ -2,6 +2,8 @@ package dds.project.meet.logic;
 
 import android.net.Uri;
 
+import java.util.List;
+
 /**
  * Created by RaulCoroban on 15/04/2017.
  */
@@ -15,8 +17,9 @@ public class Card implements Comparable<Card> {
     private String location;
     private int persons;
     private int km;
-    private Uri image;
     private String description;
+
+    private List<User> participants;
 
     private String owner;
     private String dbKey;
@@ -34,6 +37,14 @@ public class Card implements Comparable<Card> {
         this.location = location;
         this.persons = persons;
         this.km = km;
+    }
+
+    public List<User> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(List<User> participants) {
+        this.participants = participants;
     }
 
     public String getDescription() {
@@ -124,14 +135,6 @@ public class Card implements Comparable<Card> {
         this.km = km;
     }
 
-    public Uri getImage() {
-        return image;
-    }
-
-    public void setImage(Uri image) {
-        this.image = image;
-    }
-
     public String toString() {
         return name;
     }
@@ -145,8 +148,8 @@ public class Card implements Comparable<Card> {
 
         Card card = (Card) o;
 
-        return dbKey.equals(card.dbKey) & compareTo(card) == 0 & name.equals(card.name) & location.equals(card.location) &
-                persons == card.persons & km == card.km & image.equals(card.image);
+        return dbKey.equals(card.dbKey) && compareTo(card) == 0 && name.equals(card.name) && location.equals(card.location) &&
+                persons == card.persons && km == card.km;//  && image.equals(card.image);
     }
 
     public int compareTo(Card card) {

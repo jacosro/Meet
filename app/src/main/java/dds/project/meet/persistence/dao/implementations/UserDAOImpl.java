@@ -1,5 +1,6 @@
 package dds.project.meet.persistence.dao.implementations;
 
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -41,6 +42,14 @@ public class UserDAOImpl implements IUserDAO {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         rootRef = mFirebaseDatabase.getReference();
+
+        String uid = getCurrentFirebaseUser().getUid();
+        findUserByUid(uid, new QueryCallback<User>() {
+            @Override
+            public void result(User data) {
+                setCurrentUser(data);
+            }
+        });
     }
 
     @Override
@@ -48,8 +57,7 @@ public class UserDAOImpl implements IUserDAO {
         return mFirebaseAuth.getCurrentUser();
     }
 
-    @Override
-    public void setCurrentUser(User user) {
+    private void setCurrentUser(User user) {
         mUser = user;
     }
 
@@ -86,6 +94,7 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void doLogin(User user, String password, final QueryCallback<Boolean> callback) {
+        setCurrentUser(user);
         mFirebaseAuth.signInWithEmailAndPassword(user.getEmail(), password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -165,6 +174,28 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
+    public void getAllUsers(final QueryCallback<Collection<User>> callback) {
+
+        rootRef.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<User> res = new ArrayList<User>();
+
+                for (DataSnapshot user : dataSnapshot.getChildren()) {
+                    res.add(user.getValue(User.class));
+                }
+                Log.d(TAG, res.toString());
+                callback.result(res);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.result(new ArrayList<User>());
+            }
+        });
+    }
+
+    @Override
     public void getAllUsersOfCard(Card card, QueryCallback<List<User>> callback) {
 
     }
@@ -201,9 +232,9 @@ public class UserDAOImpl implements IUserDAO {
                 List<String> res = new ArrayList<String>();
 
                 for (DataSnapshot user : dataSnapshot.getChildren()) {
-                    Object phone = user.child("phone").getValue();
+                    String phone = user.child("telephone").getValue(String.class);
                     Log.d(TAG, "Phone: " + phone);
-                    res.add(phone.toString());
+                    res.add(phone);
                 }
                 callback.result(res);
             }

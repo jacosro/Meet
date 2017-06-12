@@ -64,7 +64,7 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
         final String name = dataMembers.get(position).getName();
         holder.nameParticipant.setText(name);
 
-        if(Persistence.getInstance().userDAO.getCurrentFirebaseUser().equals(card.getOwner())) {
+        if(Persistence.getInstance().userDAO.getCurrentUser().getUid().equals(card.getOwner())) {
             holder.remove.setVisibility(View.VISIBLE);
             holder.remove.setOnClickListener(new View.OnClickListener() {
                 @Override

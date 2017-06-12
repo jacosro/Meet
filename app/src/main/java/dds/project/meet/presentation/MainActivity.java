@@ -281,7 +281,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     public void createCard(View v) {
         Intent intent = new Intent(this, CreateNewEventActivity.class);
-        startActivityForResult(intent, 0);
+        startActivity(intent);
     }
 
     public void openEvent(Card card) {
@@ -300,28 +300,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         intent.putExtra("key", card.getDbKey());
 
         startActivity(intent);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
-            if (intent != null) {
-                Bundle extras = intent.getExtras();
-                if (extras != null) {
-                    String name = extras.getString("EXTRA_NAME");
-                    int day = extras.getInt("EXTRA_DAY");
-                    int month = extras.getInt("EXTRA_MONTH");
-                    int year = extras.getInt("EXTRA_DISTANCE");
-                    String address = extras.getString("EXTRA_ADDRESS");
-                    String whatTimeLabel = extras.getString("EXTRA_TIME");
-                    int participantsNum = extras.getInt("EXTRA_PART_NUM");
-                    int distance = extras.getInt("EXTRA_DISTANCE");
-
-                    Card newCard = CardFactory.getCard(whatTimeLabel, day, month, year, name, address, participantsNum, distance, "dfsdghjhgeagsdhfjhhgre");
-                    new NewCardCommand(adapterCards, newCard).execute();
-                }
-            }
-        }
     }
 
     @Override

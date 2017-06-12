@@ -91,7 +91,7 @@ public class CreateNewEventActivity extends BaseActivity {
 
     //Class fields
     private String uriString;
-    private ImageButton photo, when, whatTime;
+    private ImageButton when, whatTime;
     private Boolean timePicked = false;
     private Boolean datePicked = false;
     private Card mCard;
@@ -107,7 +107,6 @@ public class CreateNewEventActivity extends BaseActivity {
         editTextName = (EditText) findViewById(R.id.editTextName);
         when = (ImageButton) findViewById(R.id.whenButton);
         whatTime = (ImageButton) findViewById(R.id.whatTimeButton);
-        photo = (ImageButton) findViewById(R.id.photoButton);
         cancel = (Button) findViewById(R.id.cancelButton);
         recyclerParticipants = (RecyclerView) findViewById(R.id.recyclerParticipants);
         doneFab = (FloatingActionButton) findViewById(R.id.doneFAB);
@@ -118,19 +117,14 @@ public class CreateNewEventActivity extends BaseActivity {
         whenLabel = (TextView) findViewById(R.id.whenLabel);
         whatTimeLabel= (TextView) findViewById(R.id.whatTimeLabel);
         name = (TextInputLayout) findViewById(R.id.nameEditText);
-        dataMembers = new ArrayList<User>();
+
+        mUser = mPersistence.userDAO.getCurrentUser();
+
+        dataMembers = new ArrayList<>();
+        dataMembers.add(mUser);
         dataContacts = new ArrayList<>();
         mCard = CardFactory.getCard();
 
-        String uid = mPersistence.userDAO.getCurrentFirebaseUser().getUid();
-        mPersistence.userDAO.findUserByUid(uid, new QueryCallback<User>() {
-            @Override
-            public void result(User data) {
-                mUser = data;
-                dataMembers.add(data);
-                adapterParticipants.notifyItemInserted(dataMembers.size() - 1);
-            }
-        });
 
 
         recyclerParticipants.setHasFixedSize(true);
@@ -145,7 +139,9 @@ public class CreateNewEventActivity extends BaseActivity {
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
                         User user = dataMembers.get(position);
-                        if (mUser.compareTo(user) != 0) {
+                        Log.d(TAG, user.toString());
+                        Log.d(TAG, mUser.toString());
+                        if (!mUser.equals(user)) {
                             deleteContactFromMembers(user);
                         } else {
                             Toast.makeText(CreateNewEventActivity.this, "You cannot remove yourself!", Toast.LENGTH_SHORT).show();
@@ -169,13 +165,6 @@ public class CreateNewEventActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SELECTED_PICTURE && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            Uri uri = data.getData();
-            uriString = uri.toString();
-            photo.setImageURI(Uri.parse(uriString));
-            photo.setImageResource(R.drawable.cameras);
-            mCard.setImage(uri);
-        }
 
         if(requestCode == SELECTED_LOCATION && data != null) {
             if(resultCode == RESULT_OK) {
@@ -189,22 +178,11 @@ public class CreateNewEventActivity extends BaseActivity {
         }
     }
 
-    public void loadMembers() {
-        dataMembers.add(new User("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
-        dataMembers.add(new User("Maria Alpuente", "Alli", "654765876", "malpuente@gmail.com"));
-        dataMembers.add(new User("Mario Bros", "Alla", "654765876", "mgomezbors@gmail.com"));
-        dataMembers.add(new User("Cameron Luigi", "Alla", "654765876", "mgomezbors@gmail.com"));
-        dataMembers.add(new User("Toad Bahilo", "Alla", "654765876", "mgomezbors@gmail.com"));
-        dataMembers.add(new User("Diango Bros", "Alla", "654765876", "mgomezbors@gmail.com"));
-        dataMembers.add(new User("Esteban Brosa", "Alla", "654765876", "mgomezbors@gmail.com"));
-        adapterParticipants.notifyDataSetChanged();
-    }
-
     public void addContactToMembers(User contact) {
         dataMembers.add(contact);
         dataContacts.remove(contact);
+        adapterParticipants.notifyItemInserted(dataMembers.size() - 1);
         adapterContacts.notifyDataSetChanged();
-        adapterParticipants.notifyDataSetChanged();
         participantsNumberLabel.setText(dataMembers.size() + " participants");
     }
 
@@ -239,17 +217,6 @@ public class CreateNewEventActivity extends BaseActivity {
                 pickTime();
             }
         });
-
-
-        photo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                ((Activity) v.getContext()).startActivityForResult(photoPickerIntent, SELECTED_PICTURE);
-            }
-        });
-
 
 
         doneFab.setOnClickListener(new View.OnClickListener() {
@@ -291,14 +258,14 @@ public class CreateNewEventActivity extends BaseActivity {
                 recyclerContacts.addOnItemTouchListener(
                         new RecyclerItemClickListener(CreateNewEventActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
                             @Override public void onItemClick(View view, int position) {
-                                addContactToMembers(adapterContacts.get(position));
+                                addContactToMembers(dataContacts.get(position));
                                 recyclerContacts.setSelected(true);
                                 dialog.hide();
                             }
                         })
                 );
 
-                if (dataContacts.isEmpty() && dataMembers.isEmpty()) {
+                if (dataContacts.isEmpty() && dataMembers.size() == 1) {
                     new AsyncTask<Void, Void, Set<User>>() {
 
                         @Override
@@ -313,18 +280,21 @@ public class CreateNewEventActivity extends BaseActivity {
 
                         @Override
                         protected void onPostExecute(final Set<User> result) {
-                            Persistence.getInstance().userDAO.getAllPhoneNumbers(new QueryCallback<Collection<String>>() {
+                            mPersistence.userDAO.getAllUsers(new QueryCallback<Collection<User>>() {
                                 @Override
-                                public void result(Collection<String> data) {
+                                public void result(Collection<User> data) {
                                     for (User user : result) {
-                                        Log.d(TAG, "user: " + user.getTelephone());
-                                        if (data.contains(user.getTelephone())) {
-                                            Log.d(TAG, "data contains " + user.getTelephone());
-                                            dataContacts.add(user);
+                                        for (User userDB : data) {
+                                            Log.d(TAG, user.getTelephone() + " == " + userDB.getTelephone());
+                                            if (userDB.getTelephone().equals(user.getTelephone()) && !userDB.equals(mUser)) {
+                                                User toDataContacts = new User(user.getName(), userDB.getUsername(), user.getTelephone(), userDB.getEmail());
+                                                toDataContacts.setUid(userDB.getUid());
+                                                dataContacts.add(toDataContacts);
+                                                adapterContacts.notifyItemInserted(dataContacts.size() - 1);
+                                            }
                                         }
                                     }
                                     Log.d(TAG, dataContacts.toString());
-                                    adapterContacts.notifyDataSetChanged();
                                     hideProgressDialog();
                                 }
                             });
@@ -466,7 +436,7 @@ public class CreateNewEventActivity extends BaseActivity {
                         String contactNumber = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                         contactNumber = arrangeNumber(contactNumber);
                         String contactName = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Identity.DISPLAY_NAME));
-                        res.add(new User(contactName, "", contactNumber, ""));
+                        res.add(new User(contactName, contactName, contactNumber, ""));
                         break;
                     }
                     pCur.close();
@@ -545,16 +515,21 @@ public class CreateNewEventActivity extends BaseActivity {
 
 
     public void donePressed() {
+        Log.d(TAG, "done pressed");
+
         mCard.setPersons(dataMembers.size());
+        mCard.setParticipants(dataMembers);
+
         if (constraintsAreOk()) {
             mCard.setName(editTextName.getText().toString());
+
             mPersistence.cardDAO.addCard(mCard, new QueryCallback<Boolean>() {
                 @Override
                 public void result(Boolean data) {
                     Log.d(TAG, "Add card " + data);
+                    finish();
                 }
             });
-            finish();
         }
     }
 
@@ -576,7 +551,7 @@ public class CreateNewEventActivity extends BaseActivity {
             return false;
         }
 
-        if (mCard.getPersons() <= 0) {
+        if (mCard.getPersons() <= 1) {
             Toast.makeText(this, "Please, select at least one participant", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -590,12 +565,6 @@ public class CreateNewEventActivity extends BaseActivity {
             Toast.makeText(this, "Please, select a time for the event", Toast.LENGTH_SHORT).show();
             return false;
         }
-
-        if (mCard.getImage() == null) {
-            Toast.makeText(this, "Please, select an image for the event", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
         return true;
     }
 
