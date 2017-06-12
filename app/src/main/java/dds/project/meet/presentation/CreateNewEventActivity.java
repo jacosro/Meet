@@ -1,7 +1,6 @@
 package dds.project.meet.presentation;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentResolver;
@@ -10,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -53,7 +51,6 @@ import dds.project.meet.logic.ContactAdapter;
 import dds.project.meet.logic.ParticipantAdapter;
 import dds.project.meet.logic.RecyclerItemClickListener;
 import dds.project.meet.logic.User;
-import dds.project.meet.persistence.Persistence;
 import dds.project.meet.persistence.QueryCallback;
 
 /**
@@ -493,6 +490,11 @@ public class CreateNewEventActivity extends BaseActivity {
 
         if (editTextName.length() < 1) {
             editTextName.setError("Your event must have a name!");
+            return false;
+        }
+
+        if (editTextName.length() > 25) {
+            editTextName.setError("Event name too long! (Max. 25)");
             return false;
         }
 

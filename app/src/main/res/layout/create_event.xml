@@ -308,7 +308,9 @@
             android:id="@+id/editTextName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLength="30"
+            android:inputType="textCapSentences"
+            android:maxLength="20"
+            android:maxLines="1"
             android:hint="@string/event_name" />
     </android.support.design.widget.TextInputLayout>
 

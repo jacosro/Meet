@@ -120,16 +120,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         itemTouchHelper.attachToRecyclerView(recyclerCards);
 
 
-        // Refresh
-        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
-        swipeRefresh.setEnabled(true);
-        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                adapterCards.notifyDataSetChanged();
-            }
-        });
-
         loadCards();
 
         fab.setOnClickListener(new View.OnClickListener() {

@@ -105,9 +105,10 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         String[] months = {"Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."};
+
         holder.itemView.setTag(position);
         holder.name.setText(mDataset.get(position).getName());
-        holder.location.setText(mDataset.get(position).getLocation());
+        holder.location.setText(mDataset.get(position).getLocation().substring(0, 28) + "...");
         holder.time.setText(mDataset.get(position).getTime());
         holder.date.setText(mDataset.get(position).getDateDay() + "" + correctSuperScript(mDataset.get(position).getDateDay()) + " " + months[mDataset.get(position).getDateMonth()]);
         holder.pers.setText(mDataset.get(position).getPersons() + " pers.");

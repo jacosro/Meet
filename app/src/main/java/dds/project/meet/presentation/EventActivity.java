@@ -8,7 +8,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,6 +27,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
@@ -34,9 +37,9 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.plus.Plus;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +52,7 @@ import dds.project.meet.persistence.QueryCallback;
  * Created by RaulCoroban on 24/04/2017.
  */
 
-public class EventActivity extends BaseActivity implements OnMapReadyCallback {
+public class EventActivity extends BaseActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener {
 
     public static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 0;
     public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
@@ -70,6 +73,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     private Button directionsButton;
     private TextView realDistance;
     private TextView descriptionTextView;
+    private MapFragment mapFragment;
 
     //Class fields
     private String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
@@ -91,7 +95,8 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         settingsButton = (Button) findViewById(R.id.settingsButton);
         directionsButton = (Button) findViewById(R.id.directionsButton);
         realDistance = (TextView) findViewById(R.id.realDistance);
-        descriptionTextView = (TextView) findViewById(R.id.descrpitionTextView);
+        descriptionTextView = (TextView) findViewById(R.id.descriptionTextViewEvent);
+        mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
 
         Intent intent = getIntent();
         String key = intent.getStringExtra("key");
@@ -120,11 +125,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
                     Toast.makeText(EventActivity.this, "No map available", Toast.LENGTH_LONG).show();
                 }
 
-                try {
-                    geoLocate(mCard.getLocation());
-                } catch (IOException e) {
-                    Log.d(TAG, "IOException: " + e);
-                }
             }
         });
 
@@ -176,6 +176,17 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
                 startActivity(toEventSettings);
             }
         });
+
+        directionsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String query = "https://www.google.com/maps/search/?api=1&query=" + eventLocation.latitude + "," + eventLocation.longitude;
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(query));
+                startActivity(intent);
+            }
+        });
+
+
 
 
     }
@@ -253,27 +264,52 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         try {
             eventLocation = getLatLng(mCard.getLocation());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d(TAG, "No va el puto mapa");
         }
 
+        if (eventLocation != null) {
+            googleMap.addMarker(new MarkerOptions().position(eventLocation)
+                    .title("Marker on Event Place"));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(eventLocation, 15));
+            googleMap.getUiSettings().setScrollGesturesEnabled(false);
+
+            /*GPSTracker gps = new GPSTracker(this);
+            if (gps.canGetLocation()) {
+                DecimalFormat df = new DecimalFormat("#.0");
+                LatLng myLocationLatLng = new LatLng(gps.getLatitude(), gps.getLongitude());
+                Toast.makeText(this, myLocationLatLng.toString(), Toast.LENGTH_LONG).show();
+                realDistance.setText(df.format(calculateDistanceBetween(myLocationLatLng, eventLocation)) + " km");
+            }*/
+        }
+
+
+        ActivityCompat.requestPermissions(EventActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Permission denied for Access Fine Location");
             return;
         }
 
-        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
+        /*GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) this)
                 .addOnConnectionFailedListener((GoogleApiClient.OnConnectionFailedListener) this).addApi(Plus.API)
                 .addScope(Plus.SCOPE_PLUS_LOGIN).build();
-        Log.d(TAG, " Initialized google plus api client");
+        Log.d(TAG, " Initialized google plus api client");*/
 
+        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .build();
+        mGoogleApiClient.connect();
 
         PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
         result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
             @Override
             public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
                 LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
-                realDistance.setText(calculateDistanceBetween(myLoca, eventLocation) + "");
+                DecimalFormat df = new DecimalFormat("#.##");
+                realDistance.setText(df.format(calculateDistanceBetween(myLoca, eventLocation)) + " km");
                 /*for (PlaceLikelihood placeLikelihood : likelyPlaces) {
                     Log.i(TAG, String.format("Place '%s' has likelihood: %g",
                             placeLikelihood.getPlace().getName(),
@@ -284,19 +320,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
             }
         });
 
-        if (eventLocation != null) {
-            googleMap.addMarker(new MarkerOptions().position(eventLocation)
-                    .title("Marker on Event Place"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(eventLocation, 15));
 
-            /*GPSTracker gps = new GPSTracker(this);
-            if (gps.canGetLocation()) {
-                DecimalFormat df = new DecimalFormat("#.0");
-                LatLng myLocationLatLng = new LatLng(gps.getLatitude(), gps.getLongitude());
-                Toast.makeText(this, myLocationLatLng.toString(), Toast.LENGTH_LONG).show();
-                realDistance.setText(df.format(calculateDistanceBetween(myLocationLatLng, eventLocation)) + " km");
-            }*/
-        }
     }
 
     @Override
@@ -333,4 +357,8 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         return loc1.distanceTo(loc2)/1000;
     }
 
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d(TAG, "Connection Failed");
+    }
 }
