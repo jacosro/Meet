@@ -37,6 +37,7 @@ public class Card implements Comparable<Card> {
         this.location = location;
         this.persons = persons;
         this.km = km;
+        this.description = description;
     }
 
     public List<User> getParticipants() {

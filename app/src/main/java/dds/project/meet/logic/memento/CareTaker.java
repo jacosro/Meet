@@ -20,7 +20,7 @@ public class CareTaker {
         return memoList.get(index);
     }
 
-    public void undo() { memoList.remove(lastElement-1); }
+    public void undo() { memoList.remove(lastElement-1); lastElement--; }
 
     public int getMemoListSize() {return memoList.size(); }
 }

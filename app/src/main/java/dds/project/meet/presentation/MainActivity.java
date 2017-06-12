@@ -12,6 +12,7 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -55,6 +56,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ConstraintLayout background;
+    private SwipeRefreshLayout swipeRefresh;
 
     // Class fields
     private Originator originator;
@@ -90,6 +92,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.bringToFront();
 
+
+
         //Memento tools declaration
         originator = new Originator();
         careTaker = new CareTaker();
@@ -115,6 +119,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         //Gestures RecyclerView
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
         itemTouchHelper.attachToRecyclerView(recyclerCards);
+
+
+        // Refresh
+        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
+        swipeRefresh.setEnabled(true);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                adapterCards.notifyDataSetChanged();
+            }
+        });
 
         loadCards();
 

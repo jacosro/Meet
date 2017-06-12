@@ -25,7 +25,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
@@ -38,13 +37,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.plus.Plus;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import dds.project.meet.R;
 import dds.project.meet.logic.Card;
-import dds.project.meet.logic.GPSTracker;
 import dds.project.meet.logic.User;
 import dds.project.meet.persistence.QueryCallback;
 
@@ -72,6 +69,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
     private Button settingsButton;
     private Button directionsButton;
     private TextView realDistance;
+    private TextView descriptionTextView;
 
     //Class fields
     private String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
@@ -93,6 +91,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         settingsButton = (Button) findViewById(R.id.settingsButton);
         directionsButton = (Button) findViewById(R.id.directionsButton);
         realDistance = (TextView) findViewById(R.id.realDistance);
+        descriptionTextView = (TextView) findViewById(R.id.descrpitionTextView);
 
         Intent intent = getIntent();
         String key = intent.getStringExtra("key");
@@ -108,6 +107,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
                 timeEvent.setText(mCard.getTime());
                 dateEvent.setText(mCard.getDateDay() + "" + correctSuperScript(mCard.getDateDay()) + " " + months[mCard.getDateMonth()]);
                 locationMap.setText(mCard.getLocation());
+                descriptionTextView.setText(mCard.getDescription());
 
 
                 googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
@@ -167,6 +167,12 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
                 toEventSettings.putExtra("EXTRA_DATE_DAY", mCard.getDateDay());
                 toEventSettings.putExtra("EXTRA_DATE_MONTH", mCard.getDateMonth());
                 toEventSettings.putExtra("EXTRA_DATE_YEAR", mCard.getDateYear());
+                toEventSettings.putExtra("EXTRA_PERSONS", mCard.getPersons());
+                toEventSettings.putExtra("EXTRA_KM", mCard.getKm());
+                toEventSettings.putExtra("EXTRA_DESCRIPTION", mCard.getDescription());
+                toEventSettings.putExtra("EXTRA_OWNER", mCard.getOwner());
+                toEventSettings.putExtra("EXTRA_IMAGE", mCard.getImage());
+                toEventSettings.putExtra("EXTRA_DBKEY", mCard.getDbKey());
 
                 startActivity(toEventSettings);
             }
@@ -260,13 +266,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            Log.d(TAG, "Permission denied for Access Fine Location");
             return;
         }
 
@@ -281,27 +281,30 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
             @Override
             public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
-                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
+                LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
+                realDistance.setText(calculateDistanceBetween(myLoca, eventLocation) + "");
+                /*for (PlaceLikelihood placeLikelihood : likelyPlaces) {
                     Log.i(TAG, String.format("Place '%s' has likelihood: %g",
                             placeLikelihood.getPlace().getName(),
                             placeLikelihood.getLikelihood()));
-                }
+                            placeLikelihood.getPlace().getLatLng();
+                }*/
                 likelyPlaces.release();
             }
         });
-        
+
         if (eventLocation != null) {
             googleMap.addMarker(new MarkerOptions().position(eventLocation)
-                    .title("Marker in Sydney"));
+                    .title("Marker on Event Place"));
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(eventLocation, 15));
 
-            GPSTracker gps = new GPSTracker(this);
+            /*GPSTracker gps = new GPSTracker(this);
             if (gps.canGetLocation()) {
                 DecimalFormat df = new DecimalFormat("#.0");
                 LatLng myLocationLatLng = new LatLng(gps.getLatitude(), gps.getLongitude());
                 Toast.makeText(this, myLocationLatLng.toString(), Toast.LENGTH_LONG).show();
                 realDistance.setText(df.format(calculateDistanceBetween(myLocationLatLng, eventLocation)) + " km");
-            }
+            }*/
         }
     }
 
