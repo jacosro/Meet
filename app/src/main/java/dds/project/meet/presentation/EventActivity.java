@@ -277,7 +277,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
         try {
             eventLocation = getLatLng(mCard.getLocation());
         } catch (IOException e) {
-            Log.d(TAG, "No va el puto mapa");
+            Log.d(TAG, "No va el puto mapa " + e);
         }
 
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);

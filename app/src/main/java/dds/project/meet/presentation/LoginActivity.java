@@ -94,19 +94,14 @@ public class LoginActivity extends BaseActivity {
             hideProgressDialog();
             failed.requestFocus();
         } else {
-            mPersistence.userDAO.findUserByEmail(email, new QueryCallback<User>() {
-                @Override
-                public void result(User data) {
-                    doSignIn(data, password);
-                }
-            });
+           doSignIn(email, password);
         }
     }
 
-    private void doSignIn(User user, String password) {
+    private void doSignIn(String email, String password) {
         showProgressDialog();
 
-        mPersistence.userDAO.doLogin(user, password, new QueryCallback<Boolean>() {
+        mPersistence.userDAO.doLogin(email, password, new QueryCallback<Boolean>() {
             @Override
             public void result(Boolean success) {
                 if (success) {
@@ -144,15 +139,10 @@ public class LoginActivity extends BaseActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             if (intent != null && intent.getExtras() != null) {
-                String name = intent.getExtras().getString("name");
                 String email = intent.getExtras().getString("email");
-                String username = intent.getExtras().getString("username");
                 String password = intent.getExtras().getString("password");
-                String phone = intent.getExtras().getString("phone");
 
-                User user = new User(name, username, phone, email);
-
-                doSignIn(user, password);
+                doSignIn(email, password);
             }
         }
     }

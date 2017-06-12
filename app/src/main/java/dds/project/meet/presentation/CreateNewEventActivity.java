@@ -153,6 +153,7 @@ public class CreateNewEventActivity extends BaseActivity {
 
         adapterContacts = new ContactAdapter(dataContacts, this);
 
+        ActivityCompat.requestPermissions(CreateNewEventActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
     }
 
 
@@ -234,7 +235,6 @@ public class CreateNewEventActivity extends BaseActivity {
         addPersons.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ActivityCompat.requestPermissions(CreateNewEventActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
 
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(CreateNewEventActivity.this);
                 View mView = getLayoutInflater().inflate(R.layout.contact_list, null);
@@ -475,10 +475,13 @@ public class CreateNewEventActivity extends BaseActivity {
         if (constraintsAreOk()) {
             mCard.setName(editTextName.getText().toString());
 
+            final Intent backToMainActivity = new Intent(this, MainActivity.class);
+
             mPersistence.cardDAO.addCard(mCard, new QueryCallback<Boolean>() {
                 @Override
                 public void result(Boolean data) {
                     Log.d(TAG, "Add card " + data);
+                    startActivity(backToMainActivity);
                     finish();
                 }
             });

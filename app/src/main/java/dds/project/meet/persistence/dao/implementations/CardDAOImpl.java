@@ -7,7 +7,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,12 +27,10 @@ public class CardDAOImpl implements ICardDAO {
     private static final String TAG = "CardDAO";
 
     private FirebaseDatabase mFirebaseDatabase;
-    private FirebaseStorage mFirebaseStorage;
     private DatabaseReference rootRef;
 
     public CardDAOImpl() {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mFirebaseStorage = FirebaseStorage.getInstance();
         rootRef = mFirebaseDatabase.getReference();
     }
 
@@ -62,16 +59,6 @@ public class CardDAOImpl implements ICardDAO {
         Log.d(TAG, "Added to card_users table");
 
         callback.result(true);
-
-        /*
-        StorageReference storageRef = mFirebaseStorage.getReference();
-        storageRef.child(key).putFile(card.getImage()).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                Log.d(TAG, "Upload image: " + task.isSuccessful());
-            }
-        });
-        */
 
     }
 

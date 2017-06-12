@@ -30,6 +30,7 @@ import dds.project.meet.logic.Card;
 import dds.project.meet.logic.CardAdapter;
 import dds.project.meet.logic.CardFactory;
 import dds.project.meet.logic.RecyclerItemClickListener;
+import dds.project.meet.logic.User;
 import dds.project.meet.logic.command.AddCardCommand;
 import dds.project.meet.logic.command.Command;
 import dds.project.meet.logic.command.NewCardCommand;
@@ -126,7 +127,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         itemTouchHelper.attachToRecyclerView(recyclerCards);
 
 
-        loadCards();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,9 +135,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             }
         });
 
-        setupToolbar();
-        setupRecyclerView();
-        refreshUI();
+        loadCards();
 
         findViewById(R.id.mainMeetTitle).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,8 +147,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         });
 
 
-        emailDrawer.setText(Persistence.getInstance().userDAO.getCurrentUser().getEmail());
-        nameDrawer.setText(Persistence.getInstance().userDAO.getCurrentUser().getUsername());
 
         refreshCards.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,6 +158,18 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             }
         });
+
+        mPersistence.userDAO.setCurrentUser(new QueryCallback<User>() {
+            @Override
+            public void result(User data) {
+                emailDrawer.setText(data.getEmail());
+                nameDrawer.setText(data.getUsername());
+            }
+        });
+
+        setupToolbar();
+        setupRecyclerView();
+        refreshUI();
     }
 
     @Override
@@ -310,20 +318,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public void createCard(View v) {
         Intent intent = new Intent(this, CreateNewEventActivity.class);
         startActivity(intent);
+        finish();
     }
 
     public void openEvent(Card card) {
         Intent intent = new Intent(this, EventActivity.class);
-
-        /*
-        intent.putExtra("EXTRA_NAME", card.getName());
-        intent.putExtra("EXTRA_LOCATION", card.getLocation());
-        intent.putExtra("EXTRA_TIME", card.getTime());
-        intent.putExtra("EXTRA_LOCATION", card.getLocation());
-        intent.putExtra("EXTRA_DATE_DAY", card.getDateDay());
-        intent.putExtra("EXTRA_DATE_MONTH", card.getDateMonth());
-        intent.putExtra("EXTRA_DATE_YEAR", card.getDateYear());
-        */
 
         intent.putExtra("key", card.getDbKey());
 
