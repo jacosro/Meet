@@ -8,8 +8,8 @@
         <item name="colorAccent">#FF4081</item>
         <item name="android:statusBarColor">#55A89D</item>-->
         <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">false</item>
     </style>
 
     <style name="MyThemeWhite" parent="@android:style/Theme.Holo.Light">

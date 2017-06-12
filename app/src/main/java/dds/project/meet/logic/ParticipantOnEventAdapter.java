@@ -64,7 +64,16 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
         final String name = dataMembers.get(position).getUsername();
         holder.nameParticipant.setText(name);
 
-        if(Persistence.getInstance().userDAO.getCurrentUser().getUid().equals(card.getOwner())) {
+        String myUid = "";
+        for (User user : card.getParticipants()) {
+            if (user.getUsername().equals(name)) {
+                myUid = user.getUid();
+            }
+        }
+        if (myUid.equals(card.getOwner())) {
+            holder.remove.setText("OWNER");
+            holder.remove.setBackgroundColor(0xFF3498db);
+        } else {
             holder.remove.setVisibility(View.VISIBLE);
             holder.remove.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -75,19 +84,20 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Persistence.getInstance().userDAO.removeUserFromCard(card, dataMembers.get(position), new QueryCallback<Boolean>() {
+                                    final User user = dataMembers.get(position);
+                                    Persistence.getInstance().userDAO.removeUserFromCard(card, user, new QueryCallback<Boolean>() {
                                         @Override
                                         public void result(Boolean data) {
                                             Log.d("USER KICKED ON ASS", "Hasta luego Maricarmen");
+                                            card.getParticipants().remove(user);
+                                            dataMembers.remove(user);
+                                            notifyDataSetChanged();
                                         }
                                     });
                                 }
                             }).setNegativeButton("No", null).show();
                 }
             });
-
-        } else {
-            holder.remove.setVisibility(View.INVISIBLE);
         }
         holder.c.setCardBackgroundColor(setRandomColor());
 

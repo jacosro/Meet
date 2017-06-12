@@ -91,6 +91,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_activity);
+        mCard = new Card();
 
         nameEvent = (TextView) findViewById(R.id.name_event);
         timeEvent = (TextView) findViewById(R.id.time_event);
@@ -107,9 +108,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
         distanceCar = (TextView) findViewById(R.id.distanceCar);
 
         Intent intent = getIntent();
-        String key = intent.getStringExtra("key");
-
-
+        mCard.setDbKey(intent.getStringExtra("key"));
 
         dataUser = new ArrayList<User>();
         recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
@@ -117,37 +116,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
         layoutManagerParticipants = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerParticipants.setLayoutManager(layoutManagerParticipants);
 
-        mPersistence.cardDAO.findCardByKey(key, new QueryCallback<Card>() {
-            @Override
-            public void result(Card data) {
-                mCard = data;
-
-                Log.d(TAG, data.toString());
-
-                nameEvent.setText(mCard.getName());
-                timeEvent.setText(mCard.getTime());
-                dateEvent.setText(mCard.getDateDay() + "" + correctSuperScript(mCard.getDateDay()) + " " + months[mCard.getDateMonth()]);
-                locationMap.setText(mCard.getLocation());
-                descriptionTextView.setText(mCard.getDescription());
-
-                adapterParticipants = new ParticipantOnEventAdapter(mCard.getParticipants(), EventActivity.this, mCard);
-                recyclerParticipants.setAdapter(adapterParticipants);
-
-
-                googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
-
-                if (googleServicesOK()) {
-                    Log.d("MAP_READY", "Enterning...");
-                    googleMap.getMapAsync(EventActivity.this);
-                    Log.d("MAP_READY", "InitMap");
-                } else {
-                    Toast.makeText(EventActivity.this, "No map available", Toast.LENGTH_LONG).show();
-                }
-
-            }
-        });
-
-        loadDefaultparticipants();
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,19 +128,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
             @Override
             public void onClick(View v) {
                 Intent toEventSettings = new Intent(EventActivity.this, SettingsEventActivity.class);
-
-                toEventSettings.putExtra("EXTRA_NAME", mCard.getName());
-                toEventSettings.putExtra("EXTRA_LOCATION", mCard.getLocation());
-                toEventSettings.putExtra("EXTRA_TIME", mCard.getTime());
-                toEventSettings.putExtra("EXTRA_DATE_DAY", mCard.getDateDay());
-                toEventSettings.putExtra("EXTRA_DATE_MONTH", mCard.getDateMonth());
-                toEventSettings.putExtra("EXTRA_DATE_YEAR", mCard.getDateYear());
-                toEventSettings.putExtra("EXTRA_PERSONS", mCard.getPersons());
-                toEventSettings.putExtra("EXTRA_KM", mCard.getKm());
-                toEventSettings.putExtra("EXTRA_DESCRIPTION", mCard.getDescription());
-                toEventSettings.putExtra("EXTRA_OWNER", mCard.getOwner());
-                toEventSettings.putExtra("EXTRA_DBKEY", mCard.getDbKey());
-
+                toEventSettings.putExtra("key", mCard.getDbKey());
                 startActivity(toEventSettings);
             }
         });
@@ -197,10 +153,53 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
 
     }
 
-    private void loadDefaultparticipants() {
-        dataUser.add(new User("Patricio Orlando", "Aqui", "654765876", "porlando@gmail.com"));
-        dataUser.add(new User("Maria Bahilo", "Aqui", "654765876", "porlando@gmail.com"));
-        dataUser.add(new User("Sandra Castillo", "Aqui", "654765876", "porlando@gmail.com"));
+    @Override
+    public void onStart() {
+        super.onStart();
+        mPersistence.cardDAO.findCardByKey(mCard.getDbKey(), new QueryCallback<Card>() {
+            @Override
+            public void result(Card data) {
+                mCard = data;
+
+                Log.d(TAG, data.toString());
+
+                nameEvent.setText(mCard.getName());
+                timeEvent.setText(mCard.getTime());
+                dateEvent.setText(mCard.getDateDay() + "" + correctSuperScript(mCard.getDateDay()) + " " + months[mCard.getDateMonth()]);
+                try {
+                    eventLocation = getLatLng(mCard.getLocation());
+                } catch (IOException e) {
+                    Log.d(TAG, "Location not valid");
+                }
+                locationMap.setText(mCard.getLocation());
+                descriptionTextView.setText(mCard.getDescription());
+
+                adapterParticipants = new ParticipantOnEventAdapter(mCard.getParticipants(), EventActivity.this, mCard);
+                recyclerParticipants.setAdapter(adapterParticipants);
+
+                if (googleMap == null) {
+                    googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
+
+                    if (googleServicesOK()) {
+                        Log.d("MAP_READY", "Enterning...");
+                        googleMap.getMapAsync(EventActivity.this);
+                        Log.d("MAP_READY", "InitMap");
+                    } else {
+                        Toast.makeText(EventActivity.this, "No map available", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    googleMap.getMapAsync(new OnMapReadyCallback() {
+                        @Override
+                        public void onMapReady(GoogleMap googleMap) {
+                            googleMap.addMarker(new MarkerOptions().position(eventLocation)
+                                    .title("Marker on Event Place"));
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(eventLocation, 15));
+                            refreshDistances();
+                        }
+                    });
+                }
+            }
+        });
     }
 
     private String correctSuperScript(int day) {

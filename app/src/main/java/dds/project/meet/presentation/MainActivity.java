@@ -138,8 +138,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             }
         });
 
-        loadCards();
-
         findViewById(R.id.mainMeetTitle).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -173,6 +171,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         setupToolbar();
         setupRecyclerView();
         refreshUI();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadCards();
     }
 
     @Override
@@ -320,7 +324,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public void createCard(View v) {
         Intent intent = new Intent(this, CreateNewEventActivity.class);
         startActivity(intent);
-        finish();
+        //finish();
     }
 
     public void openEvent(Card card) {

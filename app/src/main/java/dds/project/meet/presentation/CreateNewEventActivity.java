@@ -506,7 +506,6 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
         return null;
     }
 
-
     public void donePressed() {
         Log.d(TAG, "done pressed");
 
@@ -515,14 +514,10 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
 
         if (constraintsAreOk()) {
             mCard.setName(editTextName.getText().toString());
-
-            final Intent backToMainActivity = new Intent(this, MainActivity.class);
-
             mPersistence.cardDAO.addCard(mCard, new QueryCallback<Boolean>() {
                 @Override
                 public void result(Boolean data) {
                     Log.d(TAG, "Add card " + data);
-                    startActivity(backToMainActivity);
                     finish();
                 }
             });
@@ -552,7 +547,7 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
             return false;
         }
 
-        if (mCard.getPersons() <= 1) {
+        if (mCard.getPersons() <= 0) {
             Toast.makeText(this, "Please, select at least one participant", Toast.LENGTH_SHORT).show();
             return false;
         }

@@ -115,7 +115,7 @@
             style="@style/toWhite"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="60dp"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             android:layout_weight="1"

@@ -1,6 +1,8 @@
 package dds.project.meet.logic;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by RaulCoroban on 15/04/2017.
@@ -126,7 +128,24 @@ public class Card implements Comparable<Card> {
         return name;
     }
 
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
 
+        map.put("time", time);
+        map.put("dateDay", dateDay);
+        map.put("dateMonth", dateMonth);
+        map.put("dateYear", dateYear);
+        map.put("name", name);
+        map.put("location", location);
+        map.put("persons", persons);
+        map.put("km", km);
+        map.put("description", description);
+        map.put("participants", participants);
+        map.put("owner", owner);
+        map.put("dbKey", dbKey);
+
+        return map;
+    }
 
     public boolean equals(Object o) {
         if (this == o)

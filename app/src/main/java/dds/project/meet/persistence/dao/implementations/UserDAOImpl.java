@@ -166,11 +166,38 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void removeUserFromCard(Card card, User user, final QueryCallback<Boolean> callback) {
-        String key = card.getDbKey();
+        final String key = card.getDbKey();
         String uid = user.getUid();
 
         if (key != null && uid != null) {
             rootRef.child("card_users").child(key).child(user.getUid()).removeValue();
+
+            rootRef.child("cards").child(key).child("persons").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    int value = dataSnapshot.getValue(Integer.class);
+                    rootRef.child("cards").child(key).child("persons").setValue(value - 1);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+            rootRef.child("cards").child(key).child("participants").orderByChild("uid").equalTo(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    String userKey = dataSnapshot.getChildren().iterator().next().getKey();
+                    Log.d(TAG, userKey);
+                    rootRef.child("cards").child(key).child("participants").child(userKey).removeValue();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
             callback.result(true);
         } else {
             Log.d(TAG, "Card key or uid null!");

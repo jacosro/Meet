@@ -38,12 +38,18 @@ public class CardDAOImpl implements ICardDAO {
 
     @Override
     public void addCard(final Card card, final QueryCallback<Boolean> callback) {
-        final String key = rootRef.child("cards").push().getKey();
-        final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
+        String key = rootRef.child("cards").push().getKey();
+        String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
 
         // Set fields to card
-        card.setOwner(uid);
-        card.setDbKey(key);
+        if (card.getOwner() == null) {
+            card.setOwner(uid);
+        }
+        if (card.getDbKey() == null) {
+            card.setDbKey(key);
+        } else {
+            key = card.getDbKey();
+        }
 
         // Add to cards
         rootRef.child("cards").child(key).setValue(card);
@@ -93,6 +99,14 @@ public class CardDAOImpl implements ICardDAO {
             callback.result(false);
             Log.d(TAG, "Key of Card " + card.getName() + " is null!");
         }
+    }
+
+    @Override
+    public void updateCard(Card card, QueryCallback<Boolean> callback) {
+        final String key = card.getDbKey();
+
+        rootRef.child("cards").child(key).updateChildren(card.toMap());
+        callback.result(true);
     }
 
     @Override
