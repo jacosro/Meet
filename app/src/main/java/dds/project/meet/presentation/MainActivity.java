@@ -158,6 +158,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 float deg = refreshCards.getRotation() + 720F;
                 refreshCards.animate().rotation(deg).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(800);
                 refreshUI();
+
             }
         });
     }
