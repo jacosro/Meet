@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import dds.project.meet.R;
@@ -25,7 +26,7 @@ import dds.project.meet.persistence.QueryCallback;
 
 public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantOnEventAdapter.ViewHolder> {
 
-    private ArrayList<User> dataMembers;
+    private List<User> dataMembers;
     Card card;
     Context context;
 
@@ -33,23 +34,22 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
 
         public TextView nameParticipant;
         public TextView acroParticipant;
-        public TextView distanceParticipant;
         public CardView c;
         public Button remove;
 
         public ViewHolder(View itemView) {
             super(itemView);
             nameParticipant = (TextView) itemView.findViewById(R.id.nameParticipant);
-            distanceParticipant = (TextView) itemView.findViewById(R.id.distanceParticipant);
             acroParticipant = (TextView) itemView.findViewById(R.id.acroParticipant);
             c = (CardView) itemView.findViewById(R.id.cardView2);
             remove = (Button) itemView.findViewById(R.id.removeButton);
         }
     }
 
-    public ParticipantOnEventAdapter(ArrayList<User> myyDataset, Context context, Card card){
+    public ParticipantOnEventAdapter(List<User> myyDataset, Context context, Card card){
         dataMembers = myyDataset;
         this.context = context;
+        this.card = card;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
 
     @Override
     public void onBindViewHolder(ParticipantOnEventAdapter.ViewHolder holder, final int position) {
-        final String name = dataMembers.get(position).getName();
+        final String name = dataMembers.get(position).getUsername();
         holder.nameParticipant.setText(name);
 
         if(Persistence.getInstance().userDAO.getCurrentUser().getUid().equals(card.getOwner())) {
@@ -96,7 +96,7 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
         if (split.length == 2) {
             initials = (split[0].substring(0, 1)+ split[1].substring(0, 1)).toUpperCase();
         } else {
-            initials = split[0].substring(0, 2);
+            initials = split[0].substring(0, 2).toUpperCase();
         }
         holder.acroParticipant.setText(initials);
     }

@@ -366,7 +366,6 @@ public class CreateNewEventActivity extends BaseActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 }
-                return;
             }
         }
     }

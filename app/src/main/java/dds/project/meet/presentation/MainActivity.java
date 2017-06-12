@@ -25,6 +25,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dds.project.meet.R;
 import dds.project.meet.logic.Card;
 import dds.project.meet.logic.CardAdapter;
@@ -308,7 +311,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             public void result(Card data) {
                 if (data != null) {
                     addCardToUI(data);
-                } else {
                     recyclerCards.smoothScrollToPosition(0);
                 }
             }

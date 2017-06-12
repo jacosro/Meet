@@ -48,18 +48,6 @@
         app:layout_constraintLeft_toRightOf="@+id/cardView2"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/distanceParticipant"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="0dp"
-        android:alpha="0.5"
-        android:text="@string/distanceParticipantOnEvent"
-        android:textSize="14dp"
-        app:layout_constraintLeft_toRightOf="@+id/cardView2"
-        app:layout_constraintTop_toBottomOf="@+id/nameParticipant" />
-
     <Button
         android:id="@+id/removeButton"
         android:layout_width="115dp"

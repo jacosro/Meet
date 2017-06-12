@@ -45,6 +45,7 @@ import java.util.List;
 
 import dds.project.meet.R;
 import dds.project.meet.logic.Card;
+import dds.project.meet.logic.ParticipantOnEventAdapter;
 import dds.project.meet.logic.User;
 import dds.project.meet.persistence.QueryCallback;
 
@@ -62,8 +63,8 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
     private ImageButton back;
     private RecyclerView recyclerParticipants;
     private ArrayList<User> dataUser;
-    private RecyclerView.LayoutManager layoutManagerCards;
-    private RecyclerView.Adapter adapterCards;
+    private RecyclerView.LayoutManager layoutManagerParticipants;
+    private RecyclerView.Adapter adapterParticipants;
     private TextView nameEvent;
     private TextView timeEvent;
     private TextView dateEvent;
@@ -108,6 +109,14 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
         Intent intent = getIntent();
         String key = intent.getStringExtra("key");
 
+
+
+        dataUser = new ArrayList<User>();
+        recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
+        recyclerParticipants.setHasFixedSize(false);
+        layoutManagerParticipants = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerParticipants.setLayoutManager(layoutManagerParticipants);
+
         mPersistence.cardDAO.findCardByKey(key, new QueryCallback<Card>() {
             @Override
             public void result(Card data) {
@@ -120,6 +129,9 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
                 dateEvent.setText(mCard.getDateDay() + "" + correctSuperScript(mCard.getDateDay()) + " " + months[mCard.getDateMonth()]);
                 locationMap.setText(mCard.getLocation());
                 descriptionTextView.setText(mCard.getDescription());
+
+                adapterParticipants = new ParticipantOnEventAdapter(mCard.getParticipants(), EventActivity.this, mCard);
+                recyclerParticipants.setAdapter(adapterParticipants);
 
 
                 googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
@@ -135,26 +147,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
             }
         });
 
-
-        dataUser = new ArrayList<User>();
-        recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
-
-
-        recyclerParticipants.setHasFixedSize(false);
-        layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        recyclerParticipants.setLayoutManager(layoutManagerCards);
-
-
         loadDefaultparticipants();
-
-        /*
-        nameE = intent.getStringExtra("EXTRA_NAME");
-        timeE = intent.getStringExtra("EXTRA_TIME");
-        dayE = intent.getIntExtra("EXTRA_DATE_DAY", 0);
-        monthE = intent.getIntExtra("EXTRA_DATE_MONTH", 0);
-        locationE = intent.getStringExtra("EXTRA_LOCATION");
-        */
-
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
