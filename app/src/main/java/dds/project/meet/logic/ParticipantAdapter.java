@@ -6,12 +6,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
 import java.util.Random;
 
 import dds.project.meet.R;
+import dds.project.meet.persistence.Persistence;
 
 /**
  * Created by RaulCoroban on 28/04/2017.
@@ -26,12 +28,14 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
 
         public TextView nameParticipant;
         public TextView acroParticipant;
+        public CardView quitParticipant;
         public CardView cardHolder;
 
         public ViewHolder(View itemView) {
             super(itemView);
             nameParticipant = (TextView) itemView.findViewById(R.id.nameParticipant);
             acroParticipant = (TextView) itemView.findViewById(R.id.acroParticipant);
+            quitParticipant = (CardView) itemView.findViewById(R.id.contact_quit);
             cardHolder = (CardView) itemView.findViewById(R.id.cardViewHolder);
         }
     }
@@ -54,6 +58,11 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
         String [] first = name.split("\\s");
         holder.nameParticipant.setText(first[0]);
         holder.cardHolder.setCardBackgroundColor(setRandomColor());
+
+        // Don't show the x if you are the contact
+        if (Persistence.getInstance().userDAO.getCurrentUser().equals(dataMembers.get(position))) {
+            holder.quitParticipant.setVisibility(View.INVISIBLE);
+        }
 
 
         String[] split = name.split("\\s");

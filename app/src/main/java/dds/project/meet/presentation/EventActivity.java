@@ -171,7 +171,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
                 toEventSettings.putExtra("EXTRA_KM", mCard.getKm());
                 toEventSettings.putExtra("EXTRA_DESCRIPTION", mCard.getDescription());
                 toEventSettings.putExtra("EXTRA_OWNER", mCard.getOwner());
-                toEventSettings.putExtra("EXTRA_IMAGE", mCard.getImage());
                 toEventSettings.putExtra("EXTRA_DBKEY", mCard.getDbKey());
 
                 startActivity(toEventSettings);

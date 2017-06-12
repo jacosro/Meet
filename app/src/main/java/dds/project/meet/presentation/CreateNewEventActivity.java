@@ -28,6 +28,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -80,6 +81,7 @@ public class CreateNewEventActivity extends BaseActivity {
 
     private ContactAdapter adapterContacts;
     private List<User> dataContacts;
+    private ProgressBar mProgressBar;
 
     private FloatingActionButton doneFab;
     private Button cancel;
@@ -88,6 +90,7 @@ public class CreateNewEventActivity extends BaseActivity {
     private Button descriptionButton;
 
     private User mUser;
+
 
     //Class fields
     private String uriString;
@@ -139,20 +142,15 @@ public class CreateNewEventActivity extends BaseActivity {
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
                         User user = dataMembers.get(position);
-                        Log.d(TAG, user.toString());
-                        Log.d(TAG, mUser.toString());
+
                         if (!mUser.equals(user)) {
                             deleteContactFromMembers(user);
-                        } else {
-                            Toast.makeText(CreateNewEventActivity.this, "You cannot remove yourself!", Toast.LENGTH_SHORT).show();
                         }
                     }
                 })
         );
 
         adapterParticipants.notifyDataSetChanged();
-
-        //loadMembers();
 
         setListeners();
 
@@ -245,6 +243,8 @@ public class CreateNewEventActivity extends BaseActivity {
                 View mView = getLayoutInflater().inflate(R.layout.contact_list, null);
                 mBuilder.setView(mView);
 
+                mProgressBar = (ProgressBar) mView.findViewById(R.id.contact_list_progressBar);
+                mProgressBar.setVisibility(View.INVISIBLE);
                 final AlertDialog dialog = mBuilder.create();
 
                 final RecyclerView recyclerContacts = (RecyclerView) mView.findViewById(R.id.contactRecyclerView);
@@ -270,7 +270,8 @@ public class CreateNewEventActivity extends BaseActivity {
 
                         @Override
                         protected void onPreExecute() {
-                            showProgressDialog();
+                            mProgressBar.setIndeterminate(true);
+                            mProgressBar.setVisibility(View.VISIBLE);
                         }
 
                         @Override
@@ -295,7 +296,7 @@ public class CreateNewEventActivity extends BaseActivity {
                                         }
                                     }
                                     Log.d(TAG, dataContacts.toString());
-                                    hideProgressDialog();
+                                    mProgressBar.setVisibility(View.INVISIBLE);
                                 }
                             });
                         }
@@ -352,51 +353,6 @@ public class CreateNewEventActivity extends BaseActivity {
                     e.printStackTrace();
                     Log.d(TAG, "Services not available " + e);
                 }
-
-                /*AlertDialog.Builder mBuilder = new AlertDialog.Builder(CreateNewEventActivity.this);
-                final View mView = getLayoutInflater().inflate(R.layout.location_event, null);
-                mBuilder.setView(mView);
-
-                final AlertDialog dialog = mBuilder.create();
-                dialog.show();
-
-                final EditText setLocation = (EditText) mView.findViewById(R.id.locationEditText);
-                final RecyclerView recyclerLocations = (RecyclerView) mView.findViewById(R.id.recyclerViewLocations);
-                recyclerLocations.setHasFixedSize(false);
-
-                RecyclerView.LayoutManager layoutManagerLocations = new LinearLayoutManager(CreateNewEventActivity.this, LinearLayoutManager.VERTICAL, false);
-                recyclerLocations.setLayoutManager(layoutManagerLocations);
-                final List<Address> listAddress = new ArrayList<Address>();
-
-                final LocationAdapter adapterLocations = new LocationAdapter(listAddress, CreateNewEventActivity.this);
-                recyclerLocations.setAdapter(adapterLocations);
-
-                mView.findViewById(R.id.searchButton).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Geocoder gc = new Geocoder(CreateNewEventActivity.this);
-                        listAddress.clear();
-                        try {
-                            listAddress.addAll(gc.getFromLocationName(setLocation.getText().toString(), 50));
-                            adapterLocations.notifyDataSetChanged();
-
-
-                            final List<Address> finalListAddress = listAddress;
-                            recyclerLocations.addOnItemTouchListener(
-                                    new RecyclerItemClickListener(CreateNewEventActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
-                                        @Override public void onItemClick(View view, int position) {
-                                            Toast.makeText(CreateNewEventActivity.this, finalListAddress.get(position).toString(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    }));
-
-                        } catch (IOException e) {
-                            Log.d(TAG, "Esto no va ni patras");
-                        }
-
-                    }
-                });
-*/
-
             }
         });
 
@@ -437,7 +393,6 @@ public class CreateNewEventActivity extends BaseActivity {
                         contactNumber = arrangeNumber(contactNumber);
                         String contactName = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Identity.DISPLAY_NAME));
                         res.add(new User(contactName, contactName, contactNumber, ""));
-                        break;
                     }
                     pCur.close();
                 }
