@@ -17,9 +17,10 @@ public interface IUserDAO {
 
     FirebaseUser getCurrentFirebaseUser();
     User getCurrentUser();
+    void setCurrentUser(QueryCallback<User> callback);
 
     void createNewUser(User user, String password, QueryCallback<Boolean> callback);
-    void doLogin(User user, String password, QueryCallback<Boolean> callback);
+    void doLogin(String email, String password, QueryCallback<Boolean> callback);
     void doSignOut();
 
     void findUserByUid(String uid, QueryCallback<User> callback);

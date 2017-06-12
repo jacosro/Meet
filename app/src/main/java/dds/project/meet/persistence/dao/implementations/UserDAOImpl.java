@@ -42,14 +42,6 @@ public class UserDAOImpl implements IUserDAO {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         rootRef = mFirebaseDatabase.getReference();
-
-        String uid = getCurrentFirebaseUser().getUid();
-        findUserByUid(uid, new QueryCallback<User>() {
-            @Override
-            public void result(User data) {
-                setCurrentUser(data);
-            }
-        });
     }
 
     @Override
@@ -64,6 +56,19 @@ public class UserDAOImpl implements IUserDAO {
     @Override
     public User getCurrentUser() {
         return mUser;
+    }
+
+    @Override
+    public void setCurrentUser(final QueryCallback<User> callback) {
+        if (getCurrentFirebaseUser() != null) {
+            findUserByUid(getCurrentFirebaseUser().getUid(), new QueryCallback<User>() {
+                @Override
+                public void result(User data) {
+                    setCurrentUser(data);
+                    callback.result(data);
+                }
+            });
+        }
     }
 
     @Override
@@ -93,9 +98,8 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
-    public void doLogin(User user, String password, final QueryCallback<Boolean> callback) {
-        setCurrentUser(user);
-        mFirebaseAuth.signInWithEmailAndPassword(user.getEmail(), password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+    public void doLogin(String email, String password, final QueryCallback<Boolean> callback) {
+        mFirebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 callback.result(task.isSuccessful());
@@ -147,6 +151,7 @@ public class UserDAOImpl implements IUserDAO {
         rootRef.child("users").orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, dataSnapshot.getKey());
                 User user = dataSnapshot.getValue(User.class);
                 callback.result(user);
             }
