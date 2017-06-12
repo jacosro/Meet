@@ -1,6 +1,5 @@
 package dds.project.meet.presentation;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -143,6 +142,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         setupToolbar();
         setupRecyclerView();
         refreshUI();
+
+        findViewById(R.id.mainMeetTitle).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new NewCardCommand(adapterCards, CardFactory.getRandomCard()).execute();
+                Toast.makeText(MainActivity.this, "Added random card", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -222,6 +229,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             public void onClick(View v) {
                                 new NewCardCommand(adapterCards, originator.getState()).execute();
                                 careTaker.undo();
+                                refreshUI();
                             }
                         });
                         undoDelete.show();
@@ -230,7 +238,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             return simpleCallback;
     }
 
-    private void addCard(Card card) {
+    private void addCardToUI(Card card) {
         Command addCard = new AddCardCommand(adapterCards, card);
         addCard.execute();
         refreshUI();
@@ -275,8 +283,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         /*
         Card one = new Card("10:30", 12 , 3 , 2016 , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5);
         Card two = new Card("14:55", 17 , 5 , 2017 , "Comida La Vella", "ETSINF UPV", 7, 2);
-        Command addCard = new AddCardCommand(recyclerCards.getAdapter(), dataCards, one);
-        addCard.execute();
+        Command addCardToUI = new AddCardCommand(recyclerCards.getAdapter(), dataCards, one);
+        addCardToUI.execute();
 
         Command addCard2 = new AddCardCommand(recyclerCards.getAdapter(), dataCards, two);
         addCard2.execute();
@@ -286,7 +294,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             @Override
             public void result(Card data) {
                 if (data != null) {
-                    addCard(data);
+                    addCardToUI(data);
                 } else {
                     hideProgressDialog();
                 }

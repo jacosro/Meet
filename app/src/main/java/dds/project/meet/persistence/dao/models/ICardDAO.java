@@ -15,7 +15,7 @@ public interface ICardDAO {
     void addAllCards(Collection<Card> collection);
     void removeCard(Card card, QueryCallback<Boolean> callback);
 
-    void getCardByKey(String key, QueryCallback<Card> callback);
+    void findCardByKey(String key, QueryCallback<Card> callback);
     void getAllCards(QueryCallback<Card> callback);
 
 }

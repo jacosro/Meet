@@ -96,7 +96,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
         Intent intent = getIntent();
         String key = intent.getStringExtra("key");
 
-        mPersistence.cardDAO.getCardByKey(key, new QueryCallback<Card>() {
+        mPersistence.cardDAO.findCardByKey(key, new QueryCallback<Card>() {
             @Override
             public void result(Card data) {
                 mCard = data;
@@ -174,14 +174,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback {
                 toEventSettings.putExtra("EXTRA_DBKEY", mCard.getDbKey());
 
                 startActivity(toEventSettings);
-            }
-        });
-
-        directionsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent toTrash = new Intent(EventActivity.this, TrashActivity.class);
-                startActivity(toTrash);
             }
         });
 

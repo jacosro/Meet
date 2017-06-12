@@ -2,6 +2,7 @@ package dds.project.meet.logic;
 
 import android.net.Uri;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -9,6 +10,7 @@ import java.util.List;
  */
 
 public class Card implements Comparable<Card> {
+
     private String time;
     private int dateDay;
     private int dateMonth;
@@ -18,8 +20,7 @@ public class Card implements Comparable<Card> {
     private int persons;
     private int km;
     private String description;
-
-    private List<User> participants;
+    private Collection<User> participants;
 
     private String owner;
     private String dbKey;
@@ -28,80 +29,68 @@ public class Card implements Comparable<Card> {
 
     }
 
-    public Card(String time, int dateDay, int dateMonth, int dateYear, String name, String location, int persons, int km, String description) {
-        this.time = time;
-        this.dateDay = dateDay;
-        this.dateMonth = dateMonth;
-        this.dateYear = dateYear;
-        this.name = name;
-        this.location = location;
-        this.persons = persons;
-        this.km = km;
-        this.description = description;
-    }
-
-    public List<User> getParticipants() {
-        return participants;
-    }
-
-    public void setParticipants(List<User> participants) {
+    public void setParticipants(Collection<User> participants) {
         this.participants = participants;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public String getOwner() {
-        return owner;
-    }
-
     public void setOwner(String owner) {
         this.owner = owner;
-    }
-
-    public String getDbKey() {
-        return dbKey;
     }
 
     public void setDbKey(String dbKey) {
         this.dbKey = dbKey;
     }
 
-    public String getTime() {
-        return time;
-    }
-
     public void setTime(String time) {
         this.time = time;
-    }
-
-    public int getDateDay() {
-        return dateDay;
-    }
-
-    public void setDateDay(int dateDay) {
-        this.dateDay = dateDay;
-    }
-
-    public int getDateMonth() {
-        return dateMonth;
     }
 
     public void setDateMonth(int dateMonth) {
         this.dateMonth = dateMonth;
     }
 
-    public int getDateYear() {
-        return dateYear;
+    public void setDateDay(int dateDay) {
+        this.dateDay = dateDay;
+    }
+
+    public Collection<User> getParticipants() {
+        return participants;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public String getDbKey() {
+        return dbKey;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public int getDateDay() {
+        return dateDay;
     }
 
     public void setDateYear(int dateYear) {
         this.dateYear = dateYear;
+    }
+
+    public int getDateMonth() {
+        return dateMonth;
+    }
+
+    public int getDateYear() {
+        return dateYear;
     }
 
     public String getName() {
@@ -139,6 +128,8 @@ public class Card implements Comparable<Card> {
     public String toString() {
         return name;
     }
+
+
 
     public boolean equals(Object o) {
         if (this == o)

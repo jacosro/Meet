@@ -126,7 +126,7 @@ public class CreateNewEventActivity extends BaseActivity {
         dataMembers = new ArrayList<>();
         dataMembers.add(mUser);
         dataContacts = new ArrayList<>();
-        mCard = CardFactory.getCard();
+        mCard = CardFactory.getEmptyCard();
 
 
 

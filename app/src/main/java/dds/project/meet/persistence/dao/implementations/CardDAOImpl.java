@@ -1,19 +1,13 @@
 package dds.project.meet.persistence.dao.implementations;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.google.android.gms.common.api.Api;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -108,7 +102,7 @@ public class CardDAOImpl implements ICardDAO {
     }
 
     @Override
-    public void getCardByKey(final String key, final QueryCallback<Card> callback) {
+    public void findCardByKey(final String key, final QueryCallback<Card> callback) {
         rootRef.child("cards").orderByKey().equalTo(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -139,7 +133,7 @@ public class CardDAOImpl implements ICardDAO {
                     String key = card.getKey();
                     Log.d(TAG, key);
                     if (card.child(uid).exists()) {
-                        getCardByKey(key, callback);
+                        findCardByKey(key, callback);
                     }
 
                 }

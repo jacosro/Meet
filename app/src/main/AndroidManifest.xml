@@ -83,9 +83,6 @@
         <activity
             android:name=".presentation.RegisterActivity"
             android:label="@string/title_activity_register"></activity>
-        <activity
-            android:name=".presentation.TrashActivity"
-            android:label="@string/title_activity_trash"></activity>
         <activity android:name=".presentation.SettingsEventActivity"
             android:label="@string/title_activity_event_settings"></activity>
     </application>
