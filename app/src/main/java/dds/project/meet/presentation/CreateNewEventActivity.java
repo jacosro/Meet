@@ -9,10 +9,13 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
@@ -31,10 +34,18 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,7 +68,7 @@ import dds.project.meet.persistence.QueryCallback;
  * Created by RaulCoroban on 10/04/2017.
  */
 
-public class CreateNewEventActivity extends BaseActivity {
+public class CreateNewEventActivity extends BaseActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     public static final int SELECTED_PICTURE = 1;
     public static final int SELECTED_LOCATION = 2;
@@ -123,6 +134,7 @@ public class CreateNewEventActivity extends BaseActivity {
         dataMembers = new ArrayList<>();
         dataMembers.add(mUser);
         dataContacts = new ArrayList<>();
+
         mCard = CardFactory.getEmptyCard();
 
 
@@ -162,16 +174,46 @@ public class CreateNewEventActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        Place place = null;
+
         if(requestCode == SELECTED_LOCATION && data != null) {
             if(resultCode == RESULT_OK) {
-                Place place = PlaceAutocomplete.getPlace(this, data);
+                 place = PlaceAutocomplete.getPlace(this, data);
                 mCard.setLocation(place.getAddress().toString());
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Log.d(TAG, "Place not found");
                 Toast.makeText(CreateNewEventActivity.this, "Cannot find place :(", Toast.LENGTH_SHORT).show();
             }
+            GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .enableAutoManage(this, this)
+                    .addApi(LocationServices.API)
+                    .addApi(Places.GEO_DATA_API)
+                    .addApi(Places.PLACE_DETECTION_API)
+                    .build();
+            mGoogleApiClient.connect();
+
+            final Place placeForDistance = place;
+
+            ActivityCompat.requestPermissions(CreateNewEventActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Permission denied for Access Fine Location");
+                return;
+            }
+
+            PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
+            result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
+                @Override
+                public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
+                    LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
+                    double distance = calculateDistanceBetween(myLoca, placeForDistance.getLatLng());
+                    mCard.setKm((int) distance);
+
+                    likelyPlaces.release();
+                }
+        });
         }
+
     }
 
     public void addContactToMembers(User contact) {
@@ -527,4 +569,22 @@ public class CreateNewEventActivity extends BaseActivity {
         return true;
     }
 
+    public double calculateDistanceBetween(LatLng latLng1, LatLng latLng2) {
+        Location loc1 = new Location(LocationManager.GPS_PROVIDER);
+        Location loc2 = new Location(LocationManager.GPS_PROVIDER);
+
+        loc1.setLatitude(latLng1.latitude);
+        loc1.setLongitude(latLng1.longitude);
+
+        loc2.setLatitude(latLng2.latitude);
+        loc2.setLongitude(latLng2.longitude);
+
+
+        return loc1.distanceTo(loc2)/1000;
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d(TAG, "Could not calculate distance");
+    }
 }

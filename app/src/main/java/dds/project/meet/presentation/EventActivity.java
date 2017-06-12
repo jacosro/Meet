@@ -314,11 +314,8 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
                 int distCar = (int) (distance/60 * 60);
 
                 DecimalFormat df = new DecimalFormat("#.##");
-                if(distance > 99) {
-                    realDistance.setText(">100 km");
-                } else {
-                    realDistance.setText(df.format(distance) + " km");
-                }
+                realDistance.setText(df.format(distance) + " km");
+
                 if(distWalk > 1000) {
                     distanceWalk.setText(">16 hrs");
                 } else {
@@ -330,7 +327,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
                 } else {
                     distanceCar.setText(distCar + " min");
                 }
-
 
                 likelyPlaces.release();
             }
