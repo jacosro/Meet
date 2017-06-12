@@ -322,7 +322,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
 
                 DecimalFormat df = new DecimalFormat("#.##");
                 if(distance > 99) {
-                    realDistance.setText((int) distance + " km");
+                    realDistance.setText(">100 km");
                 } else {
                     realDistance.setText(df.format(distance) + " km");
                 }
