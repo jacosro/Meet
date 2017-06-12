@@ -157,6 +157,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             public void onClick(View v) {
                 float deg = refreshCards.getRotation() + 720F;
                 refreshCards.animate().rotation(deg).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(800);
+                loadCards();
                 refreshUI();
 
             }
@@ -294,14 +295,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     public void loadCards() {
-        showProgressDialog();
         mPersistence.cardDAO.getAllCards(new QueryCallback<Card>() {
             @Override
             public void result(Card data) {
                 if (data != null) {
                     addCardToUI(data);
                 } else {
-                    hideProgressDialog();
                     recyclerCards.smoothScrollToPosition(0);
                 }
             }
