@@ -43,8 +43,8 @@
 
             <android.support.v7.widget.RecyclerView
                     android:id="@+id/recycler_cards"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:scrollbars="vertical"
                     android:clipToPadding="false"
                     android:paddingTop="170dp"

@@ -71,9 +71,12 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
     private MapFragment googleMap;
     private Button settingsButton;
     private Button directionsButton;
+    private Button refresh;
     private TextView realDistance;
     private TextView descriptionTextView;
     private MapFragment mapFragment;
+    private TextView distanceWalk;
+    private TextView distanceCar;
 
     //Class fields
     private String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
@@ -81,6 +84,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
     private Card mCard;
     private LocationListener mLocationListener;
     private LatLng eventLocation;
+    GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,9 +98,12 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
         back = (ImageButton) findViewById(R.id.backButton);
         settingsButton = (Button) findViewById(R.id.settingsButton);
         directionsButton = (Button) findViewById(R.id.directionsButton);
+        refresh = (Button) findViewById(R.id.refreshButton);
         realDistance = (TextView) findViewById(R.id.realDistance);
         descriptionTextView = (TextView) findViewById(R.id.descriptionTextViewEvent);
         mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
+        distanceWalk = (TextView) findViewById(R.id.distanceWalk);
+        distanceCar = (TextView) findViewById(R.id.distanceCar);
 
         Intent intent = getIntent();
         String key = intent.getStringExtra("key");
@@ -187,7 +194,13 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
         });
 
 
-
+        refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refreshDistances();
+                Toast.makeText(EventActivity.this, "Distances refreshed!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
@@ -267,6 +280,8 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
             Log.d(TAG, "No va el puto mapa");
         }
 
+        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
         if (eventLocation != null) {
             googleMap.addMarker(new MarkerOptions().position(eventLocation)
                     .title("Marker on Event Place"));
@@ -274,6 +289,21 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
             googleMap.getUiSettings().setScrollGesturesEnabled(false);
         }
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .build();
+        mGoogleApiClient.connect();
+
+
+        refreshDistances();
+
+
+    }
+
+    private void refreshDistances() {
 
         ActivityCompat.requestPermissions(EventActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -281,26 +311,37 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
             return;
         }
 
-        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this ,this)
-                .addApi(LocationServices.API)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                .build();
-        mGoogleApiClient.connect();
-
         PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
         result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
             @Override
             public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
                 LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
+                double distance = calculateDistanceBetween(myLoca, eventLocation);
+                int distWalk = (int) (distance/5 * 60);
+                int distCar = (int) (distance/60 * 60);
+
                 DecimalFormat df = new DecimalFormat("#.##");
-                realDistance.setText(df.format(calculateDistanceBetween(myLoca, eventLocation)) + " km");
+                if(distance > 99) {
+                    realDistance.setText((int) distance + " km");
+                } else {
+                    realDistance.setText(df.format(distance) + " km");
+                }
+                if(distWalk > 1000) {
+                    distanceWalk.setText(">16 hrs");
+                } else {
+                    distanceWalk.setText(distWalk + " min");
+                }
+
+                if(distCar > 5000) {
+                    distanceCar.setText(">3 days");
+                } else {
+                    distanceCar.setText(distCar + " min");
+                }
+
+
                 likelyPlaces.release();
             }
         });
-
-
     }
 
     @Override

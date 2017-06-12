@@ -11,7 +11,6 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +19,8 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +36,7 @@ import dds.project.meet.logic.command.NewCardCommand;
 import dds.project.meet.logic.command.RemoveCardCommand;
 import dds.project.meet.logic.memento.CareTaker;
 import dds.project.meet.logic.memento.Originator;
+import dds.project.meet.persistence.Persistence;
 import dds.project.meet.persistence.QueryCallback;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -50,12 +52,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private View coloredBackgroundView;
     private View toolbarContainer;
     private Toolbar toolbar;
+    private TextView nameDrawer;
+    private TextView emailDrawer;
+    private ImageButton refreshCards;
 
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ConstraintLayout background;
-    private SwipeRefreshLayout swipeRefresh;
+    private View header;
 
     // Class fields
     private Originator originator;
@@ -81,6 +86,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         coloredBackgroundView = findViewById(R.id.colored_background_view);
         toolbarContainer = findViewById(R.id.toolbar_vbox);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        header = navigationView.getHeaderView(0);
+        nameDrawer = (TextView) header.findViewById(R.id.nameTextViewDrawer);
+        emailDrawer = (TextView) header.findViewById(R.id.emailTextViewDrawer);
+        refreshCards = (ImageButton) findViewById(R.id.refreshCardsButton);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -91,13 +101,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.bringToFront();
 
-
-
         //Memento tools declaration
         originator = new Originator();
         careTaker = new CareTaker();
-
-
 
         //Initalize RecyclerView
         recyclerCards.setHasFixedSize(true);
@@ -138,6 +144,20 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             public void onClick(View v) {
                 new NewCardCommand(adapterCards, CardFactory.getRandomCard()).execute();
                 Toast.makeText(MainActivity.this, "Added random card", Toast.LENGTH_SHORT).show();
+                refreshUI();
+            }
+        });
+
+
+        emailDrawer.setText(Persistence.getInstance().userDAO.getCurrentUser().getEmail());
+        nameDrawer.setText(Persistence.getInstance().userDAO.getCurrentUser().getUsername());
+
+        refreshCards.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                float deg = refreshCards.getRotation() + 720F;
+                refreshCards.animate().rotation(deg).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(800);
+                refreshUI();
             }
         });
     }
@@ -151,6 +171,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbar.setNavigationIcon(null);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setHomeButtonEnabled(false);
     }
     private void setupRecyclerView() {
 
@@ -270,15 +293,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     public void loadCards() {
-        /*
-        Card one = new Card("10:30", 12 , 3 , 2016 , "Cena Montaditos", "Av.Blasco Ibañez", 5, 5);
-        Card two = new Card("14:55", 17 , 5 , 2017 , "Comida La Vella", "ETSINF UPV", 7, 2);
-        Command addCardToUI = new AddCardCommand(recyclerCards.getAdapter(), dataCards, one);
-        addCardToUI.execute();
-
-        Command addCard2 = new AddCardCommand(recyclerCards.getAdapter(), dataCards, two);
-        addCard2.execute();
-        */
         showProgressDialog();
         mPersistence.cardDAO.getAllCards(new QueryCallback<Card>() {
             @Override
@@ -287,6 +301,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     addCardToUI(data);
                 } else {
                     hideProgressDialog();
+                    recyclerCards.smoothScrollToPosition(0);
                 }
             }
         });
@@ -321,16 +336,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         switch (id){
             case R.id.nav_home:
-                Toast.makeText(this, "Home", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "You are on homescreen", Toast.LENGTH_LONG).show();
                 break;
             case R.id.nav_spaces:
-                Toast.makeText(this, "Spaces", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "\"Spaces\" is coming soon", Toast.LENGTH_LONG).show();
                 break;
             case R.id.nav_contacts:
-                Toast.makeText(this, "Contacts", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "\"Contacts\" is coming soon", Toast.LENGTH_LONG).show();
                 break;
             case R.id.nav_focus:
-                Toast.makeText(this, "Focus", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "\"Focus\" is coming soon", Toast.LENGTH_LONG).show();
                 break;
             case R.id.nav_logout:
                 mPersistence.userDAO.doSignOut();
