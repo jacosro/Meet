@@ -272,14 +272,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
                     .title("Marker on Event Place"));
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(eventLocation, 15));
             googleMap.getUiSettings().setScrollGesturesEnabled(false);
-
-            /*GPSTracker gps = new GPSTracker(this);
-            if (gps.canGetLocation()) {
-                DecimalFormat df = new DecimalFormat("#.0");
-                LatLng myLocationLatLng = new LatLng(gps.getLatitude(), gps.getLongitude());
-                Toast.makeText(this, myLocationLatLng.toString(), Toast.LENGTH_LONG).show();
-                realDistance.setText(df.format(calculateDistanceBetween(myLocationLatLng, eventLocation)) + " km");
-            }*/
         }
 
 
@@ -289,14 +281,8 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
             return;
         }
 
-        /*GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) this)
-                .addOnConnectionFailedListener((GoogleApiClient.OnConnectionFailedListener) this).addApi(Plus.API)
-                .addScope(Plus.SCOPE_PLUS_LOGIN).build();
-        Log.d(TAG, " Initialized google plus api client");*/
-
         GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .enableAutoManage(this ,this)
                 .addApi(LocationServices.API)
                 .addApi(Places.GEO_DATA_API)
                 .addApi(Places.PLACE_DETECTION_API)
@@ -310,12 +296,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
                 LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
                 DecimalFormat df = new DecimalFormat("#.##");
                 realDistance.setText(df.format(calculateDistanceBetween(myLoca, eventLocation)) + " km");
-                /*for (PlaceLikelihood placeLikelihood : likelyPlaces) {
-                    Log.i(TAG, String.format("Place '%s' has likelihood: %g",
-                            placeLikelihood.getPlace().getName(),
-                            placeLikelihood.getLikelihood()));
-                            placeLikelihood.getPlace().getLatLng();
-                }*/
                 likelyPlaces.release();
             }
         });
