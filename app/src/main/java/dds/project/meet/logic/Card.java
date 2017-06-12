@@ -1,8 +1,5 @@
 package dds.project.meet.logic;
 
-import android.net.Uri;
-
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -20,7 +17,7 @@ public class Card implements Comparable<Card> {
     private int persons;
     private int km;
     private String description;
-    private Collection<User> participants;
+    private List<User> participants;
 
     private String owner;
     private String dbKey;
@@ -29,7 +26,7 @@ public class Card implements Comparable<Card> {
 
     }
 
-    public void setParticipants(Collection<User> participants) {
+    public void setParticipants(List<User> participants) {
         this.participants = participants;
     }
 
@@ -57,7 +54,7 @@ public class Card implements Comparable<Card> {
         this.dateDay = dateDay;
     }
 
-    public Collection<User> getParticipants() {
+    public List<User> getParticipants() {
         return participants;
     }
 

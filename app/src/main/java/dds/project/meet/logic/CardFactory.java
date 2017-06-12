@@ -1,9 +1,6 @@
 package dds.project.meet.logic;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import dds.project.meet.persistence.Persistence;
@@ -44,7 +41,7 @@ public class CardFactory {
     }
 
     public static Card getCard(String time, int dateDay, int dateMonth, int dateYear, String name,
-                               String location, int persons, int km, String description, Collection<User> participants,
+                               String location, int persons, int km, String description, List<User> participants,
                                String owner, String dbKey) {
 
         Card card = new Card();
