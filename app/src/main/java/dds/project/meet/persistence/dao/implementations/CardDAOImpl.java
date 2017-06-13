@@ -99,6 +99,12 @@ public class CardDAOImpl implements ICardDAO {
     public void updateCard(Card card, QueryCallback<Boolean> callback) {
         final String key = card.getDbKey();
 
+        Map<String, Object> map = new HashMap<String, Object>(card.getParticipants().size());
+
+        for (User user : card.getParticipants()) {
+            map.put(user.getUid(), user.getUsername());
+        }
+        rootRef.child("card_users").child(key).setValue(map);
         rootRef.child("cards").child(key).updateChildren(card.toMap());
         callback.result(true);
     }
