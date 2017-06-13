@@ -8,15 +8,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import dds.project.meet.logic.Card;
-import dds.project.meet.logic.User;
+import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.User;
 import dds.project.meet.persistence.Persistence;
-import dds.project.meet.persistence.QueryCallback;
 import dds.project.meet.persistence.dao.models.ICardDAO;
+import dds.project.meet.persistence.util.QueryCallback;
 
 /**
  * Created by jacosro on 9/06/17.
@@ -65,11 +64,6 @@ public class CardDAOImpl implements ICardDAO {
         Log.d(TAG, "Added to card_users table");
 
         callback.result(true);
-
-    }
-
-    @Override
-    public void addAllCards(Collection<Card> collection) {
 
     }
 

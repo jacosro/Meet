@@ -55,13 +55,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.Card;
-import dds.project.meet.logic.CardFactory;
-import dds.project.meet.logic.ContactAdapter;
-import dds.project.meet.logic.ParticipantAdapter;
-import dds.project.meet.logic.RecyclerItemClickListener;
-import dds.project.meet.logic.User;
-import dds.project.meet.persistence.QueryCallback;
+import dds.project.meet.logic.adapters.ContactAdapter;
+import dds.project.meet.logic.adapters.ParticipantAdapter;
+import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.User;
+import dds.project.meet.logic.util.CardFactory;
+import dds.project.meet.logic.util.RecyclerItemClickListener;
+import dds.project.meet.persistence.util.QueryCallback;
 
 /**
  * Created by RaulCoroban on 07/06/2017.

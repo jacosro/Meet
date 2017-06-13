@@ -8,7 +8,6 @@
     android:background="@color/colorPrimary">
 
     <ImageView
-        android:id="@+id/shapes"
         android:layout_width="500dp"
         android:layout_height="1600dp"
         android:alpha="0.1"
@@ -59,7 +58,6 @@
         app:layout_constraintHorizontal_bias="0.502" />
 
     <Button
-        android:id="@+id/forgotButton"
         style="@style/WhiteButton"
         android:layout_width="175dp"
         android:layout_height="40dp"

@@ -21,21 +21,8 @@
         <item name="android:background">#FFFFFF</item>
     </style>
 
-    <style name="transparent">
-        <item name="android:color">#5055A89D</item>
-        <item name="android:alpha">0.1</item>
-    </style>
-
-    <style name="CardSpacing">
-        <item name="android:layout_marginTop">10dp</item>
-    </style>
-
     <style name="ImageSpacing">
         <item name="android:layout_marginTop">-10dp</item>
-    </style>
-
-    <style name="JosefinSansLight">
-        <item name="android:fontFamily">/fonts/JosefinSans-Light</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

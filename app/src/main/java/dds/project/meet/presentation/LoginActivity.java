@@ -10,8 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.User;
-import dds.project.meet.persistence.QueryCallback;
+import dds.project.meet.persistence.util.QueryCallback;
 
 
 /**

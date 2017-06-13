@@ -25,23 +25,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dds.project.meet.R;
-import dds.project.meet.logic.Card;
-import dds.project.meet.logic.CardAdapter;
-import dds.project.meet.logic.CardFactory;
-import dds.project.meet.logic.RecyclerItemClickListener;
-import dds.project.meet.logic.User;
-import dds.project.meet.logic.command.AddCardCommand;
-import dds.project.meet.logic.command.Command;
-import dds.project.meet.logic.command.NewCardCommand;
-import dds.project.meet.logic.command.RemoveCardCommand;
+import dds.project.meet.logic.adapters.CardAdapter;
+import dds.project.meet.logic.commands.AddCardCommand;
+import dds.project.meet.logic.commands.Command;
+import dds.project.meet.logic.commands.NewCardCommand;
+import dds.project.meet.logic.commands.RemoveCardCommand;
+import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.User;
 import dds.project.meet.logic.memento.CareTaker;
 import dds.project.meet.logic.memento.Originator;
-import dds.project.meet.persistence.Persistence;
-import dds.project.meet.persistence.QueryCallback;
+import dds.project.meet.logic.util.CardFactory;
+import dds.project.meet.logic.util.RecyclerItemClickListener;
+import dds.project.meet.persistence.util.QueryCallback;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 

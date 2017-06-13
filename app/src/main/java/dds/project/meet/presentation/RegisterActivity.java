@@ -9,13 +9,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.User;
-import dds.project.meet.persistence.QueryCallback;
+import dds.project.meet.logic.entities.User;
+import dds.project.meet.persistence.util.QueryCallback;
 
 public class RegisterActivity extends BaseActivity {
 
