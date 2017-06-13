@@ -18,6 +18,10 @@
             android:id="@+id/nav_focus"
             android:icon="@drawable/ic_remove_red_eye_black_24dp"
             android:title="Focus" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_close"
+            android:title="Log out" />
     </group>
 
 
