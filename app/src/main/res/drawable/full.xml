@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="1080dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+    <path
+        android:fillColor="#5daf9d"
+        android:name="Back copy 2"
+        android:pathData="m1 -1341h1104c2.2 0 4 3 4 6.8v3374.4c0 3.7 -1.8 6.8 -4 6.8h-1104c-2.2 0 -4 -3 -4 -6.8v-3374.4c0 -3.7 1.8 -6.8 4 -6.8z" />
+</vector>

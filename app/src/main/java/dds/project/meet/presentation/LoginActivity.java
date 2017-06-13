@@ -3,21 +3,15 @@ package dds.project.meet.presentation;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-
 import dds.project.meet.R;
-import dds.project.meet.persistence.Persistence;
+import dds.project.meet.logic.User;
+import dds.project.meet.persistence.QueryCallback;
 
 
 /**
@@ -33,7 +27,6 @@ public class LoginActivity extends BaseActivity {
     public static final String DEFAULT_EMAIL = "dds@project.com";
     public static final String DEFAULT_PASSWORD = "ddsproject";
 
-    public FirebaseAuth mFirebaseAuth;
     public EditText mEmailEditText;
     public EditText mPasswordEditText;
 
@@ -41,18 +34,16 @@ public class LoginActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mFirebaseAuth = Persistence.getAuth();
-
-        if (mFirebaseAuth.getCurrentUser() != null) {
+        if (mPersistence.userDAO.getCurrentFirebaseUser() != null) {
             Log.d(TAG, "User is logged in! Launching MainActivity");
-            loginCompleted(true);
+            loginCompleted();
         }
         Log.d(TAG, "User is not logged in");
 
         setContentView(R.layout.login);
         mEmailEditText = (EditText) findViewById(R.id.usernameEditText);
         mPasswordEditText = (EditText) findViewById(R.id.passwordEditText);
-        Button login = (Button) findViewById(R.id.loginButton);
+        final Button login = (Button) findViewById(R.id.loginButton);
         Button register = (Button) findViewById(R.id.createButton);
 
         login.setOnClickListener(new View.OnClickListener() {
@@ -85,7 +76,7 @@ public class LoginActivity extends BaseActivity {
         View failed = null;
 
         String email = mEmailEditText.getText().toString();
-        String password = mPasswordEditText.getText().toString();
+        final String password = mPasswordEditText.getText().toString();
 
         if (!isPasswordOK(password)) {
             cancel = true;
@@ -103,18 +94,18 @@ public class LoginActivity extends BaseActivity {
             hideProgressDialog();
             failed.requestFocus();
         } else {
-            doSignIn(email, password);
+           doSignIn(email, password);
         }
     }
 
     private void doSignIn(String email, String password) {
         showProgressDialog();
-        mFirebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
 
-                if (task.isSuccessful()) {
-                    loginCompleted(true);
+        mPersistence.userDAO.doLogin(email, password, new QueryCallback<Boolean>() {
+            @Override
+            public void result(Boolean success) {
+                if (success) {
+                    loginCompleted();
                 } else {
                     String text =
                             isThePhoneConnected()
@@ -124,9 +115,8 @@ public class LoginActivity extends BaseActivity {
                     Toast.makeText(LoginActivity.this, text, Toast.LENGTH_SHORT).show();
                     mEmailEditText.getText().clear();
                     mPasswordEditText.getText().clear();
-                    hideProgressDialog();
                 }
-
+                hideProgressDialog();
             }
         });
     }
@@ -139,12 +129,10 @@ public class LoginActivity extends BaseActivity {
         return password.length() > 4;
     }
 
-    public void loginCompleted(boolean finish) {
+    public void loginCompleted() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
-        if (finish) {
-            finish();
-        }
+        finish();
     }
 
     @Override

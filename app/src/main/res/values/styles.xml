@@ -6,9 +6,19 @@
         <item name="colorPrimary">#673AB7</item>
         <item name="colorPrimaryDark">#55A89D</item>
         <item name="colorAccent">#FF4081</item>
-        <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">#55A89D</item>
-        <item name="android:windowTranslucentStatus">false</item>-->
+        <item name="android:statusBarColor">#55A89D</item>-->
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">false</item>
+        <item name="android:fitsSystemWindows">true</item>
+    </style>
+
+    <style name="MyThemeWhite" parent="@android:style/Theme.Holo.Light">
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+    </style>
+
+    <style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:background">#FFFFFF</item>
     </style>
 
     <style name="transparent">

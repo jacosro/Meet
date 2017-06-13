@@ -1,13 +1,15 @@
 package dds.project.meet.logic;
 
-import android.content.Context;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 import dds.project.meet.R;
 
@@ -17,8 +19,7 @@ import dds.project.meet.R;
  */
 
 public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
-    private ArrayList<Card> mDataset;
-    Context context;
+    private SortedList<Card> mDataset;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView name;
@@ -27,7 +28,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
         public TextView km;
         public TextView pers;
         public TextView date;
-        //public ImageView image;
+        public ImageView image;
 
         public ViewHolder(View v) {
             super(v);
@@ -43,18 +44,54 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
             km = (TextView) v.findViewById(R.id.distance);
             pers = (TextView) v.findViewById(R.id.personsnumber);
             date = (TextView) v.findViewById(R.id.date);
-            //image = (ImageView) v.findViewById(R.id.eventImageView);
+            image = (ImageView) v.findViewById(R.id.eventImageView);
         }
 
     }
 
-    public ArrayList<Card> getData() {
-        return mDataset;
-    }
+    public CardAdapter() {
+        mDataset = new SortedList<Card>(Card.class, new SortedList.Callback<Card>() {
+            @Override
+            public int compare(Card o1, Card o2) {
+                return o1.compareTo(o2);
+            }
 
-    public CardAdapter(ArrayList<Card> myyDataset, Context context){
-        mDataset = myyDataset;
-        this.context = context;
+            @Override
+            public void onChanged(int position, int count) {
+                notifyItemRangeChanged(position, count);
+            }
+
+            @Override
+            public boolean areContentsTheSame(Card oldItem, Card newItem) {
+                return oldItem.equals(newItem);
+            }
+
+            @Override
+            public boolean areItemsTheSame(Card item1, Card item2) {
+                String key1 = item1.getDbKey();
+                String key2 = item2.getDbKey();
+
+                if (key1 != null && key2 != null) {
+                    return key1.equals(key2);
+                }
+                return item1 == item2;
+            }
+
+            @Override
+            public void onInserted(int position, int count) {
+                notifyItemRangeInserted(position, count);
+            }
+
+            @Override
+            public void onRemoved(int position, int count) {
+                notifyItemRangeRemoved(position, count);
+            }
+
+            @Override
+            public void onMoved(int fromPosition, int toPosition) {
+                notifyItemMoved(fromPosition, toPosition);
+            }
+        });
     }
 
     @Override
@@ -67,22 +104,78 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
     //Mostar info 1 a 1
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        String[] months = {"Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."};
+        String locationName = mDataset.get(position).getLocation();
+
+        if(locationName.length() > 28) {
+            locationName = locationName.substring(0, Math.min(locationName.length(),28)) + "...";
+        }
+
         holder.itemView.setTag(position);
         holder.name.setText(mDataset.get(position).getName());
-        holder.location.setText(mDataset.get(position).getLocation());
+        holder.location.setText(locationName);
         holder.time.setText(mDataset.get(position).getTime());
-        holder.date.setText(mDataset.get(position).getDate());
+        holder.date.setText(mDataset.get(position).getDateDay() + "" + correctSuperScript(mDataset.get(position).getDateDay()) + " " + months[mDataset.get(position).getDateMonth()]);
         holder.pers.setText(mDataset.get(position).getPersons() + " pers.");
         holder.km.setText(mDataset.get(position).getKm() + " km");
-        //Uri img = Uri.parse(mDataset.get(position).getImage());
-        //holder.image.setImageURI(img);
 
+    }
+
+    private String correctSuperScript(int day) {
+        if(day > 20 && day % 10 == 1) return "st";
+        if(day > 20 && day % 10 == 2) return "nd";
+        return "th";
     }
 
     @Override
     public int getItemCount() {
         return mDataset.size();
-
     }
 
+
+    // region CardList Helpers
+    public Card get(int position) {
+        return mDataset.get(position);
+    }
+
+    public int add(Card item) {
+        return mDataset.add(item);
+    }
+
+    public int indexOf(Card item) {
+        return mDataset.indexOf(item);
+    }
+
+    public void updateItemAt(int index, Card item) {
+        mDataset.updateItemAt(index, item);
+    }
+
+    public void addAll(Collection<Card> items) {
+        mDataset.beginBatchedUpdates();
+        for (Card item : items) {
+            mDataset.add(item);
+        }
+        mDataset.endBatchedUpdates();
+    }
+
+    public void addAll(Card... items) {
+        addAll(Arrays.asList(items));
+    }
+
+    public boolean remove(Card item) {
+        return mDataset.remove(item);
+    }
+
+    public Card removeItemAt(int index) {
+        return mDataset.removeItemAt(index);
+    }
+
+    public void clear() {
+        mDataset.beginBatchedUpdates();
+        //remove items at end, to avoid unnecessary array shifting
+        while (mDataset.size() > 0) {
+            mDataset.removeItemAt(mDataset.size() - 1);
+        }
+        mDataset.endBatchedUpdates();
+    }
 }
