@@ -7,8 +7,6 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -46,7 +44,6 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -55,13 +52,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.Card;
-import dds.project.meet.logic.CardFactory;
-import dds.project.meet.logic.ContactAdapter;
-import dds.project.meet.logic.ParticipantAdapter;
-import dds.project.meet.logic.RecyclerItemClickListener;
-import dds.project.meet.logic.User;
-import dds.project.meet.persistence.QueryCallback;
+import dds.project.meet.logic.adapters.ContactAdapter;
+import dds.project.meet.logic.adapters.ParticipantAdapter;
+import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.User;
+import dds.project.meet.logic.util.CardFactory;
+import dds.project.meet.logic.util.RecyclerItemClickListener;
+import dds.project.meet.persistence.util.QueryCallback;
 
 /**
  * Created by RaulCoroban on 07/06/2017.
@@ -106,7 +103,7 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.event_settings);
+        setContentView(R.layout.activity_event_settings);
         mCard = new Card();
 
         Intent intent = getIntent();
@@ -179,80 +176,6 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
         adapterContacts = new ContactAdapter(dataContacts, this);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        Place place = null;
-
-        if(requestCode == SELECTED_LOCATION && data != null) {
-            if(resultCode == RESULT_OK) {
-                place = PlaceAutocomplete.getPlace(this, data);
-                mCard.setLocation(place.getAddress().toString());
-
-            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                Log.d(TAG, "Place not found");
-                Toast.makeText(SettingsEventActivity.this, "Cannot find place :(", Toast.LENGTH_SHORT).show();
-            }
-
-            if (place != null) {
-                GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
-                        .enableAutoManage(this, this)
-                        .addApi(LocationServices.API)
-                        .addApi(Places.GEO_DATA_API)
-                        .addApi(Places.PLACE_DETECTION_API)
-                        .build();
-                mGoogleApiClient.connect();
-
-                final Place placeForDistance = place;
-
-                ActivityCompat.requestPermissions(SettingsEventActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "Permission denied for Access Fine Location");
-                    return;
-                }
-
-                PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
-                result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
-                    @Override
-                    public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
-                        LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
-                        double distance = calculateDistanceBetween(myLoca, placeForDistance.getLatLng());
-                        mCard.setKm((int) distance);
-
-                        likelyPlaces.release();
-                    }
-                });
-                refreshUI();
-            }
-
-        }
-
-    }
-
-    public void addContactToMembers(User contact) {
-        dataMembers.add(contact);
-        dataContacts.remove(contact);
-        adapterParticipants.notifyItemInserted(dataMembers.size() - 1);
-        adapterContacts.notifyDataSetChanged();
-        refreshUI();
-    }
-
-    public void deleteContactFromMembers(User contact) {
-        dataMembers.remove(contact);
-
-        Set<User> sorted = new TreeSet<>(dataContacts);
-        sorted.add(contact);
-
-        dataContacts.clear();
-        dataContacts.addAll(sorted);
-
-        adapterContacts.notifyDataSetChanged();
-        adapterParticipants.notifyDataSetChanged();
-        refreshUI();
-    }
-
     public void setListeners() {
 
 
@@ -262,7 +185,6 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
                 pickDate();
             }
         });
-
 
         whatTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -284,7 +206,7 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
             public void onClick(View v) {
 
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(SettingsEventActivity.this);
-                View mView = getLayoutInflater().inflate(R.layout.contact_list, null);
+                View mView = getLayoutInflater().inflate(R.layout.create_event_and_settings_contact_list, null);
                 mBuilder.setView(mView);
 
                 mProgressBar = (ProgressBar) mView.findViewById(R.id.contact_list_progressBar);
@@ -357,7 +279,7 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(SettingsEventActivity.this);
-                final View mView = getLayoutInflater().inflate(R.layout.description_event, null);
+                final View mView = getLayoutInflater().inflate(R.layout.create_event_and_settings_description, null);
                 mBuilder.setView(mView);
 
                 final AlertDialog dialog = mBuilder.create();
@@ -413,31 +335,27 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
         participantsNumberLabel.setText(dataMembers.size() + " participants");
     }
 
+    //Auxiliar Methods
+    public void addContactToMembers(User contact) {
+        dataMembers.add(contact);
+        dataContacts.remove(contact);
+        adapterParticipants.notifyItemInserted(dataMembers.size() - 1);
+        adapterContacts.notifyDataSetChanged();
+        refreshUI();
+    }
 
-    private Set<User> loadContactsFromPhone() {
-        ContentResolver cr = getContentResolver();
-        Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+    public void deleteContactFromMembers(User contact) {
+        dataMembers.remove(contact);
 
-        Set<User> res = new TreeSet<>();
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+        Set<User> sorted = new TreeSet<>(dataContacts);
+        sorted.add(contact);
 
-                if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-                    Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
-                    while (pCur.moveToNext()) {
-                        String contactNumber = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        contactNumber = arrangeNumber(contactNumber);
-                        String contactName = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Identity.DISPLAY_NAME));
-                        res.add(new User(contactName, contactName, contactNumber, ""));
-                    }
-                    pCur.close();
-                }
+        dataContacts.clear();
+        dataContacts.addAll(sorted);
 
-            }
-            cursor.close();
-        }
-        return res;
+        adapterContacts.notifyDataSetChanged();
+        adapterParticipants.notifyDataSetChanged();
+        refreshUI();
     }
 
     private String arrangeNumber(String contactNumber) {
@@ -493,12 +411,30 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
         refreshUI();
     }
 
-    public String getExactLocationName(String location) throws IOException {
-        Geocoder gc = new Geocoder(this);
-        List<Address> list = gc.getFromLocationName(location, 1);
-        if (list.size() >= 1)
-            return list.get(0).getAddressLine(0) + " " + list.get(0).getCountryName();
-        return null;
+    private Set<User> loadContactsFromPhone() {
+        ContentResolver cr = getContentResolver();
+        Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+
+        Set<User> res = new TreeSet<>();
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+
+                if (Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+                    Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
+                    while (pCur.moveToNext()) {
+                        String contactNumber = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        contactNumber = arrangeNumber(contactNumber);
+                        String contactName = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Identity.DISPLAY_NAME));
+                        res.add(new User(contactName, contactName, contactNumber, ""));
+                    }
+                    pCur.close();
+                }
+
+            }
+            cursor.close();
+        }
+        return res;
     }
 
     public void donePressed() {
@@ -543,7 +479,7 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
         }
 
         if (mCard.getPersons() <= 0) {
-            Toast.makeText(this, "Please, select at least one participant", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please, select at least one create_event_participant", Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -573,19 +509,72 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
         return loc1.distanceTo(loc2) / 1000;
     }
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(TAG, "Could not calculate distance");
-    }
-
     private void refreshUI() {
         descriptionTextView.setText(mCard.getDescription());
         locationTextView.setText(mCard.getLocation());
         whatTimeLabel.setText(mCard.getTime());
-        whatTimeButton.setImageResource(R.drawable.clocks);
-        whenLabel.setText(mCard.getDateDay() + months[mCard.getDateMonth()]);
-        whenButton.setImageResource(R.drawable.calendars);
+        whatTimeButton.setImageResource(R.drawable.icon_clock_selected);
+        whenLabel.setText(mCard.getDateDay() + " " + months[mCard.getDateMonth()]);
+        whenButton.setImageResource(R.drawable.icon_calendar_selected);
         participantsNumberLabel.setText(dataMembers.size() + " PARTICIPANTS");
+    }
+
+    //Waiting for result
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Place place = null;
+
+        if(requestCode == SELECTED_LOCATION && data != null) {
+            if(resultCode == RESULT_OK) {
+                place = PlaceAutocomplete.getPlace(this, data);
+                mCard.setLocation(place.getAddress().toString());
+
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Log.d(TAG, "Place not found");
+                Toast.makeText(SettingsEventActivity.this, "Cannot find place :(", Toast.LENGTH_SHORT).show();
+            }
+
+            if (place != null) {
+                GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
+                        .enableAutoManage(this, this)
+                        .addApi(LocationServices.API)
+                        .addApi(Places.GEO_DATA_API)
+                        .addApi(Places.PLACE_DETECTION_API)
+                        .build();
+                mGoogleApiClient.connect();
+
+                final Place placeForDistance = place;
+
+                ActivityCompat.requestPermissions(SettingsEventActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Permission denied for Access Fine Location");
+                    return;
+                }
+
+                PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
+                result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
+                    @Override
+                    public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
+                        LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
+                        double distance = calculateDistanceBetween(myLoca, placeForDistance.getLatLng());
+                        mCard.setKm((int) distance);
+
+                        likelyPlaces.release();
+                    }
+                });
+                refreshUI();
+            }
+
+        }
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d(TAG, "Could not calculate distance");
     }
 
 }

@@ -4,23 +4,23 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/ic_home_black_24dp"
+            android:icon="@drawable/icon_sidebar_home"
             android:title="Home" />
         <item
             android:id="@+id/nav_spaces"
-            android:icon="@drawable/ic_dashboard_black_24dp"
+            android:icon="@drawable/icon_sidebar_spaces"
             android:title="Spaces" />
         <item
             android:id="@+id/nav_contacts"
-            android:icon="@drawable/ic_perm_contact_calendar_black_24dp"
+            android:icon="@drawable/icon_sidebar_contacts"
             android:title="Contacts" />
         <item
             android:id="@+id/nav_focus"
-            android:icon="@drawable/ic_remove_red_eye_black_24dp"
+            android:icon="@drawable/icon_sidebar_focus"
             android:title="Focus" />
         <item
             android:id="@+id/nav_logout"
-            android:icon="@drawable/ic_close"
+            android:icon="@drawable/icon_close"
             android:title="Log out" />
     </group>
 

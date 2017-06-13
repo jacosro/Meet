@@ -1,6 +1,5 @@
 package dds.project.meet.persistence.dao.implementations;
 
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -19,10 +18,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import dds.project.meet.logic.Card;
-import dds.project.meet.logic.User;
-import dds.project.meet.persistence.QueryCallback;
+import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.User;
 import dds.project.meet.persistence.dao.models.IUserDAO;
+import dds.project.meet.persistence.util.QueryCallback;
 
 /**
  * Created by jacosro on 9/06/17.
@@ -79,13 +78,13 @@ public class UserDAOImpl implements IUserDAO {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         boolean success = task.isSuccessful();
-                        Log.d(TAG + "::createNewUser", "Create new user successfully: " + success);
+                        Log.d(TAG + "::createNewUser", "Create new default_sidebar_user_icon successfully: " + success);
 
                         if (success) {
                             String uid = getCurrentFirebaseUser().getUid();
                             user.setUid(uid);
 
-                            // Add user to users
+                            // Add default_sidebar_user_icon to users
                             rootRef.child("users").child(uid).setValue(user);
 
                             // Add username to allUsernames

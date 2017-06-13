@@ -1,25 +1,7 @@
 package dds.project.meet.persistence;
 
-import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.util.Log;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
-import dds.project.meet.logic.Card;
 import dds.project.meet.persistence.dao.implementations.CardDAOImpl;
 import dds.project.meet.persistence.dao.implementations.UserDAOImpl;
 import dds.project.meet.persistence.dao.models.ICardDAO;
