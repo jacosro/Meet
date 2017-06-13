@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -25,6 +25,7 @@ public class RegisterActivity extends BaseActivity {
     private EditText mPasswordConfirmView;
     private EditText mUsernameView;
     private EditText mPhoneNumberView;
+    private Button register;
 
     // All usernames list
     private Set<String> allUsernames;
@@ -33,31 +34,35 @@ public class RegisterActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        // Set up the login form.
+
+        // Set up the activity_login form.
         mEmailView = (EditText) findViewById(R.id.email_register);
         mPasswordView = (EditText) findViewById(R.id.password_register);
         mPasswordConfirmView = (EditText) findViewById(R.id.password_confirm_register);
         mUsernameView = (EditText) findViewById(R.id.username_register);
         mPhoneNumberView = (EditText) findViewById(R.id.telephone_register);
+        register = (Button) findViewById(R.id.register_button);
 
-        findViewById(R.id.register_button).setOnClickListener(new OnClickListener() {
+        setListeners();
+
+        allUsernames = new TreeSet<>();
+
+    }
+
+    private void setListeners() {
+        register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
             }
         });
-
-        allUsernames = new TreeSet<>();
-
-
-
     }
 
 
     /**
-     * Attempts to sign in or register the account specified by the login form.
+     * Attempts to sign in or register the account specified by the activity_login form.
      * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
+     * errors are presented and no actual activity_login attempt is made.
      */
     private void attemptLogin() {
         showProgressDialog();
@@ -74,7 +79,7 @@ public class RegisterActivity extends BaseActivity {
                 mPhoneNumberView.setError(null);
                 mUsernameView.setError(null);
 
-                // Store values at the time of the login attempt.
+                // Store values at the time of the activity_login attempt.
                 String email = mEmailView.getText().toString();
                 String password = mPasswordView.getText().toString();
                 String confirmPassword = mPasswordConfirmView.getText().toString();
@@ -90,7 +95,7 @@ public class RegisterActivity extends BaseActivity {
                     focusView = mPasswordConfirmView;
                 }
 
-                // Check for a valid password, if the user entered one.
+                // Check for a valid password, if the default_sidebar_user_icon entered one.
                 if (!isPasswordOK(password)) {
                     mPasswordView.setError(getString(R.string.error_invalid_password));
                     focusView = mPasswordView;
@@ -147,6 +152,7 @@ public class RegisterActivity extends BaseActivity {
         });
     }
 
+    //Auxiliar Methods
     private void loginOK(String email, String password) {
         Bundle bundle = new Bundle();
         bundle.putString("email", email);

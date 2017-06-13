@@ -78,13 +78,13 @@ public class UserDAOImpl implements IUserDAO {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         boolean success = task.isSuccessful();
-                        Log.d(TAG + "::createNewUser", "Create new user successfully: " + success);
+                        Log.d(TAG + "::createNewUser", "Create new default_sidebar_user_icon successfully: " + success);
 
                         if (success) {
                             String uid = getCurrentFirebaseUser().getUid();
                             user.setUid(uid);
 
-                            // Add user to users
+                            // Add default_sidebar_user_icon to users
                             rootRef.child("users").child(uid).setValue(user);
 
                             // Add username to allUsernames

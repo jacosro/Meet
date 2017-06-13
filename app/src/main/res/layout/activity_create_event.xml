@@ -60,7 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="32dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="68dp"
+        android:layout_marginTop="58dp"
         android:text="@string/new_event"
         android:textAlignment="viewStart"
         android:textColor="@color/colorPrimary"
@@ -185,7 +185,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/calendar" />
+                app:srcCompat="@drawable/icon_calendar" />
 
             <TextView
                 android:id="@+id/whenLabel"
@@ -217,7 +217,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/clock" />
+                app:srcCompat="@drawable/icon_clock" />
 
             <TextView
                 android:id="@+id/whatTimeLabel"

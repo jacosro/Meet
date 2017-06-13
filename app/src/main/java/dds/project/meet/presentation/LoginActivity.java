@@ -22,12 +22,14 @@ public class LoginActivity extends BaseActivity {
     private static final String TAG = LoginActivity.class.toString();
     private static final int REQUEST_CODE = 0;
 
-    public static final boolean AUTOMATIC_LOGIN = false; // If you don't want to login
+    public static final boolean AUTOMATIC_LOGIN = false; // If you don't want to activity_login
     public static final String DEFAULT_EMAIL = "dds@project.com";
     public static final String DEFAULT_PASSWORD = "ddsproject";
 
     public EditText mEmailEditText;
     public EditText mPasswordEditText;
+    private Button login;
+    private Button register;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +41,16 @@ public class LoginActivity extends BaseActivity {
         }
         Log.d(TAG, "User is not logged in");
 
-        setContentView(R.layout.login);
+        setContentView(R.layout.activity_login);
         mEmailEditText = (EditText) findViewById(R.id.usernameEditText);
         mPasswordEditText = (EditText) findViewById(R.id.passwordEditText);
-        final Button login = (Button) findViewById(R.id.loginButton);
-        Button register = (Button) findViewById(R.id.createButton);
+        login = (Button) findViewById(R.id.loginButton);
+        register = (Button) findViewById(R.id.createButton);
 
+        setListeners();
+    }
+
+    private void setListeners() {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,6 +126,7 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
+    //Auxiliar Methods
     private boolean isEmailOK(String email) {
         return email.matches("[^\\s]+@[^\\s]+\\.\\w+");
     }
@@ -134,6 +141,7 @@ public class LoginActivity extends BaseActivity {
         finish();
     }
 
+    //Waiting for result
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {

@@ -20,7 +20,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_sidebar"
+        app:headerLayout="@layout/sidebar_header"
         app:menu="@menu/sidebar_drawer" />
 
         <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -38,7 +38,8 @@
                 android:background="@color/colorPrimary"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="8dp" />
 
 
             <android.support.v7.widget.RecyclerView
@@ -98,7 +99,7 @@
             android:id="@+id/noEvents"
             android:layout_width="250dp"
             android:layout_height="250dp"
-            app:srcCompat="@drawable/no_events"
+            app:srcCompat="@drawable/default_no_events_indicator"
             android:layout_marginRight="8dp"
             app:layout_constraintRight_toRightOf="parent"
             android:layout_marginLeft="8dp"
@@ -126,7 +127,7 @@
             app:fabSize="normal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:srcCompat="@drawable/ic_add_black_24dp" />
+            app:srcCompat="@drawable/icon_add" />
 
 
         </android.support.constraint.ConstraintLayout>

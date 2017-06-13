@@ -55,7 +55,7 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.participant_on_event, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_participant, parent, false);
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }

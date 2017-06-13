@@ -35,7 +35,6 @@ import dds.project.meet.logic.entities.Card;
 import dds.project.meet.logic.entities.User;
 import dds.project.meet.logic.memento.CareTaker;
 import dds.project.meet.logic.memento.Originator;
-import dds.project.meet.logic.util.CardFactory;
 import dds.project.meet.logic.util.RecyclerItemClickListener;
 import dds.project.meet.persistence.util.QueryCallback;
 
@@ -56,11 +55,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private TextView emailDrawer;
     private ImageButton refreshCards;
 
-
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ConstraintLayout background;
     private View header;
+
 
     // Class fields
     private Originator originator;
@@ -92,20 +91,57 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         emailDrawer = (TextView) header.findViewById(R.id.emailTextViewDrawer);
         refreshCards = (ImageButton) findViewById(R.id.refreshCardsButton);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-        drawerLayout.addDrawerListener(toggle);
-
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.bringToFront();
-
         //Memento tools declaration
         originator = new Originator();
         careTaker = new CareTaker();
 
-        //Initalize RecyclerView
+        mPersistence.userDAO.setCurrentUser(new QueryCallback<User>() {
+            @Override
+            public void result(User data) {
+                emailDrawer.setText(data.getEmail());
+                nameDrawer.setText(data.getUsername());
+            }
+        });
+
+        setListeners();
+        initializeRecyclerView();
+        setupToolbar();
+        setupRecyclerView();
+        refreshUI();
+    }
+
+    private void setListeners() {
+
+        //Navigation View
+        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.bringToFront();
+
+        //Parallax Effect
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        drawerLayout.addDrawerListener(toggle);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createCard(v);
+            }
+        });
+
+        refreshCards.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                float deg = refreshCards.getRotation() + 720F;
+                refreshCards.animate().rotation(deg).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(800);
+                loadCards();
+                refreshUI();
+
+            }
+        });
+    }
+
+    private void initializeRecyclerView() {
         recyclerCards.setHasFixedSize(true);
         layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerCards.setLayoutManager(layoutManagerCards);
@@ -124,51 +160,21 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         //Gestures RecyclerView
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
         itemTouchHelper.attachToRecyclerView(recyclerCards);
-
-
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createCard(v);
-            }
-        });
-
-        findViewById(R.id.mainMeetTitle).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new NewCardCommand(adapterCards, CardFactory.getRandomCard()).execute();
-                Toast.makeText(MainActivity.this, "Added random card", Toast.LENGTH_SHORT).show();
-                refreshUI();
-            }
-        });
-
-
-
-        refreshCards.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                float deg = refreshCards.getRotation() + 720F;
-                refreshCards.animate().rotation(deg).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(800);
-                loadCards();
-                refreshUI();
-
-            }
-        });
-
-        mPersistence.userDAO.setCurrentUser(new QueryCallback<User>() {
-            @Override
-            public void result(User data) {
-                emailDrawer.setText(data.getEmail());
-                nameDrawer.setText(data.getUsername());
-            }
-        });
-
-        setupToolbar();
-        setupRecyclerView();
-        refreshUI();
     }
 
+    //Auxiliar methods
+    public void createCard(View v) {
+        Intent intent = new Intent(this, CreateNewEventActivity.class);
+        startActivity(intent);
+    }
+
+    public void openEvent(Card card) {
+        Intent intent = new Intent(this, EventActivity.class);
+        intent.putExtra("key", card.getDbKey());
+        startActivity(intent);
+    }
+
+    //
     @Override
     public void onStart() {
         super.onStart();
@@ -188,6 +194,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setHomeButtonEnabled(false);
     }
+
     private void setupRecyclerView() {
 
         recyclerCards.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -231,6 +238,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         });
     }
 
+    //Handle RecyclerView Gestures
     private ItemTouchHelper.Callback createHelperCallback(){
         ItemTouchHelper.SimpleCallback simpleCallback =
                 new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
@@ -276,6 +284,27 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         refreshUI();
     }
 
+    private void refreshUI() {
+        numberCards.setText(adapterCards.getItemCount() + " upcoming event(s)");
+
+        if(adapterCards.getItemCount() > 0) {
+            noEvents.setVisibility(View.GONE);
+            background.setBackgroundResource(R.drawable.default_background);
+        } else {
+            numberCards.setText("No events. No one loves you");
+            noEvents.setVisibility(View.VISIBLE);
+            background.setBackgroundResource(R.drawable.default_background_full);
+        }
+    }
+
+    //Sidebar Handler
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.sidebar, menu);
+        return true;
+    }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -287,48 +316,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.sidebar, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-
         return super.onOptionsItemSelected(item);
-    }
-
-    public void loadCards() {
-        mPersistence.cardDAO.getAllCards(new QueryCallback<Card>() {
-            @Override
-            public void result(Card data) {
-                if (data != null) {
-                    addCardToUI(data);
-                    recyclerCards.smoothScrollToPosition(0);
-                }
-            }
-        });
-    }
-
-    public void createCard(View v) {
-        Intent intent = new Intent(this, CreateNewEventActivity.class);
-        startActivity(intent);
-        //finish();
-    }
-
-    public void openEvent(Card card) {
-        Intent intent = new Intent(this, EventActivity.class);
-
-        intent.putExtra("key", card.getDbKey());
-
-        startActivity(intent);
     }
 
     @Override
@@ -360,16 +354,19 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         return false;
     }
 
-    private void refreshUI() {
-        numberCards.setText(adapterCards.getItemCount() + " upcoming event(s)");
 
-        if(adapterCards.getItemCount() > 0) {
-            noEvents.setVisibility(View.GONE);
-            background.setBackgroundResource(R.drawable.back);
-        } else {
-            numberCards.setText("No events. No one loves you");
-            noEvents.setVisibility(View.VISIBLE);
-            background.setBackgroundResource(R.drawable.full);
-        }
+    //Firebase Handler
+    public void loadCards() {
+        mPersistence.cardDAO.getAllCards(new QueryCallback<Card>() {
+            @Override
+            public void result(Card data) {
+                if (data != null) {
+                    addCardToUI(data);
+                    recyclerCards.smoothScrollToPosition(0);
+                }
+            }
+        });
     }
+
+
 }

@@ -47,7 +47,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.participant, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.create_event_participant, parent, false);
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
@@ -59,7 +59,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
         holder.nameParticipant.setText(first[0]);
         holder.cardHolder.setCardBackgroundColor(setRandomColor());
 
-        // Don't show the x if you are the contact
+        // Don't show the x if you are the contact_item
         if (Persistence.getInstance().userDAO.getCurrentUser().equals(dataMembers.get(position))) {
             holder.quitParticipant.setVisibility(View.INVISIBLE);
         }

@@ -88,7 +88,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.event_activity);
+        setContentView(R.layout.activity_event);
         mCard = new Card();
 
         nameEvent = (TextView) findViewById(R.id.name_event);
@@ -109,12 +109,12 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
         mCard.setDbKey(intent.getStringExtra("key"));
 
         dataUser = new ArrayList<User>();
-        recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
-        recyclerParticipants.setHasFixedSize(false);
-        layoutManagerParticipants = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        recyclerParticipants.setLayoutManager(layoutManagerParticipants);
 
+        setListeners();
+        initializeRecyclerView();
+    }
 
+    private void setListeners() {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,6 +151,85 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
 
     }
 
+    private void initializeRecyclerView() {
+        recyclerParticipants = (RecyclerView) findViewById(R.id.participantsOnEvent);
+        recyclerParticipants.setHasFixedSize(false);
+        layoutManagerParticipants = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerParticipants.setLayoutManager(layoutManagerParticipants);
+    }
+
+    //Auxiliar methods
+    private String correctSuperScript(int day) {
+        if (day > 20 && day % 10 == 1) return "st";
+        if (day > 20 && day % 10 == 2) return "nd";
+        return "th";
+    }
+
+    private void refreshDistances() {
+
+        ActivityCompat.requestPermissions(EventActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Permission denied for Access Fine Location");
+            return;
+        }
+
+        PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
+        result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
+            @Override
+            public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
+                LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
+
+                double distance = TimeDistance.calculateDistanceBetween(myLoca, eventLocation);
+                int distWalk = TimeDistance.getWalkingTime(distance);
+                int distCar = TimeDistance.getDrivingTime(distance);
+
+                String arrangedDistance = String.format(Locale.getDefault(), "%.2f km", distance);
+                realDistance.setText(arrangedDistance);
+
+                distanceWalk.setText(
+                        distWalk > 1000 ? ">16 hrs" : distWalk + " min"
+                );
+
+                distanceCar.setText(
+                        distCar > 5000 ? ">3 days" : distCar + " min"
+                );
+
+                likelyPlaces.release();
+            }
+        });
+    }
+
+    public boolean googleServicesOK() {
+        GoogleApiAvailability api = GoogleApiAvailability.getInstance();
+        int isOk = api.isGooglePlayServicesAvailable(this);
+        if (isOk == ConnectionResult.SUCCESS) {
+            return true;
+        } else if (api.isUserResolvableError(isOk)) {
+            Dialog d = api.getErrorDialog(this, isOk, 0);
+            d.show();
+        } else Toast.makeText(this, "Cannot connect, sorry", Toast.LENGTH_LONG).show();
+        return false;
+    }
+
+    private LatLng getLatLng(String address) throws IOException {
+        Geocoder gc = new Geocoder(this);
+        List<Address> list = gc.getFromLocationName(address, 1);
+        if (list.size() > 0) {
+            Address add = list.get(0);
+
+            String locality = add.getLocality();
+
+            double latitude = add.getLatitude();
+            double longitude = add.getLongitude();
+
+            return new LatLng(latitude, longitude);
+
+        }
+        return null;
+    }
+
+
+    //Firebase Handler
     @Override
     public void onStart() {
         super.onStart();
@@ -200,40 +279,12 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
         });
     }
 
-    private String correctSuperScript(int day) {
-        if (day > 20 && day % 10 == 1) return "st";
-        if (day > 20 && day % 10 == 2) return "nd";
-        return "th";
-    }
 
 
-    public boolean googleServicesOK() {
-        GoogleApiAvailability api = GoogleApiAvailability.getInstance();
-        int isOk = api.isGooglePlayServicesAvailable(this);
-        if (isOk == ConnectionResult.SUCCESS) {
-            return true;
-        } else if (api.isUserResolvableError(isOk)) {
-            Dialog d = api.getErrorDialog(this, isOk, 0);
-            d.show();
-        } else Toast.makeText(this, "Cannot connect, sorry", Toast.LENGTH_LONG).show();
-        return false;
-    }
-
-    private LatLng getLatLng(String address) throws IOException {
-        Geocoder gc = new Geocoder(this);
-        List<Address> list = gc.getFromLocationName(address, 1);
-        if (list.size() > 0) {
-            Address add = list.get(0);
-
-            String locality = add.getLocality();
-
-            double latitude = add.getLatitude();
-            double longitude = add.getLongitude();
-
-            return new LatLng(latitude, longitude);
-
-        }
-        return null;
+    //Waiting for result
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d(TAG, "Connection Failed");
     }
 
     @Override
@@ -265,40 +316,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
 
     }
 
-    private void refreshDistances() {
-
-        ActivityCompat.requestPermissions(EventActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission denied for Access Fine Location");
-            return;
-        }
-
-        PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
-        result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
-            @Override
-            public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
-                LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
-
-                double distance = TimeDistance.calculateDistanceBetween(myLoca, eventLocation);
-                int distWalk = TimeDistance.getWalkingTime(distance);
-                int distCar = TimeDistance.getDrivingTime(distance);
-
-                String arrangedDistance = String.format(Locale.getDefault(), "%.2f km", distance);
-                realDistance.setText(arrangedDistance);
-
-                distanceWalk.setText(
-                        distWalk > 1000 ? ">16 hrs" : distWalk + " min"
-                );
-
-                distanceCar.setText(
-                        distCar > 5000 ? ">3 days" : distCar + " min"
-                );
-
-                likelyPlaces.release();
-            }
-        });
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -317,10 +334,5 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
                 return;
             }
         }
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(TAG, "Connection Failed");
     }
 }
