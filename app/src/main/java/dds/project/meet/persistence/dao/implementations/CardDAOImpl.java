@@ -8,15 +8,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import dds.project.meet.logic.Card;
-import dds.project.meet.logic.User;
+import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.User;
 import dds.project.meet.persistence.Persistence;
-import dds.project.meet.persistence.QueryCallback;
 import dds.project.meet.persistence.dao.models.ICardDAO;
+import dds.project.meet.persistence.util.QueryCallback;
 
 /**
  * Created by jacosro on 9/06/17.
@@ -69,11 +68,6 @@ public class CardDAOImpl implements ICardDAO {
     }
 
     @Override
-    public void addAllCards(Collection<Card> collection) {
-
-    }
-
-    @Override
     public void removeCard(Card card, QueryCallback<Boolean> callback) {
         Log.d(TAG + "::removeCard", "Card: " + card);
         String key = card.getDbKey();
@@ -105,6 +99,12 @@ public class CardDAOImpl implements ICardDAO {
     public void updateCard(Card card, QueryCallback<Boolean> callback) {
         final String key = card.getDbKey();
 
+        Map<String, Object> map = new HashMap<String, Object>(card.getParticipants().size());
+
+        for (User user : card.getParticipants()) {
+            map.put(user.getUid(), user.getUsername());
+        }
+        rootRef.child("card_users").child(key).setValue(map);
         rootRef.child("cards").child(key).updateChildren(card.toMap());
         callback.result(true);
     }

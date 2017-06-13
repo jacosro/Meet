@@ -5,9 +5,9 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.Collection;
 import java.util.List;
 
-import dds.project.meet.logic.Card;
-import dds.project.meet.logic.User;
-import dds.project.meet.persistence.QueryCallback;
+import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.User;
+import dds.project.meet.persistence.util.QueryCallback;
 
 /**
  * Created by jacosro on 9/06/17.

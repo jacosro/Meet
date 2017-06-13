@@ -1,11 +1,7 @@
 package dds.project.meet.persistence.dao.models;
 
-import android.app.DownloadManager;
-
-import java.util.Collection;
-
-import dds.project.meet.logic.Card;
-import dds.project.meet.persistence.QueryCallback;
+import dds.project.meet.logic.entities.Card;
+import dds.project.meet.persistence.util.QueryCallback;
 
 /**
  * Created by jacosro on 9/06/17.
@@ -14,7 +10,6 @@ import dds.project.meet.persistence.QueryCallback;
 public interface ICardDAO {
 
     void addCard(Card card, QueryCallback<Boolean> callback);
-    void addAllCards(Collection<Card> collection);
     void removeCard(Card card, QueryCallback<Boolean> callback);
     void updateCard(Card card, QueryCallback<Boolean> callback);
 

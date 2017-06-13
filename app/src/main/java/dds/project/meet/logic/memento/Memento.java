@@ -2,8 +2,7 @@ package dds.project.meet.logic.memento;
 
 import java.sql.Timestamp;
 
-
-import dds.project.meet.logic.Card;
+import dds.project.meet.logic.entities.Card;
 
 /**
  * Created by RaulCoroban on 13/05/2017.

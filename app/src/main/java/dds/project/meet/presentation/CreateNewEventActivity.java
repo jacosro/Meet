@@ -7,8 +7,6 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -47,7 +45,6 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -56,13 +53,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.Card;
-import dds.project.meet.logic.CardFactory;
-import dds.project.meet.logic.ContactAdapter;
-import dds.project.meet.logic.ParticipantAdapter;
-import dds.project.meet.logic.RecyclerItemClickListener;
-import dds.project.meet.logic.User;
-import dds.project.meet.persistence.QueryCallback;
+import dds.project.meet.logic.adapters.ContactAdapter;
+import dds.project.meet.logic.adapters.ParticipantAdapter;
+import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.User;
+import dds.project.meet.logic.util.CardFactory;
+import dds.project.meet.logic.util.RecyclerItemClickListener;
+import dds.project.meet.persistence.util.QueryCallback;
 
 /**
  * Created by RaulCoroban on 10/04/2017.
@@ -112,7 +109,7 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.create_event);
+        setContentView(R.layout.activity_create_event);
 
         participantsNumberLabel = (TextView) findViewById(R.id.participantsNumber);
         editTextName = (EditText) findViewById(R.id.editTextName);
@@ -133,112 +130,20 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
 
         dataMembers = new ArrayList<>();
         dataMembers.add(mUser);
+
         dataContacts = new ArrayList<>();
+        adapterContacts = new ContactAdapter(dataContacts, this);
 
         mCard = CardFactory.getEmptyCard();
 
-
-
-        recyclerParticipants.setHasFixedSize(true);
-
-        RecyclerView.LayoutManager layoutManagerParticipants = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        recyclerParticipants.setLayoutManager(layoutManagerParticipants);
-
-        adapterParticipants = new ParticipantAdapter(dataMembers, this);
-        recyclerParticipants.setAdapter(adapterParticipants);
-
-        recyclerParticipants.addOnItemTouchListener(
-                new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override public void onItemClick(View view, int position) {
-                        User user = dataMembers.get(position);
-
-                        if (!mUser.equals(user)) {
-                            deleteContactFromMembers(user);
-                        }
-                    }
-                })
-        );
-
-        adapterParticipants.notifyDataSetChanged();
+        doneFab.hide();
 
         setListeners();
-
-        adapterContacts = new ContactAdapter(dataContacts, this);
-
-        ActivityCompat.requestPermissions(CreateNewEventActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+        initializeRecyclerView();
+        getPermissions();
     }
 
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        Place place = null;
-
-        if(requestCode == SELECTED_LOCATION && data != null) {
-            if(resultCode == RESULT_OK) {
-                 place = PlaceAutocomplete.getPlace(this, data);
-                mCard.setLocation(place.getAddress().toString());
-
-            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                Log.d(TAG, "Place not found");
-                Toast.makeText(CreateNewEventActivity.this, "Cannot find place :(", Toast.LENGTH_SHORT).show();
-            }
-            GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .enableAutoManage(this, this)
-                    .addApi(LocationServices.API)
-                    .addApi(Places.GEO_DATA_API)
-                    .addApi(Places.PLACE_DETECTION_API)
-                    .build();
-            mGoogleApiClient.connect();
-
-            final Place placeForDistance = place;
-
-            ActivityCompat.requestPermissions(CreateNewEventActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "Permission denied for Access Fine Location");
-                return;
-            }
-
-            PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
-            result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
-                @Override
-                public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
-                    LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
-                    double distance = calculateDistanceBetween(myLoca, placeForDistance.getLatLng());
-                    mCard.setKm((int) distance);
-
-                    likelyPlaces.release();
-                }
-        });
-        }
-
-    }
-
-    public void addContactToMembers(User contact) {
-        dataMembers.add(contact);
-        dataContacts.remove(contact);
-        adapterParticipants.notifyItemInserted(dataMembers.size() - 1);
-        adapterContacts.notifyDataSetChanged();
-        participantsNumberLabel.setText(dataMembers.size() + " participants");
-    }
-
-    public void deleteContactFromMembers(User contact) {
-        dataMembers.remove(contact);
-
-        Set<User> sorted = new TreeSet<>(dataContacts);
-        sorted.add(contact);
-
-        dataContacts.clear();
-        dataContacts.addAll(sorted);
-
-        adapterContacts.notifyDataSetChanged();
-        adapterParticipants.notifyDataSetChanged();
-        participantsNumberLabel.setText(dataMembers.size() + " participants");
-    }
-
-    public void setListeners() {
+    private void setListeners() {
 
 
         when.setOnClickListener(new View.OnClickListener() {
@@ -264,7 +169,6 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
             }
         });
 
-        doneFab.hide();
 
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -279,7 +183,7 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
             public void onClick(View v) {
 
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(CreateNewEventActivity.this);
-                View mView = getLayoutInflater().inflate(R.layout.contact_list, null);
+                View mView = getLayoutInflater().inflate(R.layout.create_event_and_settings_contact_list, null);
                 mBuilder.setView(mView);
 
                 mProgressBar = (ProgressBar) mView.findViewById(R.id.contact_list_progressBar);
@@ -351,7 +255,7 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(CreateNewEventActivity.this);
-                final View mView = getLayoutInflater().inflate(R.layout.description_event, null);
+                final View mView = getLayoutInflater().inflate(R.layout.create_event_and_settings_description, null);
                 mBuilder.setView(mView);
 
                 final AlertDialog dialog = mBuilder.create();
@@ -400,16 +304,55 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
 
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+    private void initializeRecyclerView() {
+        recyclerParticipants.setHasFixedSize(true);
 
-                }
-            }
-        }
+        RecyclerView.LayoutManager layoutManagerParticipants = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        recyclerParticipants.setLayoutManager(layoutManagerParticipants);
+
+        adapterParticipants = new ParticipantAdapter(dataMembers, this);
+        recyclerParticipants.setAdapter(adapterParticipants);
+
+        recyclerParticipants.addOnItemTouchListener(
+                new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        User user = dataMembers.get(position);
+
+                        if (!mUser.equals(user)) {
+                            deleteContactFromMembers(user);
+                        }
+                    }
+                })
+        );
+
+        adapterParticipants.notifyDataSetChanged();
+    }
+
+    //Auxiliar methods
+    public void getPermissions() {
+        ActivityCompat.requestPermissions(CreateNewEventActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+    }
+
+    public void addContactToMembers(User contact) {
+        dataMembers.add(contact);
+        dataContacts.remove(contact);
+        adapterParticipants.notifyItemInserted(dataMembers.size() - 1);
+        adapterContacts.notifyDataSetChanged();
+        participantsNumberLabel.setText(dataMembers.size() + " participants");
+    }
+
+    public void deleteContactFromMembers(User contact) {
+        dataMembers.remove(contact);
+
+        Set<User> sorted = new TreeSet<>(dataContacts);
+        sorted.add(contact);
+
+        dataContacts.clear();
+        dataContacts.addAll(sorted);
+
+        adapterContacts.notifyDataSetChanged();
+        adapterParticipants.notifyDataSetChanged();
+        participantsNumberLabel.setText(dataMembers.size() + " participants");
     }
 
     private Set<User> loadContactsFromPhone() {
@@ -459,7 +402,7 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
                 mCard.setDateYear(newYear);
 
                 whenLabel.setText(dayOfMonth + " " + months[newMonth]);
-                when.setImageResource(R.drawable.calendars);
+                when.setImageResource(R.drawable.icon_calendar_selected);
                 datePicked = true;
             }
         },mYear, mMonth, mDay);
@@ -490,20 +433,13 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
                 String time = hourS + ":" + minuteS;
                 mCard.setTime(time);
                 whatTimeLabel.setText(time);
-                whatTime.setImageResource(R.drawable.clocks);
+                whatTime.setImageResource(R.drawable.icon_clock_selected);
                 timePicked = true;
             }
         },mHour, mMinutes, false);
         cal.show();
 
         if (datePicked) doneFab.show();
-    }
-
-    public String getExactLocationName(String location) throws IOException {
-        Geocoder gc = new Geocoder(this);
-        List<Address> list = gc.getFromLocationName(location, 1);
-        if (list.size() >= 1) return list.get(0).getAddressLine(0) + " " + list.get(0).getCountryName();
-        return null;
     }
 
     public void donePressed() {
@@ -548,7 +484,7 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
         }
 
         if (mCard.getPersons() <= 0) {
-            Toast.makeText(this, "Please, select at least one participant", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please, select at least one create_event_participant", Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -578,8 +514,68 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
         return loc1.distanceTo(loc2)/1000;
     }
 
+    //Waiting for result
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d(TAG, "Could not calculate distance");
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Place place = null;
+
+        if(requestCode == SELECTED_LOCATION && data != null) {
+            if(resultCode == RESULT_OK) {
+                place = PlaceAutocomplete.getPlace(this, data);
+                mCard.setLocation(place.getAddress().toString());
+
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Log.d(TAG, "Place not found");
+                Toast.makeText(CreateNewEventActivity.this, "Cannot find place :(", Toast.LENGTH_SHORT).show();
+            }
+            GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .enableAutoManage(this, this)
+                    .addApi(LocationServices.API)
+                    .addApi(Places.GEO_DATA_API)
+                    .addApi(Places.PLACE_DETECTION_API)
+                    .build();
+            mGoogleApiClient.connect();
+
+            final Place placeForDistance = place;
+
+            ActivityCompat.requestPermissions(CreateNewEventActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Permission denied for Access Fine Location");
+                return;
+            }
+
+            PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
+            result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
+                @Override
+                public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
+                    LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
+                    double distance = calculateDistanceBetween(myLoca, placeForDistance.getLatLng());
+                    mCard.setKm((int) distance);
+
+                    likelyPlaces.release();
+                }
+            });
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                }
+            }
+        }
     }
 }
