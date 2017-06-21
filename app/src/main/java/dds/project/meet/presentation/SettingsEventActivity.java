@@ -42,6 +42,7 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -311,8 +312,8 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
             public void onClick(View v) {
 
                 try {
-                    Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY).build(SettingsEventActivity.this);
-                    startActivityForResult(intent, SELECTED_LOCATION);
+                    PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+                    startActivityForResult(builder.build(SettingsEventActivity.this), SELECTED_LOCATION);
                     locationButton.setText("Change Location");
                 } catch (GooglePlayServicesRepairableException e) {
                     e.printStackTrace();
@@ -529,7 +530,7 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
 
         if(requestCode == SELECTED_LOCATION && data != null) {
             if(resultCode == RESULT_OK) {
-                place = PlaceAutocomplete.getPlace(this, data);
+                place = PlacePicker.getPlace(this, data);
                 mCard.setLocation(place.getAddress().toString());
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {

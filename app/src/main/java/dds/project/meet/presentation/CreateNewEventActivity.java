@@ -285,7 +285,6 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
         locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 try {
                     PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
                     startActivityForResult(builder.build(CreateNewEventActivity.this), SELECTED_LOCATION);
