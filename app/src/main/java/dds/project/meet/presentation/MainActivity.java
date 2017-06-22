@@ -1,8 +1,14 @@
 package dds.project.meet.presentation;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
@@ -25,6 +31,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+
 import dds.project.meet.R;
 import dds.project.meet.logic.adapters.CardAdapter;
 import dds.project.meet.logic.commands.AddCardCommand;
@@ -37,9 +45,11 @@ import dds.project.meet.logic.memento.CareTaker;
 import dds.project.meet.logic.memento.Originator;
 import dds.project.meet.logic.util.RecyclerItemClickListener;
 import dds.project.meet.persistence.util.QueryCallback;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final int PICK_IMAGE_REQUEST = 1;
     // UI elements
     private TextView numberCards;
     private FloatingActionButton fab;
@@ -58,7 +68,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ConstraintLayout background;
+
     private View header;
+    private View avatarHolder;
+    private ImageView avatar;
 
 
     // Class fields
@@ -75,6 +88,29 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
 
+        header = navigationView.getHeaderView(0);
+        avatarHolder = header.findViewById(R.id.smallImageContainer);
+        nameDrawer = (TextView) header.findViewById(R.id.nameTextViewDrawer);
+        emailDrawer = (TextView) header.findViewById(R.id.emailTextViewDrawer);
+        avatar = (CircleImageView) header.findViewById(R.id.avatar);
+
+        mPersistence.userDAO.setCurrentUser(new QueryCallback<User>() {
+            @Override
+            public void result(User data) {
+                emailDrawer.setText(data.getEmail());
+                nameDrawer.setText(data.getUsername());
+
+                mPersistence.userDAO.getUserImage(new QueryCallback<Uri>() {
+                    @Override
+                    public void result(Uri data) {
+                        if (data != null)
+                            loadAvatar(data);
+                    }
+                });
+            }
+        });
+
+
         recyclerCards = (RecyclerView) findViewById(R.id.recycler_cards);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -86,22 +122,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         toolbarContainer = findViewById(R.id.toolbar_vbox);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
-        header = navigationView.getHeaderView(0);
-        nameDrawer = (TextView) header.findViewById(R.id.nameTextViewDrawer);
-        emailDrawer = (TextView) header.findViewById(R.id.emailTextViewDrawer);
         refreshCards = (ImageButton) findViewById(R.id.refreshCardsButton);
 
         //Memento tools declaration
         originator = new Originator();
         careTaker = new CareTaker();
 
-        mPersistence.userDAO.setCurrentUser(new QueryCallback<User>() {
-            @Override
-            public void result(User data) {
-                emailDrawer.setText(data.getEmail());
-                nameDrawer.setText(data.getUsername());
-            }
-        });
 
         setListeners();
         initializeRecyclerView();
@@ -121,6 +147,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         drawerLayout.addDrawerListener(toggle);
+
+        avatarHolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                startActivityForResult(intent, PICK_IMAGE_REQUEST);
+            }
+        });
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -368,5 +403,31 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         });
     }
 
+    public void loadAvatar(Uri uri) {
+        Glide.with(this)
+                .load(uri)
+                .centerCrop()
+                .into(avatar);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PICK_IMAGE_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Uri imageUri = data.getData();
+                if (!imageUri.getLastPathSegment().endsWith(".jpg")) {
+                    Toast.makeText(this, "Invalid image type! Use jpg", Toast.LENGTH_SHORT).show();
+                } else {
+                    loadAvatar(imageUri);
+                    mPersistence.userDAO.updateUserImage(imageUri, new QueryCallback<Boolean>() {
+                        @Override
+                        public void result(Boolean data) {
+                            // Nothing
+                        }
+                    });
+                }
+            }
+        }
+    }
 
 }

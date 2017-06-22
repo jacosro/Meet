@@ -1,9 +1,11 @@
 package dds.project.meet.persistence.dao.implementations;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -13,7 +15,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,14 +41,22 @@ public class UserDAOImpl implements IUserDAO {
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseDatabase mFirebaseDatabase;
+    private FirebaseStorage mFirebaseStorage;
+
     private DatabaseReference rootRef;
+
+    private StorageReference storageRootRef;
 
     private User mUser;
 
     public UserDAOImpl() {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFirebaseStorage = FirebaseStorage.getInstance();
+
+
         rootRef = mFirebaseDatabase.getReference();
+        storageRootRef = mFirebaseStorage.getReferenceFromUrl("gs://meet-b1515.appspot.com/");
     }
 
     @Override
@@ -112,6 +128,40 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
+    public void getUserImage(final QueryCallback<Uri> callback) {
+        StorageReference ref = storageRootRef.child(mUser.getUsername() + ".jpg");
+
+        try {
+            final File localFile = File.createTempFile(mUser.getUsername(), ".jpg");
+
+            ref.getFile(localFile).addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        callback.result(Uri.fromFile(localFile));
+                    } else {
+                        callback.result(null);
+                    }
+                }
+            });
+        } catch (IOException e) {
+            callback.result(null);
+        }
+    }
+
+    @Override
+    public void updateUserImage(Uri image, final QueryCallback<Boolean> callback) {
+        storageRootRef.child(mUser.getUsername() + ".jpg")
+                .putFile(image)
+                .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        callback.result(task.isSuccessful());
+                    }
+                });
+    }
+
+        @Override
     public void findUserByUid(final String uid, final QueryCallback<User> callback) {
         rootRef.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
