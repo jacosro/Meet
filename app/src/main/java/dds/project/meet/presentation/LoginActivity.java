@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import dds.project.meet.R;
+import dds.project.meet.logic.entities.User;
 import dds.project.meet.persistence.util.QueryCallback;
 
 
@@ -22,44 +23,45 @@ public class LoginActivity extends BaseActivity {
     private static final String TAG = LoginActivity.class.toString();
     private static final int REQUEST_CODE = 0;
 
-    public static final boolean AUTOMATIC_LOGIN = false; // If you don't want to activity_login
-    public static final String DEFAULT_EMAIL = "dds@project.com";
-    public static final String DEFAULT_PASSWORD = "ddsproject";
-
-    public EditText mEmailEditText;
-    public EditText mPasswordEditText;
+    private EditText mEmailEditText;
+    private EditText mPasswordEditText;
     private Button login;
     private Button register;
+
+    private boolean setName = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (mPersistence.userDAO.getCurrentFirebaseUser() != null) {
-            Log.d(TAG, "User is logged in! Launching MainActivity");
-            loginCompleted();
+            mPersistence.userDAO.findUserByUid(mPersistence.userDAO.getCurrentFirebaseUser().getUid(), new QueryCallback<User>() {
+                @Override
+                public void result(User data) {
+                    if (data.getName() == null) {
+                        setName = true;
+                    }
+                    Log.d(TAG, "User is logged in! Launching MainActivity");
+                    loginCompleted();
+                }
+            });
+        } else {
+            Log.d(TAG, "User is not logged in");
+
+            setContentView(R.layout.activity_login);
+            mEmailEditText = (EditText) findViewById(R.id.usernameEditText);
+            mPasswordEditText = (EditText) findViewById(R.id.passwordEditText);
+            login = (Button) findViewById(R.id.loginButton);
+            register = (Button) findViewById(R.id.createButton);
+
+            setListeners();
         }
-        Log.d(TAG, "User is not logged in");
-
-        setContentView(R.layout.activity_login);
-        mEmailEditText = (EditText) findViewById(R.id.usernameEditText);
-        mPasswordEditText = (EditText) findViewById(R.id.passwordEditText);
-        login = (Button) findViewById(R.id.loginButton);
-        register = (Button) findViewById(R.id.createButton);
-
-        setListeners();
     }
 
     private void setListeners() {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (AUTOMATIC_LOGIN) {
-                    mEmailEditText.getText().clear();
-                    mPasswordEditText.getText().clear();
-                    mEmailEditText.getText().append(DEFAULT_EMAIL);
-                    mPasswordEditText.getText().append(DEFAULT_PASSWORD);
-                }
                 checkLogin();
             }
         });
@@ -136,9 +138,15 @@ public class LoginActivity extends BaseActivity {
     }
 
     public void loginCompleted() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+        if (setName) {
+            Intent intent = new Intent(this, SetNameActivity.class);
+            startActivity(intent);
+            finish();
+        } else {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     //Waiting for result
@@ -146,6 +154,7 @@ public class LoginActivity extends BaseActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             if (intent != null && intent.getExtras() != null) {
+                setName = true;
                 String email = intent.getExtras().getString("email");
                 String password = intent.getExtras().getString("password");
 

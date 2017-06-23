@@ -133,7 +133,7 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void doRegister(final String email, final String password, String userName, String phoneNumber) {
-        User user = new User("Me", userName, phoneNumber, email);
+        User user = new User(null, userName, phoneNumber, email);
         mPersistence.userDAO.createNewUser(user, password, new QueryCallback<Boolean>() {
             @Override
             public void result(Boolean success) {

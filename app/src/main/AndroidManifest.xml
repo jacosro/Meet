@@ -82,9 +82,14 @@
         </activity>
         <activity
             android:name=".presentation.RegisterActivity"
-            android:label="@string/title_activity_register"></activity>
-        <activity android:name=".presentation.SettingsEventActivity"
-            android:label="@string/title_activity_event_settings"></activity>
+            android:label="@string/title_activity_register" />
+        <activity
+            android:name=".presentation.SettingsEventActivity"
+            android:label="@string/title_activity_event_settings" />
+        <activity
+            android:name=".presentation.SetNameActivity"
+            android:label="@string/title_activity_set_name"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

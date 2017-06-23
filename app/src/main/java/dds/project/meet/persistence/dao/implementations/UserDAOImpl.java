@@ -87,6 +87,12 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
+    public void updateName(String name) {
+        String uid = getCurrentFirebaseUser().getUid();
+        rootRef.child("users").child(uid).child("name").setValue(name);
+    }
+
+    @Override
     public void createNewUser(final User user, String password, final QueryCallback<Boolean> callback) {
         Log.d(TAG + "::createNewUser", "Start");
         mFirebaseAuth.createUserWithEmailAndPassword(user.getEmail(), password)

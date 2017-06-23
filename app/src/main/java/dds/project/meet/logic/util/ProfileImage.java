@@ -32,7 +32,7 @@ public class ProfileImage {
 
     private ProfileImage() {}
 
-    private ProfileImage(MainActivity context) {
+    private ProfileImage(Context context) {
         this.context = context;
 
         String username = Persistence.getInstance().userDAO.getCurrentUser().getUsername();
@@ -40,10 +40,13 @@ public class ProfileImage {
     }
 
 
-    public static ProfileImage getInstance(MainActivity context) {
+    public static ProfileImage getInstance(Context context) {
         if (INSTANCE == null) {
             INSTANCE = new ProfileImage(context);
+        } else if (!INSTANCE.context.equals(context)) {
+            INSTANCE.context = context;
         }
+
         return INSTANCE;
     }
 
@@ -62,7 +65,7 @@ public class ProfileImage {
                 this.uri = Uri.fromFile(cache);
 
                 if (upload) {
-                    Persistence.getInstance().userDAO.updateUserImage(this.uri, new QueryCallback.EmptyCallBack<Boolean>());
+                    upload();
                 }
             } else {
                 Toast.makeText(context, "Could not copy from files", Toast.LENGTH_SHORT).show();
@@ -92,5 +95,9 @@ public class ProfileImage {
             });
         }
 
+    }
+
+    public void upload() {
+        Persistence.getInstance().userDAO.updateUserImage(this.uri, new QueryCallback.EmptyCallBack<Boolean>());
     }
 }
