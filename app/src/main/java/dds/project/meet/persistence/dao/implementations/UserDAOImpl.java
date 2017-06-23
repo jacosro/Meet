@@ -150,13 +150,16 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
-    public void updateUserImage(Uri image, final QueryCallback<Boolean> callback) {
+    public void updateUserImage(final Uri image, final QueryCallback<Boolean> callback) {
+        storageRootRef.child(mUser.getUsername() + ".jpg").delete();
+        Log.d(TAG, "Photo deleted");
         storageRootRef.child(mUser.getUsername() + ".jpg")
                 .putFile(image)
                 .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         callback.result(task.isSuccessful());
+                        Log.d(TAG, String.valueOf(task.isSuccessful()));
                     }
                 });
     }

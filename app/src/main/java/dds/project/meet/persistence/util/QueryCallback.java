@@ -6,5 +6,16 @@ package dds.project.meet.persistence.util;
 
 public interface QueryCallback<E> {
 
+    class EmptyCallBack<E> implements QueryCallback<E> {
+
+        public EmptyCallBack() {}
+
+        @Override
+        public void result(E data) {
+            // Empty callback
+        }
+    }
+
     void result(E data);
+
 }

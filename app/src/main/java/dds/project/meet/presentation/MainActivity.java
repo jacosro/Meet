@@ -1,14 +1,9 @@
 package dds.project.meet.presentation;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
@@ -22,6 +17,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import dds.project.meet.R;
 import dds.project.meet.logic.adapters.CardAdapter;
@@ -43,12 +40,14 @@ import dds.project.meet.logic.entities.Card;
 import dds.project.meet.logic.entities.User;
 import dds.project.meet.logic.memento.CareTaker;
 import dds.project.meet.logic.memento.Originator;
+import dds.project.meet.logic.util.ProfileImage;
 import dds.project.meet.logic.util.RecyclerItemClickListener;
 import dds.project.meet.persistence.util.QueryCallback;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final String TAG = "MainActivity";
     private static final int PICK_IMAGE_REQUEST = 1;
     // UI elements
     private TextView numberCards;
@@ -94,17 +93,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         emailDrawer = (TextView) header.findViewById(R.id.emailTextViewDrawer);
         avatar = (CircleImageView) header.findViewById(R.id.avatar);
 
+
         mPersistence.userDAO.setCurrentUser(new QueryCallback<User>() {
             @Override
             public void result(User data) {
                 emailDrawer.setText(data.getEmail());
                 nameDrawer.setText(data.getUsername());
 
-                mPersistence.userDAO.getUserImage(new QueryCallback<Uri>() {
+                ProfileImage.getInstance(MainActivity.this).get(new QueryCallback<Uri>() {
                     @Override
                     public void result(Uri data) {
-                        if (data != null)
-                            loadAvatar(data);
+                        loadAvatar(data);
                     }
                 });
             }
@@ -151,6 +150,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         avatarHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType("image/*");
                 startActivityForResult(intent, PICK_IMAGE_REQUEST);
@@ -406,6 +406,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public void loadAvatar(Uri uri) {
         Glide.with(this)
                 .load(uri)
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .centerCrop()
                 .into(avatar);
     }
@@ -418,13 +420,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 if (!imageUri.getLastPathSegment().endsWith(".jpg")) {
                     Toast.makeText(this, "Invalid image type! Use jpg", Toast.LENGTH_SHORT).show();
                 } else {
+                    ProfileImage.getInstance(this).set(imageUri);
                     loadAvatar(imageUri);
-                    mPersistence.userDAO.updateUserImage(imageUri, new QueryCallback<Boolean>() {
-                        @Override
-                        public void result(Boolean data) {
-                            // Nothing
-                        }
-                    });
                 }
             }
         }
