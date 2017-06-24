@@ -72,6 +72,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private View avatarHolder;
     private ImageView avatar;
 
+    private ProfileImage mProfileImage;
+
 
     // Class fields
     private Originator originator;
@@ -93,8 +95,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         emailDrawer = (TextView) header.findViewById(R.id.emailTextViewDrawer);
         avatar = (CircleImageView) header.findViewById(R.id.avatar);
 
+        mProfileImage = ProfileImage.getInstance(this);
 
-        ProfileImage.getInstance(MainActivity.this).get(new QueryCallback<Uri>() {
+        mProfileImage.get(new QueryCallback<Uri>() {
             @Override
             public void result(Uri data) {
                 loadAvatar(data);
@@ -375,7 +378,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 break;
             case R.id.nav_logout:
                 mPersistence.userDAO.doSignOut();
-                ProfileImage.getInstance(this).clearCache();
+                mProfileImage.clearCache();
                 Intent intent = new Intent(this, LoginActivity.class);
                 startActivity(intent);
                 finish();
@@ -417,7 +420,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 if (!imageUri.getLastPathSegment().endsWith(".jpg")) {
                     Toast.makeText(this, "Invalid image type! Use jpg", Toast.LENGTH_SHORT).show();
                 } else {
-                    ProfileImage.getInstance(this).set(imageUri);
+                    mProfileImage.set(imageUri);
                     loadAvatar(imageUri);
                 }
             }

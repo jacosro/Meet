@@ -134,6 +134,38 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
+    public void getEmailFromUsername(String username, final QueryCallback<String> callback) {
+        rootRef.child(ALL_USERNAMES_KEY).child(username).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String uid = dataSnapshot.getValue(String.class);
+
+                if (uid == null) {
+                    callback.result(null);
+                } else {
+                    rootRef.child(USERS_KEY).child(uid).child("email").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            String email = dataSnapshot.getValue(String.class);
+                            callback.result(email);
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
     public void doSignOut() {
         mFirebaseAuth.signOut();
     }
@@ -204,7 +236,7 @@ public class UserDAOImpl implements IUserDAO {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "GetUserByUid failed! " + databaseError);
+                Log.d(TAG, "findUserByUsername failed! " + databaseError);
                 callback.result(null);
             }
         });

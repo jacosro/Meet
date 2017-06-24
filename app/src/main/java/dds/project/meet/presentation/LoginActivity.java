@@ -107,36 +107,52 @@ public class LoginActivity extends BaseActivity {
             hideProgressDialog();
             failed.requestFocus();
         } else {
-           doSignIn(email, password);
+            boolean isEmail = email.matches("[^\\s]+@[^\\s]+\\.\\w+");
+            Log.d(TAG, String.valueOf(isEmail));
+            doSignIn(email, password, isEmail);
         }
     }
 
-    private void doSignIn(String email, String password) {
+    private void doSignIn(String email, final String password, boolean isEmail) {
         showProgressDialog();
 
-        mPersistence.userDAO.doLogin(email, password, new QueryCallback<Boolean>() {
-            @Override
-            public void result(Boolean success) {
-                if (success) {
-                    userIsLoggedIn();
-                } else {
-                    String text =
-                            isThePhoneConnected()
-                                    ? "Incorrect email or password"
-                                    : "You are not connected";
+        if (isEmail) {
+            mPersistence.userDAO.doLogin(email, password, new QueryCallback<Boolean>() {
+                @Override
+                public void result(Boolean success) {
+                    if (success) {
+                        userIsLoggedIn();
+                    } else {
+                        String text =
+                                isThePhoneConnected()
+                                        ? "Incorrect email, username or password"
+                                        : "You are not connected";
 
-                    Toast.makeText(LoginActivity.this, text, Toast.LENGTH_SHORT).show();
-                    mEmailEditText.getText().clear();
-                    mPasswordEditText.getText().clear();
+                        Toast.makeText(LoginActivity.this, text, Toast.LENGTH_SHORT).show();
+                        mEmailEditText.getText().clear();
+                        mPasswordEditText.getText().clear();
+                    }
+                    hideProgressDialog();
                 }
-                hideProgressDialog();
-            }
-        });
+            });
+        } else {
+            mPersistence.userDAO.getEmailFromUsername(email, new QueryCallback<String>() {
+                @Override
+                public void result(String data) {
+                    if (data != null) {
+                        doSignIn(data, password, true);
+                    } else {
+                        Toast.makeText(LoginActivity.this, "That username does not exists", Toast.LENGTH_SHORT).show();
+                        hideProgressDialog();
+                    }
+                }
+            });
+        }
     }
 
     //Auxiliar Methods
     private boolean isEmailOK(String email) {
-        return email.matches("[^\\s]+@[^\\s]+\\.\\w+");
+        return email.matches("([^\\s]+@[^\\s]+\\.\\w+)|([^\\s]+)");
     }
 
     private boolean isPasswordOK(String password) {
@@ -164,7 +180,7 @@ public class LoginActivity extends BaseActivity {
                 String email = intent.getExtras().getString("email");
                 String password = intent.getExtras().getString("password");
 
-                doSignIn(email, password);
+                doSignIn(email, password, true);
             }
         }
     }

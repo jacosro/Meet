@@ -3,6 +3,7 @@ package dds.project.meet.persistence.dao.models;
 import android.net.Uri;
 
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.Query;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,11 +25,12 @@ public interface IUserDAO {
 
     void createNewUser(User user, String password, QueryCallback<Boolean> callback);
     void doLogin(String email, String password, QueryCallback<Boolean> callback);
+    void getEmailFromUsername(String username, QueryCallback<String> callback);
+
     void doSignOut();
-
     void getUserImage(QueryCallback<Uri> callback);
-    void updateUserImage(Uri image, QueryCallback<Boolean> callback);
 
+    void updateUserImage(Uri image, QueryCallback<Boolean> callback);
     void findUserByUid(String uid, QueryCallback<User> callback);
     void findUserByUsername(String username, QueryCallback<User> callback);
     void findUserByEmail(String email, QueryCallback<User> callback);
