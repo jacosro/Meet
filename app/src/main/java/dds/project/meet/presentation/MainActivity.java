@@ -94,20 +94,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         avatar = (CircleImageView) header.findViewById(R.id.avatar);
 
 
-        mPersistence.userDAO.setCurrentUser(new QueryCallback<User>() {
+        ProfileImage.getInstance(MainActivity.this).get(new QueryCallback<Uri>() {
             @Override
-            public void result(User data) {
-                emailDrawer.setText(data.getEmail());
-                nameDrawer.setText(data.getUsername());
-
-                ProfileImage.getInstance(MainActivity.this).get(new QueryCallback<Uri>() {
-                    @Override
-                    public void result(Uri data) {
-                        loadAvatar(data);
-                    }
-                });
+            public void result(Uri data) {
+                loadAvatar(data);
             }
         });
+
+        User me = mPersistence.userDAO.getCurrentUser();
+        emailDrawer.setText(me.getEmail());
+        nameDrawer.setText(me.getName());
 
 
         recyclerCards = (RecyclerView) findViewById(R.id.recycler_cards);
@@ -379,6 +375,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 break;
             case R.id.nav_logout:
                 mPersistence.userDAO.doSignOut();
+                ProfileImage.getInstance(this).clearCache();
                 Intent intent = new Intent(this, LoginActivity.class);
                 startActivity(intent);
                 finish();

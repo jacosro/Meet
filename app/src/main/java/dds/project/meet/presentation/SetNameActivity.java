@@ -8,6 +8,8 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -28,11 +30,12 @@ public class SetNameActivity extends AppCompatActivity {
     private CircleImageView mAvatar;
     private EditText mEditText;
     private FloatingActionButton mFab;
+    private boolean avatarSet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.content_set_name);
+        setContentView(R.layout.activity_set_name);
 
         mAvatar = (CircleImageView) findViewById(R.id.avatar);
         mEditText = ((TextInputLayout) findViewById(R.id.name)).getEditText();
@@ -53,14 +56,22 @@ public class SetNameActivity extends AppCompatActivity {
             }
         });
 
-        mEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                String text = v.getText().toString();
-                if (text.length() >= 5) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (mEditText.getText().length() > 5) {
                     mFab.show();
                 }
-                return true;
             }
         });
 
@@ -68,7 +79,10 @@ public class SetNameActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Persistence.getInstance().userDAO.updateName(mEditText.getText().toString());
-                ProfileImage.getInstance(SetNameActivity.this).upload();
+
+                if (avatarSet)
+                    ProfileImage.getInstance(SetNameActivity.this).upload();
+
                 Intent intent = new Intent(SetNameActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
@@ -83,6 +97,7 @@ public class SetNameActivity extends AppCompatActivity {
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .centerCrop()
                 .into(mAvatar);
+        avatarSet = true;
     }
 
     @Override

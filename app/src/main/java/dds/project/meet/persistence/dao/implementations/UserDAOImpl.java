@@ -31,6 +31,8 @@ import dds.project.meet.logic.entities.User;
 import dds.project.meet.persistence.dao.models.IUserDAO;
 import dds.project.meet.persistence.util.QueryCallback;
 
+import static dds.project.meet.persistence.Persistence.*;
+
 /**
  * Created by jacosro on 9/06/17.
  */
@@ -88,8 +90,9 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void updateName(String name) {
-        String uid = getCurrentFirebaseUser().getUid();
-        rootRef.child("users").child(uid).child("name").setValue(name);
+        mUser.setName(name);
+        String uid = mUser.getUid();
+        rootRef.child(USERS_KEY).child(uid).child("name").setValue(name);
     }
 
     @Override
@@ -107,11 +110,13 @@ public class UserDAOImpl implements IUserDAO {
                             user.setUid(uid);
 
                             // Add default_sidebar_user_icon to users
-                            rootRef.child("users").child(uid).setValue(user);
+                            rootRef.child(USERS_KEY).child(uid).setValue(user);
 
                             // Add username to allUsernames
-                            rootRef.child("allUsernames").child(user.getUsername()).setValue(uid);
+                            rootRef.child(ALL_USERNAMES_KEY).child(user.getUsername()).setValue(uid);
 
+                        } else {
+                            Log.d(TAG, task.getException().toString());
                         }
                         callback.result(success);
                     }
@@ -170,9 +175,10 @@ public class UserDAOImpl implements IUserDAO {
                 });
     }
 
-        @Override
+    @Override
     public void findUserByUid(final String uid, final QueryCallback<User> callback) {
-        rootRef.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(USERS_KEY).child(uid).keepSynced(true);
+        rootRef.child(USERS_KEY).child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
@@ -189,7 +195,7 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void findUserByUsername(final String username, final QueryCallback<User> callback) {
-        rootRef.child("users").orderByChild("username").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(USERS_KEY).orderByChild("username").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
@@ -206,7 +212,7 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void findUserByEmail(String email, final QueryCallback<User> callback) {
-        rootRef.child("users").orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(USERS_KEY).orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, dataSnapshot.getKey());
@@ -228,13 +234,13 @@ public class UserDAOImpl implements IUserDAO {
         String uid = user.getUid();
 
         if (key != null && uid != null) {
-            rootRef.child("card_users").child(key).child(user.getUid()).removeValue();
+            rootRef.child(CARD_USERS_KEY).child(key).child(user.getUid()).removeValue();
 
-            rootRef.child("cards").child(key).child("persons").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootRef.child(CARDS_KEY).child(key).child("persons").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     int value = dataSnapshot.getValue(Integer.class);
-                    rootRef.child("cards").child(key).child("persons").setValue(value - 1);
+                    rootRef.child(CARDS_KEY).child(key).child("persons").setValue(value - 1);
                 }
 
                 @Override
@@ -243,12 +249,12 @@ public class UserDAOImpl implements IUserDAO {
                 }
             });
 
-            rootRef.child("cards").child(key).child("participants").orderByChild("uid").equalTo(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            rootRef.child(CARDS_KEY).child(key).child("participants").orderByChild("uid").equalTo(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     String userKey = dataSnapshot.getChildren().iterator().next().getKey();
                     Log.d(TAG, userKey);
-                    rootRef.child("cards").child(key).child("participants").child(userKey).removeValue();
+                    rootRef.child(CARDS_KEY).child(key).child("participants").child(userKey).removeValue();
                 }
 
                 @Override
@@ -266,7 +272,7 @@ public class UserDAOImpl implements IUserDAO {
     @Override
     public void getAllUsers(final QueryCallback<Collection<User>> callback) {
 
-        rootRef.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(USERS_KEY).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 List<User> res = new ArrayList<User>();
@@ -294,7 +300,7 @@ public class UserDAOImpl implements IUserDAO {
     public void getAllUsernames(final QueryCallback<Collection<String>> callback) {
         Log.d(TAG + "::getAllUsername", "Getting all usernames");
 
-        DatabaseReference ref = mFirebaseDatabase.getReference().child("allUsernames");
+        DatabaseReference ref = mFirebaseDatabase.getReference().child(ALL_USERNAMES_KEY);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -316,7 +322,7 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void getAllPhoneNumbers(final QueryCallback<Collection<String>> callback) {
-        rootRef.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(USERS_KEY).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 List<String> res = new ArrayList<String>();

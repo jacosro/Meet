@@ -142,7 +142,7 @@ public class RegisterActivity extends BaseActivity {
                 } else {
                     String text =
                             isThePhoneConnected()
-                                    ? "Unknown error :$"
+                                    ? "Unknown error. Please try again in a few seconds"
                                     : "Connection error";
 
                     Toast.makeText(RegisterActivity.this, text, Toast.LENGTH_SHORT).show();
@@ -170,7 +170,7 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private boolean isPasswordOK(String password) {
-        return password.length() > 4;
+        return password.length() > 5;
     }
 
     private boolean isUsernameOK(String username) {

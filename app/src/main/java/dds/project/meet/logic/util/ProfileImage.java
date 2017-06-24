@@ -89,8 +89,10 @@ public class ProfileImage {
             Persistence.getInstance().userDAO.getUserImage(new QueryCallback<Uri>() {
                 @Override
                 public void result(Uri data) {
-                    callback.result(data);
-                    set(data, false);
+                    if (data != null) {
+                        callback.result(data);
+                        set(data, false);
+                    }
                 }
             });
         }
@@ -99,5 +101,12 @@ public class ProfileImage {
 
     public void upload() {
         Persistence.getInstance().userDAO.updateUserImage(this.uri, new QueryCallback.EmptyCallBack<Boolean>());
+    }
+
+    public void clearCache() {
+        File avatar = new File(context.getCacheDir(), filename);
+        if (avatar.exists()) {
+            avatar.delete();
+        }
     }
 }

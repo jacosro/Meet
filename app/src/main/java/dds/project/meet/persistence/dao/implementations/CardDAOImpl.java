@@ -17,6 +17,7 @@ import dds.project.meet.persistence.Persistence;
 import dds.project.meet.persistence.dao.models.ICardDAO;
 import dds.project.meet.persistence.util.QueryCallback;
 
+import static dds.project.meet.persistence.Persistence.*;
 /**
  * Created by jacosro on 9/06/17.
  */
@@ -37,7 +38,7 @@ public class CardDAOImpl implements ICardDAO {
 
     @Override
     public void addCard(final Card card, final QueryCallback<Boolean> callback) {
-        String key = rootRef.child("cards").push().getKey();
+        String key = rootRef.child(CARDS_KEY).push().getKey();
         String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
 
         // Set fields to card
@@ -51,7 +52,7 @@ public class CardDAOImpl implements ICardDAO {
         }
 
         // Add to cards
-        rootRef.child("cards").child(key).setValue(card);
+        rootRef.child(CARDS_KEY).child(key).setValue(card);
 
         Log.d(TAG, "Added to cards table");
         Map<String, Object> map = new HashMap<String, Object>(card.getParticipants().size());
@@ -59,7 +60,7 @@ public class CardDAOImpl implements ICardDAO {
         for (User user : card.getParticipants()) {
             map.put(user.getUid(), user.getUsername());
         }
-        rootRef.child("card_users").child(key).setValue(map);
+        rootRef.child(CARD_USERS_KEY).child(key).setValue(map);
 
         Log.d(TAG, "Added to card_users table");
 
@@ -78,13 +79,13 @@ public class CardDAOImpl implements ICardDAO {
 
             if (uid.equals(owner)) {
                 // Remove card from card_users
-                rootRef.child("card_users").child(key).removeValue();
+                rootRef.child(CARD_USERS_KEY).child(key).removeValue();
 
                 // Remove card from cards
-                rootRef.child("cards").child(key).removeValue();
+                rootRef.child(CARDS_KEY).child(key).removeValue();
             } else {
                 // Remove me from the card
-                rootRef.child("card_users").child(key).child(uid).removeValue();
+                rootRef.child(CARD_USERS_KEY).child(key).child(uid).removeValue();
             }
 
             callback.result(true);
@@ -104,14 +105,14 @@ public class CardDAOImpl implements ICardDAO {
         for (User user : card.getParticipants()) {
             map.put(user.getUid(), user.getUsername());
         }
-        rootRef.child("card_users").child(key).setValue(map);
-        rootRef.child("cards").child(key).updateChildren(card.toMap());
+        rootRef.child(CARD_USERS_KEY).child(key).setValue(map);
+        rootRef.child(CARDS_KEY).child(key).updateChildren(card.toMap());
         callback.result(true);
     }
 
     @Override
     public void findCardByKey(final String key, final QueryCallback<Card> callback) {
-        rootRef.child("cards").orderByKey().equalTo(key).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(CARDS_KEY).orderByKey().equalTo(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Card card = dataSnapshot.child(key).getValue(Card.class);
@@ -134,8 +135,8 @@ public class CardDAOImpl implements ICardDAO {
         final String uid = Persistence.getInstance().userDAO.getCurrentFirebaseUser().getUid();
         Log.d(TAG, "uid = " + uid);
 
-        rootRef.child("card_users").keepSynced(true);
-        rootRef.child("card_users").addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(CARD_USERS_KEY).keepSynced(true);
+        rootRef.child(CARD_USERS_KEY).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot card : dataSnapshot.getChildren()) {

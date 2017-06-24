@@ -35,16 +35,7 @@ public class LoginActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         if (mPersistence.userDAO.getCurrentFirebaseUser() != null) {
-            mPersistence.userDAO.findUserByUid(mPersistence.userDAO.getCurrentFirebaseUser().getUid(), new QueryCallback<User>() {
-                @Override
-                public void result(User data) {
-                    if (data.getName() == null) {
-                        setName = true;
-                    }
-                    Log.d(TAG, "User is logged in! Launching MainActivity");
-                    loginCompleted();
-                }
-            });
+            userIsLoggedIn();
         } else {
             Log.d(TAG, "User is not logged in");
 
@@ -56,6 +47,21 @@ public class LoginActivity extends BaseActivity {
 
             setListeners();
         }
+    }
+
+    private void userIsLoggedIn() {
+        Log.d(TAG, "User is logged in");
+        mPersistence.userDAO.setCurrentUser(new QueryCallback<User>() {
+            @Override
+            public void result(User data) {
+                if (data.getName() == null) {
+                    setName = true;
+                }
+                Log.d(TAG, "setName = " + setName);
+                Log.d(TAG, data.toString());
+                loginCompleted();
+            }
+        });
     }
 
     private void setListeners() {
@@ -112,7 +118,7 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void result(Boolean success) {
                 if (success) {
-                    loginCompleted();
+                    userIsLoggedIn();
                 } else {
                     String text =
                             isThePhoneConnected()
@@ -134,7 +140,7 @@ public class LoginActivity extends BaseActivity {
     }
 
     private boolean isPasswordOK(String password) {
-        return password.length() > 4;
+        return password.length() > 5;
     }
 
     public void loginCompleted() {

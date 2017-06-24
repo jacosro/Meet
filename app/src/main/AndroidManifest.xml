@@ -89,7 +89,7 @@
         <activity
             android:name=".presentation.SetNameActivity"
             android:label="@string/title_activity_set_name"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

@@ -33,4 +33,5 @@
     <string name="error_invalid_password">Invalid Password</string>
     <string name="settings">Settings</string>
     <string name="title_activity_set_name">SetNameActivity</string>
+    <string name="title_activity_pspsp">pspsp</string>
 </resources>
