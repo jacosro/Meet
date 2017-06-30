@@ -5,6 +5,9 @@ import java.util.List;
 
 import dds.project.meet.logic.entities.Card;
 import dds.project.meet.logic.entities.User;
+import dds.project.meet.persistence.Persistence;
+import dds.project.meet.persistence.entities.CardDTO;
+import dds.project.meet.persistence.util.QueryCallback;
 
 /**
  * Created by RaulCoroban on 16/04/2017.
@@ -60,5 +63,37 @@ public class CardFactory {
 
         return card;
 
+    }
+
+    public static Card getCardFromDTO(CardDTO cardDTO) {
+        Card res = new Card();
+
+        res.setTime(cardDTO.getTime());
+        res.setDateDay(cardDTO.getDateDay());
+        res.setDateMonth(cardDTO.getDateMonth());
+        res.setDateYear(cardDTO.getDateYear());
+        res.setName(cardDTO.getName());
+        res.setLocation(cardDTO.getLocation());
+        res.setPersons(cardDTO.getPersons());
+        //todo: calculate km
+        res.setDescription(cardDTO.getDescription());
+
+        final List<User> participants = new ArrayList<>();
+        for (String uid : cardDTO.getParticipants()) {
+            Persistence.getInstance().userDAO.findUserByUid(uid, new QueryCallback<User>() {
+                @Override
+                public void result(User data) {
+                    if (data != null) {
+                        participants.add(data);
+                    }
+                }
+            });
+        }
+        res.setParticipants(participants);
+
+        res.setOwner(cardDTO.getOwner());
+        res.setDbKey(cardDTO.getDbKey());
+
+        return res;
     }
 }

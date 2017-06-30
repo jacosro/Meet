@@ -209,7 +209,6 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void findUserByUid(final String uid, final QueryCallback<User> callback) {
-        rootRef.child(USERS_KEY).child(uid).keepSynced(true);
         rootRef.child(USERS_KEY).child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

@@ -1,8 +1,15 @@
 package dds.project.meet.logic.entities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import dds.project.meet.persistence.Persistence;
+import dds.project.meet.persistence.entities.CardDTO;
+import dds.project.meet.persistence.util.QueryCallback;
 
 /**
  * Created by RaulCoroban on 15/04/2017.
@@ -175,5 +182,29 @@ public class Card implements Comparable<Card> {
         } else {
             return dateYear - card.dateYear;
         }
+    }
+
+    public CardDTO toDTO() {
+        CardDTO res = new CardDTO();
+
+        res.setTime(time);
+        res.setDateDay(dateDay);
+        res.setDateMonth(dateMonth);
+        res.setDateYear(dateYear);
+        res.setName(name);
+        res.setLocation(location);
+        res.setPersons(persons);
+        res.setDescription(description);
+
+        List<String> uids = new ArrayList<>();
+        for (User user : participants) {
+            uids.add(user.getUid());
+        }
+        res.setParticipants(uids);
+
+        res.setOwner(owner);
+        res.setDbKey(dbKey);
+
+        return res;
     }
 }

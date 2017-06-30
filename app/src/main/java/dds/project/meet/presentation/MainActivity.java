@@ -37,6 +37,7 @@ import dds.project.meet.logic.commands.Command;
 import dds.project.meet.logic.commands.NewCardCommand;
 import dds.project.meet.logic.commands.RemoveCardCommand;
 import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.EmptyCard;
 import dds.project.meet.logic.entities.User;
 import dds.project.meet.logic.memento.CareTaker;
 import dds.project.meet.logic.memento.Originator;
@@ -396,8 +397,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             @Override
             public void result(Card data) {
                 if (data != null) {
-                    addCardToUI(data);
-                    recyclerCards.smoothScrollToPosition(0);
+                    if (data instanceof EmptyCard) {
+                        // todo: finished loading
+                    } else {
+                        addCardToUI(data);
+                        recyclerCards.smoothScrollToPosition(0);
+                    }
                 }
             }
         });

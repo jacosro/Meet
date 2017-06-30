@@ -9,9 +9,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.EmptyCard;
 import dds.project.meet.logic.entities.User;
 import dds.project.meet.persistence.Persistence;
 import dds.project.meet.persistence.dao.models.ICardDAO;
@@ -116,7 +118,6 @@ public class CardDAOImpl implements ICardDAO {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Card card = dataSnapshot.child(key).getValue(Card.class);
-                card.setDbKey(key);
                 Log.d(TAG, "Got card: " + card);
                 callback.result(card);
             }
@@ -139,11 +140,22 @@ public class CardDAOImpl implements ICardDAO {
         rootRef.child(CARD_USERS_KEY).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot card : dataSnapshot.getChildren()) {
+                final Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+                while(iterator.hasNext()) {
+                    DataSnapshot card = iterator.next();
                     String key = card.getKey();
                     Log.d(TAG, key);
                     if (card.child(uid).exists()) {
-                        findCardByKey(key, callback);
+                        findCardByKey(key, new QueryCallback<Card>() {
+                            @Override
+                            public void result(Card data) {
+                                callback.result(data);
+
+                                if (!iterator.hasNext()) {
+                                    callback.result(new EmptyCard());
+                                }
+                            }
+                        });
                     }
 
                 }
