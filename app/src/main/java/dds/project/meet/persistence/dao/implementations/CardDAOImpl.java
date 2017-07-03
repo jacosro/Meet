@@ -141,15 +141,15 @@ public class CardDAOImpl implements ICardDAO {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-                while(iterator.hasNext()) {
+                while (iterator.hasNext()) {
                     DataSnapshot card = iterator.next();
                     String key = card.getKey();
                     Log.d(TAG, key);
                     if (card.child(uid).exists()) {
                         findCardByKey(key, new QueryCallback<Card>() {
                             @Override
-                            public void result(Card data) {
-                                callback.result(data);
+                            public void result(Card card) {
+                                callback.result(card);
 
                                 if (!iterator.hasNext()) {
                                     callback.result(new EmptyCard());

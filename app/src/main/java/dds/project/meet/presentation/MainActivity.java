@@ -387,7 +387,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
-        return false;
+        return true;
     }
 
 
