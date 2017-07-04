@@ -21,17 +21,12 @@ public class CardDTO {
     private String location;
     private int persons;
     private String description;
-    private List<String> participants;
 
     private String owner;
     private String dbKey;
 
     public CardDTO() {
 
-    }
-
-    public void setParticipants(List<String> participants) {
-        this.participants = participants;
     }
 
     public void setDescription(String description) {
@@ -56,10 +51,6 @@ public class CardDTO {
 
     public void setDateDay(int dateDay) {
         this.dateDay = dateDay;
-    }
-
-    public List<String> getParticipants() {
-        return participants;
     }
 
     public String getDescription() {
@@ -122,4 +113,20 @@ public class CardDTO {
         return name;
     }
 
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put("time", time);
+        map.put("dateDay", dateDay);
+        map.put("dateMonth", dateMonth);
+        map.put("dateYear", dateYear);
+        map.put("name", name);
+        map.put("location", location);
+        map.put("persons", persons);
+        map.put("description", description);
+        map.put("owner", owner);
+        map.put("dbKey", dbKey);
+
+        return map;
+    }
 }

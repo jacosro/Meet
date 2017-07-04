@@ -161,6 +161,16 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
         return mDataset.remove(item);
     }
 
+    public int removeItemWithId(String id) {
+        for (int i = 0; i < mDataset.size(); i++) {
+            if (id.equals(mDataset.get(i).getDbKey())) {
+                mDataset.removeItemAt(i);
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public Card removeItemAt(int index) {
         return mDataset.removeItemAt(index);
     }

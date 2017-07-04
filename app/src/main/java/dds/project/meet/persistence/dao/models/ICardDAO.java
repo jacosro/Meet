@@ -13,6 +13,7 @@ public interface ICardDAO {
     void removeCard(Card card, QueryCallback<Boolean> callback);
     void updateCard(Card card, QueryCallback<Boolean> callback);
 
+    void setListenerForUserRemoved(QueryCallback<String> callback);
     void findCardByKey(String key, QueryCallback<Card> callback);
     void getAllCards(QueryCallback<Card> callback);
 

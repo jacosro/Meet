@@ -1,11 +1,11 @@
 package dds.project.meet.logic.entities;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import dds.project.meet.persistence.Persistence;
 import dds.project.meet.persistence.entities.CardDTO;
@@ -135,25 +135,6 @@ public class Card implements Comparable<Card> {
         return name;
     }
 
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
-
-        map.put("time", time);
-        map.put("dateDay", dateDay);
-        map.put("dateMonth", dateMonth);
-        map.put("dateYear", dateYear);
-        map.put("name", name);
-        map.put("location", location);
-        map.put("persons", persons);
-        map.put("km", km);
-        map.put("description", description);
-        map.put("participants", participants);
-        map.put("owner", owner);
-        map.put("dbKey", dbKey);
-
-        return map;
-    }
-
     public boolean equals(Object o) {
         if (this == o)
             return true;
@@ -168,7 +149,7 @@ public class Card implements Comparable<Card> {
                 participants.equals(card.participants) && owner.equals(card.owner);
     }
 
-    public int compareTo(Card card) {
+    public int compareTo(@NonNull Card card) {
         if (card.dateYear == dateYear) {
             if (card.dateMonth == dateMonth) {
                 if (card.dateDay == dateDay) {
@@ -195,13 +176,6 @@ public class Card implements Comparable<Card> {
         res.setLocation(location);
         res.setPersons(persons);
         res.setDescription(description);
-
-        List<String> uids = new ArrayList<>();
-        for (User user : participants) {
-            uids.add(user.getUid());
-        }
-        res.setParticipants(uids);
-
         res.setOwner(owner);
         res.setDbKey(dbKey);
 

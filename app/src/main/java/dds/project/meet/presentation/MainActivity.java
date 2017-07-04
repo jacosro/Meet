@@ -17,7 +17,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,7 +36,6 @@ import dds.project.meet.logic.commands.Command;
 import dds.project.meet.logic.commands.NewCardCommand;
 import dds.project.meet.logic.commands.RemoveCardCommand;
 import dds.project.meet.logic.entities.Card;
-import dds.project.meet.logic.entities.EmptyCard;
 import dds.project.meet.logic.entities.User;
 import dds.project.meet.logic.memento.CareTaker;
 import dds.project.meet.logic.memento.Originator;
@@ -96,15 +94,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         emailDrawer = (TextView) header.findViewById(R.id.emailTextViewDrawer);
         avatar = (CircleImageView) header.findViewById(R.id.avatar);
 
+        // Set NavigationDrawer data
+        // Set Profile image
         mProfileImage = ProfileImage.getInstance(this);
-
         mProfileImage.get(new QueryCallback<Uri>() {
             @Override
             public void result(Uri data) {
                 loadAvatar(data);
             }
         });
-
+        // Set Name and email
         User me = mPersistence.userDAO.getCurrentUser();
         emailDrawer.setText(me.getEmail());
         nameDrawer.setText(me.getName());
@@ -172,6 +171,18 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 loadCards();
                 refreshUI();
 
+            }
+        });
+
+        mPersistence.cardDAO.setListenerForUserRemoved(new QueryCallback<String>() {
+            @Override
+            public void result(String data) {
+                if (data != null) {
+                    int pos = adapterCards.removeItemWithId(data);
+                    if (pos > -1) {
+                        adapterCards.notifyItemRemoved(pos);
+                    }
+                }
             }
         });
     }
@@ -397,12 +408,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             @Override
             public void result(Card data) {
                 if (data != null) {
-                    if (data instanceof EmptyCard) {
-                        // todo: finished loading
-                    } else {
-                        addCardToUI(data);
-                        recyclerCards.smoothScrollToPosition(0);
-                    }
+                    addCardToUI(data);
+                    recyclerCards.smoothScrollToPosition(0);
+                    // todo: load km
                 }
             }
         });

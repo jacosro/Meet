@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -14,6 +15,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
@@ -97,13 +100,11 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void createNewUser(final User user, String password, final QueryCallback<Boolean> callback) {
-        Log.d(TAG + "::createNewUser", "Start");
         mFirebaseAuth.createUserWithEmailAndPassword(user.getEmail(), password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         boolean success = task.isSuccessful();
-                        Log.d(TAG + "::createNewUser", "Create new default_sidebar_user_icon successfully: " + success);
 
                         if (success) {
                             String uid = getCurrentFirebaseUser().getUid();
@@ -116,7 +117,7 @@ public class UserDAOImpl implements IUserDAO {
                             rootRef.child(ALL_USERNAMES_KEY).child(user.getUsername()).setValue(uid);
 
                         } else {
-                            Log.d(TAG, task.getException().toString());
+                            Log.e(TAG, "createNewUser: " + task.getException());
                         }
                         callback.result(success);
                     }
@@ -152,7 +153,7 @@ public class UserDAOImpl implements IUserDAO {
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-
+                            Log.e(TAG, "getEmailFromUsername.getEmail: " + databaseError);
                         }
                     });
                 }
@@ -160,7 +161,7 @@ public class UserDAOImpl implements IUserDAO {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                Log.e(TAG, "getEmailFromUsername: " + databaseError);
             }
         });
     }
@@ -188,6 +189,7 @@ public class UserDAOImpl implements IUserDAO {
                 }
             });
         } catch (IOException e) {
+            Log.e(TAG, "getUserImage: " + e);
             callback.result(null);
         }
     }
@@ -195,14 +197,12 @@ public class UserDAOImpl implements IUserDAO {
     @Override
     public void updateUserImage(final Uri image, final QueryCallback<Boolean> callback) {
         storageRootRef.child(mUser.getUsername() + ".jpg").delete();
-        Log.d(TAG, "Photo deleted");
         storageRootRef.child(mUser.getUsername() + ".jpg")
                 .putFile(image)
                 .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         callback.result(task.isSuccessful());
-                        Log.d(TAG, String.valueOf(task.isSuccessful()));
                     }
                 });
     }
@@ -218,7 +218,7 @@ public class UserDAOImpl implements IUserDAO {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "GetUserByUid failed! " + databaseError);
+                Log.e(TAG, "GetUserByUid failed! " + databaseError);
                 callback.result(null);
             }
         });
@@ -235,7 +235,7 @@ public class UserDAOImpl implements IUserDAO {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "findUserByUsername failed! " + databaseError);
+                Log.e(TAG, "findUserByUsername failed! " + databaseError);
                 callback.result(null);
             }
         });
@@ -246,14 +246,13 @@ public class UserDAOImpl implements IUserDAO {
         rootRef.child(USERS_KEY).orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG, dataSnapshot.getKey());
                 User user = dataSnapshot.getValue(User.class);
                 callback.result(user);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "findByEmail error " + databaseError);
+                Log.e(TAG, "findByEmail error " + databaseError);
                 callback.result(null);
             }
         });
@@ -267,35 +266,25 @@ public class UserDAOImpl implements IUserDAO {
         if (key != null && uid != null) {
             rootRef.child(CARD_USERS_KEY).child(key).child(user.getUid()).removeValue();
 
-            rootRef.child(CARDS_KEY).child(key).child("persons").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootRef.child(CARDS_KEY).child(key).child("persons").runTransaction(new Transaction.Handler() {
                 @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    int value = dataSnapshot.getValue(Integer.class);
-                    rootRef.child(CARDS_KEY).child(key).child("persons").setValue(value - 1);
+                public Transaction.Result doTransaction(MutableData mutableData) {
+                    int persons = mutableData.getValue(Integer.class);
+                    mutableData.setValue(persons - 1);
+                    return Transaction.success(mutableData);
                 }
 
                 @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-
-            rootRef.child(CARDS_KEY).child(key).child("participants").orderByChild("uid").equalTo(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    String userKey = dataSnapshot.getChildren().iterator().next().getKey();
-                    Log.d(TAG, userKey);
-                    rootRef.child(CARDS_KEY).child(key).child("participants").child(userKey).removeValue();
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
+                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                    if (!b) {
+                        Log.e(TAG, "Error on transaction: " + databaseError);
+                    }
                 }
             });
+
             callback.result(true);
         } else {
-            Log.d(TAG, "Card key or uid null!");
+            Log.e(TAG, "Card key or uid null!");
             callback.result(false);
         }
     }
@@ -311,28 +300,52 @@ public class UserDAOImpl implements IUserDAO {
                 for (DataSnapshot user : dataSnapshot.getChildren()) {
                     res.add(user.getValue(User.class));
                 }
-                Log.d(TAG, res.toString());
                 callback.result(res);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                callback.result(new ArrayList<User>());
+                callback.result(null);
+                Log.e(TAG, "getAllUsers: " + databaseError);
             }
         });
     }
 
     @Override
-    public void getAllUsersOfCard(Card card, QueryCallback<List<User>> callback) {
+    public void getAllUsersOfCard(Card card, final QueryCallback<List<User>> callback) {
+        String key = card.getDbKey();
 
+        rootRef.child(CARD_USERS_KEY).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final long count = dataSnapshot.getChildrenCount();
+                final List<User> res = new ArrayList<User>();
+
+                for (DataSnapshot user : dataSnapshot.getChildren()) {
+                    findUserByUid(user.getKey(), new QueryCallback<User>() {
+                        @Override
+                        public void result(User data) {
+                            res.add(data);
+
+                            if (res.size() == count) {
+                                callback.result(res);
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "getAllUsersOfCard: " + databaseError);
+                callback.result(null);
+            }
+        });
     }
 
     @Override
     public void getAllUsernames(final QueryCallback<Collection<String>> callback) {
-        Log.d(TAG + "::getAllUsername", "Getting all usernames");
-
-        DatabaseReference ref = mFirebaseDatabase.getReference().child(ALL_USERNAMES_KEY);
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(ALL_USERNAMES_KEY).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 List<String> res = new ArrayList<>();
@@ -346,7 +359,8 @@ public class UserDAOImpl implements IUserDAO {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "Error getting usernames!" + databaseError.toString());
+                Log.e(TAG, "Error getting usernames!" + databaseError.toString());
+                callback.result(null);
             }
         });
     }
@@ -360,7 +374,6 @@ public class UserDAOImpl implements IUserDAO {
 
                 for (DataSnapshot user : dataSnapshot.getChildren()) {
                     String phone = user.child("telephone").getValue(String.class);
-                    Log.d(TAG, "Phone: " + phone);
                     res.add(phone);
                 }
                 callback.result(res);
@@ -368,7 +381,8 @@ public class UserDAOImpl implements IUserDAO {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                callback.result(new ArrayList<String>());
+                callback.result(null);
+                Log.e(TAG, "getAllPhoneNumbers: " + databaseError);
             }
         });
     }

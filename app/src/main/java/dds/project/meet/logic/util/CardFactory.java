@@ -1,5 +1,7 @@
 package dds.project.meet.logic.util;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +69,17 @@ public class CardFactory {
 
     public static Card getCardFromDTO(CardDTO cardDTO) {
         Card res = new Card();
+        res.setDbKey(cardDTO.getDbKey());
+
+        final List<User> participants = new ArrayList<>();
+        Persistence.getInstance().userDAO.getAllUsersOfCard(res, new QueryCallback<List<User>>() {
+            @Override
+            public void result(List<User> data) {
+                if (data != null) {
+                    participants.addAll(data);
+                }
+            }
+        });
 
         res.setTime(cardDTO.getTime());
         res.setDateDay(cardDTO.getDateDay());
@@ -75,24 +88,9 @@ public class CardFactory {
         res.setName(cardDTO.getName());
         res.setLocation(cardDTO.getLocation());
         res.setPersons(cardDTO.getPersons());
-        //todo: calculate km
         res.setDescription(cardDTO.getDescription());
-
-        final List<User> participants = new ArrayList<>();
-        for (String uid : cardDTO.getParticipants()) {
-            Persistence.getInstance().userDAO.findUserByUid(uid, new QueryCallback<User>() {
-                @Override
-                public void result(User data) {
-                    if (data != null) {
-                        participants.add(data);
-                    }
-                }
-            });
-        }
-        res.setParticipants(participants);
-
         res.setOwner(cardDTO.getOwner());
-        res.setDbKey(cardDTO.getDbKey());
+        res.setParticipants(participants);
 
         return res;
     }

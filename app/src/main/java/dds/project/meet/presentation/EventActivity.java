@@ -60,7 +60,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
     //UI elements
     private ImageButton back;
     private RecyclerView recyclerParticipants;
-    private ArrayList<User> dataUser;
     private RecyclerView.LayoutManager layoutManagerParticipants;
     private RecyclerView.Adapter adapterParticipants;
     private TextView nameEvent;
@@ -107,8 +106,6 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
 
         Intent intent = getIntent();
         mCard.setDbKey(intent.getStringExtra("key"));
-
-        dataUser = new ArrayList<User>();
 
         setListeners();
         initializeRecyclerView();
