@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import dds.project.meet.R;
 import dds.project.meet.logic.entities.Card;
@@ -114,6 +115,18 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
         holder.pers.setText(mDataset.get(position).getPersons() + " pers.");
         holder.km.setText(mDataset.get(position).getKm() + " km");
 
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position, List<Object> payloads) {
+        if (!payloads.isEmpty()) {
+            Object object = payloads.get(0);
+            if (object instanceof String) {
+                holder.km.setText(object.toString());
+            }
+        } else {
+            super.onBindViewHolder(holder, position, payloads);
+        }
     }
 
     private String correctSuperScript(int day) {

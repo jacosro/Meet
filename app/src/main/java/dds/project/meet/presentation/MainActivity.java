@@ -367,8 +367,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             MyLocation.get(this, new QueryCallback<LatLng>() {
                 @Override
                 public void result(LatLng data) {
-                    card.setKm((int) TimeDistance.calculateDistanceBetween(data, location.getLocation()));
-                    adapterCards.notifyItemChanged(pos);
+                    int km = (int) TimeDistance.calculateDistanceBetween(data, location.getLocation());
+                    card.setKm(km);
+                    adapterCards.notifyItemChanged(pos, km + " km");
                 }
             });
         } catch (IOException e) {

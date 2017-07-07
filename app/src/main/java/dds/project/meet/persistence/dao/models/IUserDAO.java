@@ -38,7 +38,7 @@ public interface IUserDAO {
     void removeUserFromCard(Card card, User user, QueryCallback<Boolean> callback);
 
     void getAllUsers(QueryCallback<Collection<User>> callback);
-    void getAllUsersOfCard(Card card, QueryCallback<List<User>> callback);
+    void getAllUsersOfCard(Card card, QueryCallback<User> callback);
     void getAllUsernames(QueryCallback<Collection<String>> callback);
     void getAllPhoneNumbers(QueryCallback<Collection<String>> callback);
 }

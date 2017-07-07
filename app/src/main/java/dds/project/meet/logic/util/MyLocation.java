@@ -42,7 +42,9 @@ public class MyLocation {
             result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
                 @Override
                 public void onResult(@NonNull PlaceLikelihoodBuffer placeLikelihoods) {
-                    callback.result(placeLikelihoods.get(0).getPlace().getLatLng());
+                    LatLng result = placeLikelihoods.get(0).getPlace().getLatLng();
+                    placeLikelihoods.release();
+                    callback.result(result);
                 }
             });
         } else {

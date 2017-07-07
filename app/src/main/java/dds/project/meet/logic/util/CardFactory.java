@@ -72,11 +72,12 @@ public class CardFactory {
         res.setDbKey(cardDTO.getDbKey());
 
         final List<User> participants = new ArrayList<>();
-        Persistence.getInstance().userDAO.getAllUsersOfCard(res, new QueryCallback<List<User>>() {
+        Persistence.getInstance().userDAO.getAllUsersOfCard(res, new QueryCallback<User>() {
             @Override
-            public void result(List<User> data) {
+            public void result(User data) {
                 if (data != null) {
-                    participants.addAll(data);
+                    Log.d("UserResult", data.toString());
+                    participants.add(data);
                 }
             }
         });

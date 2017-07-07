@@ -312,26 +312,16 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
-    public void getAllUsersOfCard(Card card, final QueryCallback<List<User>> callback) {
+    public void getAllUsersOfCard(Card card, final QueryCallback<User> callback) {
         String key = card.getDbKey();
 
         rootRef.child(CARD_USERS_KEY).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final long count = dataSnapshot.getChildrenCount();
-                final List<User> res = new ArrayList<User>();
 
                 for (DataSnapshot user : dataSnapshot.getChildren()) {
-                    findUserByUid(user.getKey(), new QueryCallback<User>() {
-                        @Override
-                        public void result(User data) {
-                            res.add(data);
-
-                            if (res.size() == count) {
-                                callback.result(res);
-                            }
-                        }
-                    });
+                    findUserByUid(user.getKey(), callback);
                 }
             }
 
