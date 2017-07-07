@@ -8,6 +8,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -44,6 +45,7 @@ import dds.project.meet.R;
 import dds.project.meet.logic.adapters.ParticipantOnEventAdapter;
 import dds.project.meet.logic.entities.Card;
 import dds.project.meet.logic.entities.User;
+import dds.project.meet.logic.util.GLocation;
 import dds.project.meet.logic.util.TimeDistance;
 import dds.project.meet.persistence.util.QueryCallback;
 
@@ -53,8 +55,7 @@ import dds.project.meet.persistence.util.QueryCallback;
 
 public class EventActivity extends BaseActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener {
 
-    public static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 0;
-    public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+
     public static final String TAG = "EventActivity";
 
     //UI elements
@@ -78,11 +79,9 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
 
     //Class fields
     private String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-    private GoogleMap map;
     private Card mCard;
-    private LocationListener mLocationListener;
-    private LatLng eventLocation;
-    GoogleApiClient mGoogleApiClient;
+    private GLocation mLocation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +130,8 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
         directionsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String query = "https://www.google.com/maps/search/?api=1&query=" + eventLocation.latitude + "," + eventLocation.longitude;
+                LatLng location = mLocation.getLocation();
+                String query = "https://www.google.com/maps/search/?api=1&query=" + location.latitude + "," + location.longitude;
                 Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(query));
                 startActivity(intent);
             }
@@ -164,19 +164,13 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
 
     private void refreshDistances() {
 
-        ActivityCompat.requestPermissions(EventActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission denied for Access Fine Location");
-            return;
-        }
-
-        PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, null);
-        result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
+        mLocation.currentLocation.getCurrentLocation(new ResultCallback<PlaceLikelihoodBuffer>() {
             @Override
-            public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
+            public void onResult(@NonNull PlaceLikelihoodBuffer likelyPlaces) {
                 LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
+                likelyPlaces.release();
 
-                double distance = TimeDistance.calculateDistanceBetween(myLoca, eventLocation);
+                double distance = TimeDistance.calculateDistanceBetween(myLoca, mLocation.getLocation());
                 int distWalk = TimeDistance.getWalkingTime(distance);
                 int distCar = TimeDistance.getDrivingTime(distance);
 
@@ -191,39 +185,10 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
                         distCar > 5000 ? ">3 days" : distCar + " min"
                 );
 
-                likelyPlaces.release();
             }
         });
     }
 
-    public boolean googleServicesOK() {
-        GoogleApiAvailability api = GoogleApiAvailability.getInstance();
-        int isOk = api.isGooglePlayServicesAvailable(this);
-        if (isOk == ConnectionResult.SUCCESS) {
-            return true;
-        } else if (api.isUserResolvableError(isOk)) {
-            Dialog d = api.getErrorDialog(this, isOk, 0);
-            d.show();
-        } else Toast.makeText(this, "Cannot connect, sorry", Toast.LENGTH_LONG).show();
-        return false;
-    }
-
-    private LatLng getLatLng(String address) throws IOException {
-        Geocoder gc = new Geocoder(this);
-        List<Address> list = gc.getFromLocationName(address, 1);
-        if (list.size() > 0) {
-            Address add = list.get(0);
-
-            String locality = add.getLocality();
-
-            double latitude = add.getLatitude();
-            double longitude = add.getLongitude();
-
-            return new LatLng(latitude, longitude);
-
-        }
-        return null;
-    }
 
 
     //Firebase Handler
@@ -233,44 +198,50 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
         mPersistence.cardDAO.findCardByKey(mCard.getDbKey(), new QueryCallback<Card>() {
             @Override
             public void result(Card data) {
-                mCard = data;
+                if (data != null) {
+                    mCard = data;
 
-                Log.d(TAG, data.toString());
+                    Log.d(TAG, data.toString());
 
-                nameEvent.setText(mCard.getName());
-                timeEvent.setText(mCard.getTime());
-                dateEvent.setText(mCard.getDateDay() + "" + correctSuperScript(mCard.getDateDay()) + " " + months[mCard.getDateMonth()]);
-                try {
-                    eventLocation = getLatLng(mCard.getLocation());
-                } catch (IOException e) {
-                    Log.d(TAG, "Location not valid");
-                }
-                locationMap.setText(mCard.getLocation());
-                descriptionTextView.setText(mCard.getDescription());
+                    nameEvent.setText(mCard.getName());
+                    timeEvent.setText(mCard.getTime());
+                    dateEvent.setText(mCard.getDateDay() + "" + correctSuperScript(mCard.getDateDay()) + " " + months[mCard.getDateMonth()]);
+                    locationMap.setText(mCard.getLocation());
+                    descriptionTextView.setText(mCard.getDescription());
 
-                adapterParticipants = new ParticipantOnEventAdapter(mCard.getParticipants(), EventActivity.this, mCard);
-                recyclerParticipants.setAdapter(adapterParticipants);
+                    adapterParticipants = new ParticipantOnEventAdapter(mCard.getParticipants(), EventActivity.this, mCard);
+                    recyclerParticipants.setAdapter(adapterParticipants);
 
-                if (googleMap == null) {
-                    googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
+                    try {
+                        mLocation = new GLocation(EventActivity.this, mCard.getLocation(), EventActivity.this);
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error on location: " + e);
+                    }
 
-                    if (googleServicesOK()) {
-                        Log.d("MAP_READY", "Enterning...");
-                        googleMap.getMapAsync(EventActivity.this);
-                        Log.d("MAP_READY", "InitMap");
+                    if (googleMap == null) {
+                        googleMap = (MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment);
+
+                        if (mLocation.googleServicesOK()) {
+                            Log.d("MAP_READY", "Enterning...");
+                            googleMap.getMapAsync(EventActivity.this);
+                            Log.d("MAP_READY", "InitMap");
+                        } else {
+                            Toast.makeText(EventActivity.this, "No map available", Toast.LENGTH_LONG).show();
+                        }
                     } else {
-                        Toast.makeText(EventActivity.this, "No map available", Toast.LENGTH_LONG).show();
+                        googleMap.getMapAsync(new OnMapReadyCallback() {
+                            @Override
+                            public void onMapReady(GoogleMap googleMap) {
+                                googleMap.addMarker(new MarkerOptions().position(mLocation.getLocation())
+                                        .title("Marker on Event Place"));
+                                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLocation.getLocation(), 15));
+                                refreshDistances();
+                            }
+                        });
                     }
                 } else {
-                    googleMap.getMapAsync(new OnMapReadyCallback() {
-                        @Override
-                        public void onMapReady(GoogleMap googleMap) {
-                            googleMap.addMarker(new MarkerOptions().position(eventLocation)
-                                    .title("Marker on Event Place"));
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(eventLocation, 15));
-                            refreshDistances();
-                        }
-                    });
+                    Toast.makeText(EventActivity.this, "There was an error gathering event data", Toast.LENGTH_SHORT).show();
+                    finish();
                 }
             }
         });
@@ -281,55 +252,22 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
     //Waiting for result
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(TAG, "Connection Failed");
+        Log.e(TAG, "Connection to Google Services failed");
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        try {
-            eventLocation = getLatLng(mCard.getLocation());
-        } catch (IOException e) {
-            Log.d(TAG, "No va el puto mapa " + e);
-        }
-
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        if (eventLocation != null) {
-            googleMap.addMarker(new MarkerOptions().position(eventLocation)
+        if (mLocation != null) {
+            googleMap.addMarker(new MarkerOptions().position(mLocation.getLocation())
                     .title("Marker on Event Place"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(eventLocation, 15));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLocation.getLocation(), 15));
             googleMap.getUiSettings().setScrollGesturesEnabled(false);
         }
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, this)
-                .addApi(LocationServices.API)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                .build();
-        mGoogleApiClient.connect();
         refreshDistances();
 
 
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                }
-                return;
-            }
-            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                }
-                return;
-            }
-        }
     }
 }
