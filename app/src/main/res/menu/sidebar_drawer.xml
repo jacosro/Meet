@@ -23,6 +23,10 @@
             android:icon="@drawable/icon_close"
             android:title="Log out" />
     </group>
+    <item
+        android:id="@+id/app_version"
+        android:icon="@drawable/meetinc_logo"
+        android:title="Version" />
 
 
 </menu>

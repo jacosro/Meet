@@ -48,7 +48,7 @@ public class CardFactory {
                                String location, int persons, int km, String description, List<User> participants,
                                String owner, String dbKey) {
 
-        Card card = new Card();
+        Card card = getEmptyCard();
 
         card.setTime(time);
         card.setDateDay(dateDay);
@@ -68,7 +68,7 @@ public class CardFactory {
     }
 
     public static Card getCardFromDTO(CardDTO cardDTO) {
-        Card res = new Card();
+        Card res = getEmptyCard();
         res.setDbKey(cardDTO.getDbKey());
 
         final List<User> participants = new ArrayList<>();

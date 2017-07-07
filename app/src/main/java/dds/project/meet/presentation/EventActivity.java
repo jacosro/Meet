@@ -1,16 +1,10 @@
 package dds.project.meet.presentation;
 
-import android.Manifest;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,14 +15,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -37,15 +26,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import dds.project.meet.R;
 import dds.project.meet.logic.adapters.ParticipantOnEventAdapter;
 import dds.project.meet.logic.entities.Card;
-import dds.project.meet.logic.entities.User;
+import dds.project.meet.logic.util.CardFactory;
 import dds.project.meet.logic.util.GLocation;
+import dds.project.meet.logic.util.MyLocation;
 import dds.project.meet.logic.util.TimeDistance;
 import dds.project.meet.persistence.util.QueryCallback;
 
@@ -87,7 +75,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
-        mCard = new Card();
+        mCard = CardFactory.getEmptyCard();
 
         nameEvent = (TextView) findViewById(R.id.name_event);
         timeEvent = (TextView) findViewById(R.id.time_event);
@@ -164,13 +152,10 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
 
     private void refreshDistances() {
 
-        mLocation.currentLocation.getCurrentLocation(new ResultCallback<PlaceLikelihoodBuffer>() {
+        MyLocation.get(this, new QueryCallback<LatLng>() {
             @Override
-            public void onResult(@NonNull PlaceLikelihoodBuffer likelyPlaces) {
-                LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
-                likelyPlaces.release();
-
-                double distance = TimeDistance.calculateDistanceBetween(myLoca, mLocation.getLocation());
+            public void result(LatLng data) {
+                double distance = TimeDistance.calculateDistanceBetween(data, mLocation.getLocation());
                 int distWalk = TimeDistance.getWalkingTime(distance);
                 int distCar = TimeDistance.getDrivingTime(distance);
 
@@ -267,7 +252,15 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
         }
 
         refreshDistances();
+    }
 
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case MyLocation.MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    refreshDistances();
+                }
+        }
     }
 }

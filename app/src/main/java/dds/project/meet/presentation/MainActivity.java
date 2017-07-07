@@ -1,6 +1,7 @@
 package dds.project.meet.presentation;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +30,10 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.io.IOException;
+import java.sql.Time;
 
 import dds.project.meet.R;
 import dds.project.meet.logic.adapters.CardAdapter;
@@ -39,8 +45,11 @@ import dds.project.meet.logic.entities.Card;
 import dds.project.meet.logic.entities.User;
 import dds.project.meet.logic.memento.CareTaker;
 import dds.project.meet.logic.memento.Originator;
+import dds.project.meet.logic.util.GLocation;
+import dds.project.meet.logic.util.MyLocation;
 import dds.project.meet.logic.util.ProfileImage;
 import dds.project.meet.logic.util.RecyclerItemClickListener;
+import dds.project.meet.logic.util.TimeDistance;
 import dds.project.meet.persistence.util.QueryCallback;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -343,6 +352,30 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+    private void refreshKm() {
+        for (int i = 0; i < adapterCards.getItemCount(); i++) {
+            refreshKm(adapterCards.get(i));
+        }
+    }
+
+    private void refreshKm(final Card card) {
+        final int pos = adapterCards.indexOf(card);
+
+        try {
+            final GLocation location = new GLocation(this, card.getLocation());
+
+            MyLocation.get(this, new QueryCallback<LatLng>() {
+                @Override
+                public void result(LatLng data) {
+                    card.setKm((int) TimeDistance.calculateDistanceBetween(data, location.getLocation()));
+                    adapterCards.notifyItemChanged(pos);
+                }
+            });
+        } catch (IOException e) {
+            Log.e(TAG, "Error getting location: " + e);
+        }
+    }
+
     //Sidebar Handler
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -395,6 +428,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 startActivity(intent);
                 finish();
                 break;
+            case R.id.app_version:
+                Toast.makeText(this, getString(R.string.app_name), Toast.LENGTH_SHORT).show();
+                break;
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -410,7 +446,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 if (data != null) {
                     addCardToUI(data);
                     recyclerCards.smoothScrollToPosition(0);
-                    // todo: load km
+                    refreshKm(data);
                 }
             }
         });
@@ -440,4 +476,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case MyLocation.MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    refreshKm();
+                }
+        }
+    }
 }
