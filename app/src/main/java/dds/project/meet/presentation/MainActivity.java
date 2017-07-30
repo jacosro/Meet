@@ -33,15 +33,14 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
-import java.sql.Time;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.adapters.CardAdapter;
+import dds.project.meet.logic.adapters.EventAdapter;
 import dds.project.meet.logic.commands.AddCardCommand;
 import dds.project.meet.logic.commands.Command;
 import dds.project.meet.logic.commands.NewCardCommand;
 import dds.project.meet.logic.commands.RemoveCardCommand;
-import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.Event;
 import dds.project.meet.logic.entities.User;
 import dds.project.meet.logic.memento.CareTaker;
 import dds.project.meet.logic.memento.Originator;
@@ -58,11 +57,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private static final String TAG = "MainActivity";
     private static final int PICK_IMAGE_REQUEST = 1;
     // UI elements
-    private TextView numberCards;
+    private TextView numberEvents;
     private FloatingActionButton fab;
-    private RecyclerView recyclerCards;
-    private CardAdapter adapterCards;
-    private RecyclerView.LayoutManager layoutManagerCards;
+    private RecyclerView recyclerEvents;
+    private EventAdapter adapterEvents;
+    private RecyclerView.LayoutManager layoutManagerEvents;
     private ImageView noEvents;
     private View tabBar;
     private View coloredBackgroundView;
@@ -70,7 +69,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private Toolbar toolbar;
     private TextView nameDrawer;
     private TextView emailDrawer;
-    private ImageButton refreshCards;
+    private ImageButton refreshEvents;
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -118,10 +117,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         nameDrawer.setText(me.getName());
 
 
-        recyclerCards = (RecyclerView) findViewById(R.id.recycler_cards);
+        recyclerEvents = (RecyclerView) findViewById(R.id.recycler_cards);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        numberCards = (TextView) findViewById(R.id.numberCards);
+        numberEvents = (TextView) findViewById(R.id.numberCards);
         noEvents = (ImageView) findViewById(R.id.noEvents);
         background = (ConstraintLayout) findViewById(R.id.back);
         tabBar = findViewById(R.id.fake_tab);
@@ -129,7 +128,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         toolbarContainer = findViewById(R.id.toolbar_vbox);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
-        refreshCards = (ImageButton) findViewById(R.id.refreshCardsButton);
+        refreshEvents = (ImageButton) findViewById(R.id.refreshCardsButton);
 
         //Memento tools declaration
         originator = new Originator();
@@ -172,24 +171,24 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             }
         });
 
-        refreshCards.setOnClickListener(new View.OnClickListener() {
+        refreshEvents.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                float deg = refreshCards.getRotation() + 720F;
-                refreshCards.animate().rotation(deg).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(800);
-                loadCards();
+                float deg = refreshEvents.getRotation() + 720F;
+                refreshEvents.animate().rotation(deg).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(800);
+                loadEvents();
                 refreshUI();
 
             }
         });
 
-        mPersistence.cardDAO.setListenerForUserRemoved(new QueryCallback<String>() {
+        mPersistence.eventDAO.setListenerForUserRemoved(new QueryCallback<String>() {
             @Override
             public void result(String data) {
                 if (data != null) {
-                    int pos = adapterCards.removeItemWithId(data);
+                    int pos = adapterEvents.removeItemWithId(data);
                     if (pos > -1) {
-                        adapterCards.notifyItemRemoved(pos);
+                        adapterEvents.notifyItemRemoved(pos);
                     }
                 }
             }
@@ -197,16 +196,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     private void initializeRecyclerView() {
-        recyclerCards.setHasFixedSize(true);
-        layoutManagerCards = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        recyclerCards.setLayoutManager(layoutManagerCards);
-        adapterCards = new CardAdapter();
-        recyclerCards.setAdapter(adapterCards);
+        recyclerEvents.setHasFixedSize(true);
+        layoutManagerEvents = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerEvents.setLayoutManager(layoutManagerEvents);
+        adapterEvents = new EventAdapter();
+        recyclerEvents.setAdapter(adapterEvents);
 
-        recyclerCards.addOnItemTouchListener(
+        recyclerEvents.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        Card c = adapterCards.get(position);
+                        Event c = adapterEvents.get(position);
                         openEvent(c);
                     }
                 })
@@ -214,7 +213,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         //Gestures RecyclerView
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
-        itemTouchHelper.attachToRecyclerView(recyclerCards);
+        itemTouchHelper.attachToRecyclerView(recyclerEvents);
     }
 
     //Auxiliar methods
@@ -223,9 +222,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         startActivity(intent);
     }
 
-    public void openEvent(Card card) {
+    public void openEvent(Event event) {
         Intent intent = new Intent(this, EventActivity.class);
-        intent.putExtra("key", card.getDbKey());
+        intent.putExtra("key", event.getDbKey());
         startActivity(intent);
     }
 
@@ -233,7 +232,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public void onStart() {
         super.onStart();
-        loadCards();
+        loadEvents();
     }
 
     @Override
@@ -252,7 +251,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     private void setupRecyclerView() {
 
-        recyclerCards.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerEvents.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
@@ -305,7 +304,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
                     @Override
                     public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
-                        Card aux = adapterCards.get(viewHolder.getAdapterPosition());
+                        Event aux = adapterEvents.get(viewHolder.getAdapterPosition());
                         String name = aux.getName();
 
                         originator.setState(aux);
@@ -316,7 +315,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                         undoDelete.setAction("RESTORE", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                new NewCardCommand(adapterCards, originator.getState()).execute();
+                                new NewCardCommand(adapterEvents, originator.getState()).execute();
                                 careTaker.undo();
                                 refreshUI();
                             }
@@ -327,49 +326,49 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             return simpleCallback;
     }
 
-    private void addCardToUI(Card card) {
-        Command addCard = new AddCardCommand(adapterCards, card);
+    private void addCardToUI(Event event) {
+        Command addCard = new AddCardCommand(adapterEvents, event);
         addCard.execute();
         refreshUI();
     }
 
     private void deleteCard(int adapterPosition) {
-        Command deleteCard = new RemoveCardCommand(adapterCards, adapterPosition);
+        Command deleteCard = new RemoveCardCommand(adapterEvents, adapterPosition);
         deleteCard.execute();
         refreshUI();
     }
 
     private void refreshUI() {
-        numberCards.setText(adapterCards.getItemCount() + " upcoming event(s)");
+        numberEvents.setText(adapterEvents.getItemCount() + " upcoming event(s)");
 
-        if(adapterCards.getItemCount() > 0) {
+        if(adapterEvents.getItemCount() > 0) {
             noEvents.setVisibility(View.GONE);
             background.setBackgroundResource(R.drawable.default_background);
         } else {
-            numberCards.setText("No events. No one loves you");
+            numberEvents.setText("No events. No one loves you");
             noEvents.setVisibility(View.VISIBLE);
             background.setBackgroundResource(R.drawable.default_background_full);
         }
     }
 
     private void refreshKm() {
-        for (int i = 0; i < adapterCards.getItemCount(); i++) {
-            refreshKm(adapterCards.get(i));
+        for (int i = 0; i < adapterEvents.getItemCount(); i++) {
+            refreshKm(adapterEvents.get(i));
         }
     }
 
-    private void refreshKm(final Card card) {
-        final int pos = adapterCards.indexOf(card);
+    private void refreshKm(final Event event) {
+        final int pos = adapterEvents.indexOf(event);
 
         try {
-            final GLocation location = new GLocation(this, card.getLocation());
+            final GLocation location = new GLocation(this, event.getLocation());
 
             MyLocation.get(this, new QueryCallback<LatLng>() {
                 @Override
                 public void result(LatLng data) {
                     int km = (int) TimeDistance.calculateDistanceBetween(data, location.getLocation());
-                    card.setKm(km);
-                    adapterCards.notifyItemChanged(pos, km + " km");
+                    event.setKm(km);
+                    adapterEvents.notifyItemChanged(pos, km + " km");
                 }
             });
         } catch (IOException e) {
@@ -440,13 +439,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
 
     //Firebase Handler
-    public void loadCards() {
-        mPersistence.cardDAO.getAllCards(new QueryCallback<Card>() {
+    public void loadEvents() {
+        mPersistence.eventDAO.getAllEvents(new QueryCallback<Event>() {
             @Override
-            public void result(Card data) {
+            public void result(Event data) {
                 if (data != null) {
                     addCardToUI(data);
-                    recyclerCards.smoothScrollToPosition(0);
+                    recyclerEvents.smoothScrollToPosition(0);
                     refreshKm(data);
                 }
             }

@@ -3,12 +3,10 @@ package dds.project.meet.persistence.dao.models;
 import android.net.Uri;
 
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.Query;
 
 import java.util.Collection;
-import java.util.List;
 
-import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.Event;
 import dds.project.meet.logic.entities.User;
 import dds.project.meet.persistence.util.QueryCallback;
 
@@ -35,10 +33,10 @@ public interface IUserDAO {
     void findUserByUsername(String username, QueryCallback<User> callback);
     void findUserByEmail(String email, QueryCallback<User> callback);
 
-    void removeUserFromCard(Card card, User user, QueryCallback<Boolean> callback);
+    void removeUserFromEvent(Event event, User user, QueryCallback<Boolean> callback);
 
     void getAllUsers(QueryCallback<Collection<User>> callback);
-    void getAllUsersOfCard(Card card, QueryCallback<User> callback);
+    void getAllUsersOfCard(Event event, QueryCallback<User> callback);
     void getAllUsernames(QueryCallback<Collection<String>> callback);
     void getAllPhoneNumbers(QueryCallback<Collection<String>> callback);
 }

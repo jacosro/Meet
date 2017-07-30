@@ -1,7 +1,7 @@
 package dds.project.meet.logic.commands;
 
-import dds.project.meet.logic.adapters.CardAdapter;
-import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.adapters.EventAdapter;
+import dds.project.meet.logic.entities.Event;
 
 /**
  * Created by jacosro on 14/05/17.
@@ -9,22 +9,22 @@ import dds.project.meet.logic.entities.Card;
 
 public class AddCardCommand implements Command {
 
-    private CardAdapter adapter;
-    private Card card;
+    private EventAdapter adapter;
+    private Event event;
     private int position;
 
-    public AddCardCommand(CardAdapter adapter, Card card) {
-        this(adapter, card, -1);
+    public AddCardCommand(EventAdapter adapter, Event event) {
+        this(adapter, event, -1);
     }
 
-    public AddCardCommand(CardAdapter adapter, Card card, int position) {
+    public AddCardCommand(EventAdapter adapter, Event event, int position) {
         this.adapter = adapter;
-        this.card = card;
+        this.event = event;
         this.position = position;
     }
 
     @Override
     public void execute() {
-        adapter.add(card);
+        adapter.add(event);
     }
 }

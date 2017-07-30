@@ -13,15 +13,15 @@ import java.util.Collection;
 import java.util.List;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.Event;
 
 
 /**
  * Created by RaulCoroban on 15/04/2017.
  */
 
-public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
-    private SortedList<Card> mDataset;
+public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder>{
+    private SortedList<Event> mDataset;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView name;
@@ -45,10 +45,10 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
 
     }
 
-    public CardAdapter() {
-        mDataset = new SortedList<Card>(Card.class, new SortedList.Callback<Card>() {
+    public EventAdapter() {
+        mDataset = new SortedList<Event>(Event.class, new SortedList.Callback<Event>() {
             @Override
-            public int compare(Card o1, Card o2) {
+            public int compare(Event o1, Event o2) {
                 return o1.compareTo(o2);
             }
 
@@ -58,12 +58,12 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
             }
 
             @Override
-            public boolean areContentsTheSame(Card oldItem, Card newItem) {
+            public boolean areContentsTheSame(Event oldItem, Event newItem) {
                 return oldItem.equals(newItem);
             }
 
             @Override
-            public boolean areItemsTheSame(Card item1, Card item2) {
+            public boolean areItemsTheSame(Event item1, Event item2) {
                 String key1 = item1.getDbKey();
                 String key2 = item2.getDbKey();
 
@@ -142,35 +142,38 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
 
 
     // region CardList Helpers
-    public Card get(int position) {
+    public Event get(int position) {
         return mDataset.get(position);
     }
 
-    public int add(Card item) {
-        return mDataset.add(item);
+    public int add(Event item) {
+        if (mDataset.indexOf(item) == -1) {
+            return mDataset.add(item);
+        }
+        return -1;
     }
 
-    public int indexOf(Card item) {
+    public int indexOf(Event item) {
         return mDataset.indexOf(item);
     }
 
-    public void updateItemAt(int index, Card item) {
+    public void updateItemAt(int index, Event item) {
         mDataset.updateItemAt(index, item);
     }
 
-    public void addAll(Collection<Card> items) {
+    public void addAll(Collection<Event> items) {
         mDataset.beginBatchedUpdates();
-        for (Card item : items) {
+        for (Event item : items) {
             mDataset.add(item);
         }
         mDataset.endBatchedUpdates();
     }
 
-    public void addAll(Card... items) {
+    public void addAll(Event... items) {
         addAll(Arrays.asList(items));
     }
 
-    public boolean remove(Card item) {
+    public boolean remove(Event item) {
         return mDataset.remove(item);
     }
 
@@ -184,7 +187,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder>{
         return -1;
     }
 
-    public Card removeItemAt(int index) {
+    public Event removeItemAt(int index) {
         return mDataset.removeItemAt(index);
     }
 

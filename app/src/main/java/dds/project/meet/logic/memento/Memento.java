@@ -2,22 +2,22 @@ package dds.project.meet.logic.memento;
 
 import java.sql.Timestamp;
 
-import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.Event;
 
 /**
  * Created by RaulCoroban on 13/05/2017.
  */
 
 public class Memento {
-    private Card mementoState;
+    private Event mementoState;
     private Timestamp stampTime;
 
-    public Memento (Card card) {
-        this.mementoState = card;
+    public Memento (Event event) {
+        this.mementoState = event;
         this.stampTime = new Timestamp(System.currentTimeMillis());
     }
 
-    public Card getState() {
+    public Event getState() {
         return mementoState;
     }
 

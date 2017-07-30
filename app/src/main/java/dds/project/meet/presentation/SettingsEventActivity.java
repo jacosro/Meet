@@ -55,9 +55,9 @@ import java.util.TreeSet;
 import dds.project.meet.R;
 import dds.project.meet.logic.adapters.ContactAdapter;
 import dds.project.meet.logic.adapters.ParticipantAdapter;
-import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.Event;
 import dds.project.meet.logic.entities.User;
-import dds.project.meet.logic.util.CardFactory;
+import dds.project.meet.logic.util.EventFactory;
 import dds.project.meet.logic.util.RecyclerItemClickListener;
 import dds.project.meet.persistence.util.QueryCallback;
 
@@ -98,14 +98,14 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
     private ImageButton whenButton, whatTimeButton;
 
     //Class fields
-    private Card mCard;
+    private Event mEvent;
     private String[] months = {"Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_settings);
-        mCard = new Card();
+        mEvent = new Event();
 
         Intent intent = getIntent();
         String key = intent.getStringExtra("key");
@@ -125,17 +125,17 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
         cancelButton = (Button) findViewById(R.id.cancelButton);
         doneButton = (Button) findViewById(R.id.doneButton);
 
-        mPersistence.cardDAO.findCardByKey(key, new QueryCallback<Card>() {
+        mPersistence.eventDAO.findEventByKey(key, new QueryCallback<Event>() {
             @Override
-            public void result(Card data) {
-                mCard = data;
+            public void result(Event data) {
+                mEvent = data;
 
-                editTextName.setText(mCard.getName());
-                descriptionTextView.setText(mCard.getDescription());
-                locationTextView.setText(mCard.getLocation());
-                whenLabel.setText(mCard.getDateDay() + " " + months[mCard.getDateMonth()]);
-                whatTimeLabel.setText(mCard.getTime());
-                dataMembers = mCard.getParticipants();
+                editTextName.setText(mEvent.getName());
+                descriptionTextView.setText(mEvent.getDescription());
+                locationTextView.setText(mEvent.getLocation());
+                whenLabel.setText(mEvent.getDateDay() + " " + months[mEvent.getDateMonth()]);
+                whatTimeLabel.setText(mEvent.getTime());
+                dataMembers = mEvent.getParticipants();
 
                 recyclerParticipants.setHasFixedSize(true);
 
@@ -170,7 +170,7 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
         dataMembers.add(mUser);
         dataContacts = new ArrayList<>();
 
-        mCard = CardFactory.getEmptyCard();
+        mEvent = EventFactory.getEmptyCard();
 
         setListeners();
 
@@ -298,7 +298,7 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
                     public void onClick(View v) {
                         dialog.hide();
                         descriptionButton.setText("Change Description");
-                        mCard.setDescription(((TextInputLayout) mView.findViewById(R.id.descriptionEditText)).getEditText().getText().toString());
+                        mEvent.setDescription(((TextInputLayout) mView.findViewById(R.id.descriptionEditText)).getEditText().getText().toString());
                         refreshUI();
                     }
                 });
@@ -372,9 +372,9 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
         DatePickerDialog cal = new DatePickerDialog(SettingsEventActivity.this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int newYear, int newMonth, int dayOfMonth) {
-                mCard.setDateDay(dayOfMonth);
-                mCard.setDateMonth(newMonth);
-                mCard.setDateYear(newYear);
+                mEvent.setDateDay(dayOfMonth);
+                mEvent.setDateMonth(newMonth);
+                mEvent.setDateYear(newYear);
                 refreshUI();
             }
         }, mYear, mMonth, mDay);
@@ -402,7 +402,7 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
                 } else hourS = hourOfDay + "";
 
                 String time = hourS + ":" + minuteS;
-                mCard.setTime(time);
+                mEvent.setTime(time);
                 refreshUI();
 
             }
@@ -441,12 +441,12 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
     public void donePressed() {
         Log.d(TAG, "done pressed");
 
-        mCard.setPersons(dataMembers.size());
-        mCard.setParticipants(dataMembers);
+        mEvent.setPersons(dataMembers.size());
+        mEvent.setParticipants(dataMembers);
 
         if (constraintsAreOk()) {
-            mCard.setName(editTextName.getText().toString());
-            mPersistence.cardDAO.updateCard(mCard, new QueryCallback<Boolean>() {
+            mEvent.setName(editTextName.getText().toString());
+            mPersistence.eventDAO.updateEvent(mEvent, new QueryCallback<Boolean>() {
                 @Override
                 public void result(Boolean data) {
                     Log.d(TAG, "Add card " + data);
@@ -469,27 +469,27 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
             return false;
         }
 
-        if (mCard.getDescription() == null) {
+        if (mEvent.getDescription() == null) {
             Toast.makeText(this, "Please, set a description", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        if (mCard.getLocation() == null) {
+        if (mEvent.getLocation() == null) {
             Toast.makeText(this, "Please, set a locationTextView", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        if (mCard.getPersons() <= 0) {
+        if (mEvent.getPersons() <= 0) {
             Toast.makeText(this, "Please, select at least one create_event_participant", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        if (mCard.getDateYear() < 2017) {
+        if (mEvent.getDateYear() < 2017) {
             Toast.makeText(this, "Please, select a date for the event", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        if (mCard.getTime() == null) {
+        if (mEvent.getTime() == null) {
             Toast.makeText(this, "Please, select a time for the event", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -511,11 +511,11 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
     }
 
     private void refreshUI() {
-        descriptionTextView.setText(mCard.getDescription());
-        locationTextView.setText(mCard.getLocation());
-        whatTimeLabel.setText(mCard.getTime());
+        descriptionTextView.setText(mEvent.getDescription());
+        locationTextView.setText(mEvent.getLocation());
+        whatTimeLabel.setText(mEvent.getTime());
         whatTimeButton.setImageResource(R.drawable.icon_clock_selected);
-        whenLabel.setText(mCard.getDateDay() + " " + months[mCard.getDateMonth()]);
+        whenLabel.setText(mEvent.getDateDay() + " " + months[mEvent.getDateMonth()]);
         whenButton.setImageResource(R.drawable.icon_calendar_selected);
         participantsNumberLabel.setText(dataMembers.size() + " PARTICIPANTS");
     }
@@ -531,7 +531,7 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
         if(requestCode == SELECTED_LOCATION && data != null) {
             if(resultCode == RESULT_OK) {
                 place = PlacePicker.getPlace(this, data);
-                mCard.setLocation(place.getAddress().toString());
+                mEvent.setLocation(place.getAddress().toString());
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Log.d(TAG, "Place not found");
@@ -561,7 +561,7 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
                     public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
                         LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
                         double distance = calculateDistanceBetween(myLoca, placeForDistance.getLatLng());
-                        mCard.setKm((int) distance);
+                        mEvent.setKm((int) distance);
 
                         likelyPlaces.release();
                     }

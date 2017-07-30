@@ -2,20 +2,15 @@ package dds.project.meet.logic.entities;
 
 import android.support.annotation.NonNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import dds.project.meet.persistence.Persistence;
-import dds.project.meet.persistence.entities.CardDTO;
-import dds.project.meet.persistence.util.QueryCallback;
+import dds.project.meet.persistence.entities.EventDAO;
 
 /**
  * Created by RaulCoroban on 15/04/2017.
  */
 
-public class Card implements Comparable<Card> {
+public class Event implements Comparable<Event> {
 
     private String time;
     private int dateDay;
@@ -31,7 +26,7 @@ public class Card implements Comparable<Card> {
     private String owner;
     private String dbKey;
 
-    public Card() {
+    public Event() {
 
     }
 
@@ -139,34 +134,34 @@ public class Card implements Comparable<Card> {
         if (this == o)
             return true;
 
-        if (!(o instanceof Card))
+        if (!(o instanceof Event))
             return false;
 
-        Card card = (Card) o;
+        Event event = (Event) o;
 
-        return dbKey.equals(card.dbKey) && compareTo(card) == 0 && name.equals(card.name) && location.equals(card.location) &&
-                persons == card.persons && km == card.km && description.equals(card.getDescription()) &&
-                participants.equals(card.participants) && owner.equals(card.owner);
+        return dbKey.equals(event.dbKey) && compareTo(event) == 0 && name.equals(event.name) && location.equals(event.location) &&
+                persons == event.persons && km == event.km && description.equals(event.getDescription()) &&
+                participants.equals(event.participants) && owner.equals(event.owner);
     }
 
-    public int compareTo(@NonNull Card card) {
-        if (card.dateYear == dateYear) {
-            if (card.dateMonth == dateMonth) {
-                if (card.dateDay == dateDay) {
-                    return time.compareTo(card.time);
+    public int compareTo(@NonNull Event event) {
+        if (event.dateYear == dateYear) {
+            if (event.dateMonth == dateMonth) {
+                if (event.dateDay == dateDay) {
+                    return time.compareTo(event.time);
                 } else {
-                    return dateDay - card.dateDay;
+                    return dateDay - event.dateDay;
                 }
             } else {
-                return dateMonth - card.dateMonth;
+                return dateMonth - event.dateMonth;
             }
         } else {
-            return dateYear - card.dateYear;
+            return dateYear - event.dateYear;
         }
     }
 
-    public CardDTO toDTO() {
-        CardDTO res = new CardDTO();
+    public EventDAO toDTO() {
+        EventDAO res = new EventDAO();
 
         res.setTime(time);
         res.setDateDay(dateDay);

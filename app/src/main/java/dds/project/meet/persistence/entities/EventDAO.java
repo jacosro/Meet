@@ -1,17 +1,13 @@
 package dds.project.meet.persistence.entities;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import dds.project.meet.logic.entities.Card;
-import dds.project.meet.logic.entities.User;
 
 /**
  * Created by jacosro on 30/06/17.
  */
 
-public class CardDTO {
+public class EventDAO {
 
     private String time;
     private int dateDay;
@@ -25,7 +21,7 @@ public class CardDTO {
     private String owner;
     private String dbKey;
 
-    public CardDTO() {
+    public EventDAO() {
 
     }
 

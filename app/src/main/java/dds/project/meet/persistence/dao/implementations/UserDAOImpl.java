@@ -4,9 +4,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.Event;
 import dds.project.meet.logic.entities.User;
 import dds.project.meet.persistence.dao.models.IUserDAO;
 import dds.project.meet.persistence.util.QueryCallback;
@@ -259,8 +257,8 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
-    public void removeUserFromCard(Card card, User user, final QueryCallback<Boolean> callback) {
-        final String key = card.getDbKey();
+    public void removeUserFromEvent(Event event, User user, final QueryCallback<Boolean> callback) {
+        final String key = event.getDbKey();
         String uid = user.getUid();
 
         if (key != null && uid != null) {
@@ -284,7 +282,7 @@ public class UserDAOImpl implements IUserDAO {
 
             callback.result(true);
         } else {
-            Log.e(TAG, "Card key or uid null!");
+            Log.e(TAG, "Event key or uid null!");
             callback.result(false);
         }
     }
@@ -312,8 +310,8 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
-    public void getAllUsersOfCard(Card card, final QueryCallback<User> callback) {
-        String key = card.getDbKey();
+    public void getAllUsersOfCard(Event event, final QueryCallback<User> callback) {
+        String key = event.getDbKey();
 
         rootRef.child(CARD_USERS_KEY).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

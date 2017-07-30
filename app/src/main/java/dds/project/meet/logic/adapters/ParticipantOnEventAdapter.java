@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Random;
 
 import dds.project.meet.R;
-import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.Event;
 import dds.project.meet.logic.entities.User;
 import dds.project.meet.persistence.Persistence;
 import dds.project.meet.persistence.util.QueryCallback;
@@ -28,7 +28,7 @@ import dds.project.meet.persistence.util.QueryCallback;
 public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantOnEventAdapter.ViewHolder> {
 
     private List<User> dataMembers;
-    Card card;
+    Event event;
     Context context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -47,10 +47,10 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
         }
     }
 
-    public ParticipantOnEventAdapter(List<User> myyDataset, Context context, Card card){
+    public ParticipantOnEventAdapter(List<User> myyDataset, Context context, Event event){
         dataMembers = myyDataset;
         this.context = context;
-        this.card = card;
+        this.event = event;
     }
 
     @Override
@@ -66,12 +66,12 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
         holder.nameParticipant.setText(name);
 
         String myUid = "";
-        for (User user : card.getParticipants()) {
+        for (User user : event.getParticipants()) {
             if (user.getUsername().equals(name)) {
                 myUid = user.getUid();
             }
         }
-        if (myUid.equals(card.getOwner())) {
+        if (myUid.equals(event.getOwner())) {
             holder.remove.setText("OWNER");
             holder.remove.setBackgroundColor(0xFF3498db);
         } else {
@@ -86,11 +86,11 @@ public class ParticipantOnEventAdapter extends RecyclerView.Adapter<ParticipantO
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     final User user = dataMembers.get(position);
-                                    Persistence.getInstance().userDAO.removeUserFromCard(card, user, new QueryCallback<Boolean>() {
+                                    Persistence.getInstance().userDAO.removeUserFromEvent(event, user, new QueryCallback<Boolean>() {
                                         @Override
                                         public void result(Boolean data) {
                                             Log.d("USER KICKED ON ASS", "Hasta luego Maricarmen");
-                                            card.getParticipants().remove(user);
+                                            event.getParticipants().remove(user);
                                             dataMembers.remove(user);
                                             notifyDataSetChanged();
                                         }

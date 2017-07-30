@@ -2,8 +2,8 @@ package dds.project.meet.logic.commands;
 
 import android.util.Log;
 
-import dds.project.meet.logic.adapters.CardAdapter;
-import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.adapters.EventAdapter;
+import dds.project.meet.logic.entities.Event;
 import dds.project.meet.persistence.Persistence;
 import dds.project.meet.persistence.util.QueryCallback;
 
@@ -14,23 +14,23 @@ import dds.project.meet.persistence.util.QueryCallback;
 public class NewCardCommand implements Command {
 
     private Persistence mPersistence;
-    private CardAdapter adapter;
-    private Card card;
+    private EventAdapter adapter;
+    private Event event;
 
-    public NewCardCommand(CardAdapter adapter, Card card) {
+    public NewCardCommand(EventAdapter adapter, Event event) {
         this.adapter = adapter;
-        this.card = card;
+        this.event = event;
         this.mPersistence = Persistence.getInstance();
     }
 
     @Override
     public void execute() {
-        adapter.add(card);
+        adapter.add(event);
 
-        mPersistence.cardDAO.addCard(card, new QueryCallback<Boolean>() {
+        mPersistence.eventDAO.addEvent(event, new QueryCallback<Boolean>() {
             @Override
             public void result(Boolean data) {
-                Log.d("NewCard", "New card added: " + data);
+                Log.d("NewCard", "New event added: " + data);
             }
         });
     }

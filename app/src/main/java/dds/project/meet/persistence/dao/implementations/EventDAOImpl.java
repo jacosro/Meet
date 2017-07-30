@@ -12,12 +12,12 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.Event;
 import dds.project.meet.logic.entities.User;
-import dds.project.meet.logic.util.CardFactory;
+import dds.project.meet.logic.util.EventFactory;
 import dds.project.meet.persistence.Persistence;
-import dds.project.meet.persistence.dao.models.ICardDAO;
-import dds.project.meet.persistence.entities.CardDTO;
+import dds.project.meet.persistence.dao.models.IEventDAO;
+import dds.project.meet.persistence.entities.EventDAO;
 import dds.project.meet.persistence.util.QueryCallback;
 
 import static dds.project.meet.persistence.Persistence.*;
@@ -25,7 +25,7 @@ import static dds.project.meet.persistence.Persistence.*;
  * Created by jacosro on 9/06/17.
  */
 
-public class CardDAOImpl implements ICardDAO {
+public class EventDAOImpl implements IEventDAO {
 
     private static final String TAG = "CardDAO";
 
@@ -34,7 +34,7 @@ public class CardDAOImpl implements ICardDAO {
 
     private QueryCallback<String> onUserRemovedCallback = null;
 
-    public CardDAOImpl() {
+    public EventDAOImpl() {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         rootRef = mFirebaseDatabase.getReference();
     }
@@ -42,26 +42,26 @@ public class CardDAOImpl implements ICardDAO {
 
 
     @Override
-    public void addCard(final Card card, final QueryCallback<Boolean> callback) {
+    public void addEvent(final Event event, final QueryCallback<Boolean> callback) {
         String key = rootRef.child(CARDS_KEY).push().getKey();
         String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
 
-        // Set fields to card
-        if (card.getOwner() == null) {
-            card.setOwner(uid);
+        // Set fields to event
+        if (event.getOwner() == null) {
+            event.setOwner(uid);
         }
-        if (card.getDbKey() == null) {
-            card.setDbKey(key);
+        if (event.getDbKey() == null) {
+            event.setDbKey(key);
         } else {
-            key = card.getDbKey();
+            key = event.getDbKey();
         }
 
         // Add to cards
-        rootRef.child(CARDS_KEY).child(key).setValue(card.toDTO());
+        rootRef.child(CARDS_KEY).child(key).setValue(event.toDTO());
 
-        Map<String, Object> map = new HashMap<String, Object>(card.getParticipants().size());
+        Map<String, Object> map = new HashMap<String, Object>(event.getParticipants().size());
 
-        for (User user : card.getParticipants()) {
+        for (User user : event.getParticipants()) {
             map.put(user.getUid(), user.getUsername());
         }
         rootRef.child(CARD_USERS_KEY).child(key).setValue(map);
@@ -71,22 +71,22 @@ public class CardDAOImpl implements ICardDAO {
     }
 
     @Override
-    public void removeCard(Card card, QueryCallback<Boolean> callback) {
-        Log.d(TAG + "::removeCard", "Card: " + card);
-        String key = card.getDbKey();
-        String owner = card.getOwner();
+    public void removeEvent(Event event, QueryCallback<Boolean> callback) {
+        Log.d(TAG + "::removeEvent", "Event: " + event);
+        String key = event.getDbKey();
+        String owner = event.getOwner();
 
         if (key != null) {
             String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
 
             if (uid.equals(owner)) {
-                // Remove card from card_users
+                // Remove event from card_users
                 rootRef.child(CARD_USERS_KEY).child(key).removeValue();
 
-                // Remove card from cards
+                // Remove event from cards
                 rootRef.child(CARDS_KEY).child(key).removeValue();
             } else {
-                // Remove me from the card
+                // Remove me from the event
                 rootRef.child(CARD_USERS_KEY).child(key).child(uid).removeValue();
             }
 
@@ -94,21 +94,21 @@ public class CardDAOImpl implements ICardDAO {
 
         } else {
             callback.result(false);
-            Log.e(TAG, "Key of Card " + card.getName() + " is null!");
+            Log.e(TAG, "Key of Event " + event.getName() + " is null!");
         }
     }
 
     @Override
-    public void updateCard(Card card, QueryCallback<Boolean> callback) {
-        final String key = card.getDbKey();
+    public void updateEvent(Event event, QueryCallback<Boolean> callback) {
+        final String key = event.getDbKey();
 
-        Map<String, Object> map = new HashMap<String, Object>(card.getParticipants().size());
+        Map<String, Object> map = new HashMap<String, Object>(event.getParticipants().size());
 
-        for (User user : card.getParticipants()) {
+        for (User user : event.getParticipants()) {
             map.put(user.getUid(), user.getUsername());
         }
         rootRef.child(CARD_USERS_KEY).child(key).setValue(map);
-        rootRef.child(CARDS_KEY).child(key).updateChildren(card.toDTO().toMap());
+        rootRef.child(CARDS_KEY).child(key).updateChildren(event.toDTO().toMap());
         callback.result(true);
     }
 
@@ -118,24 +118,24 @@ public class CardDAOImpl implements ICardDAO {
     }
 
     @Override
-    public void findCardByKey(final String key, final QueryCallback<Card> callback) {
+    public void findEventByKey(final String key, final QueryCallback<Event> callback) {
         rootRef.child(CARDS_KEY).orderByKey().equalTo(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                CardDTO card = dataSnapshot.child(key).getValue(CardDTO.class);
-                callback.result(CardFactory.getCardFromDTO(card));
+                EventDAO card = dataSnapshot.child(key).getValue(EventDAO.class);
+                callback.result(EventFactory.getCardFromDTO(card));
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "findCardByKey: " + databaseError);
+                Log.e(TAG, "findEventByKey: " + databaseError);
                 callback.result(null);
             }
         });
     }
 
     @Override
-    public void getAllCards(final QueryCallback<Card> callback) {
+    public void getAllEvents(final QueryCallback<Event> callback) {
         final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
 
         rootRef.child(CARD_USERS_KEY).keepSynced(true);
@@ -146,14 +146,14 @@ public class CardDAOImpl implements ICardDAO {
                 for (DataSnapshot card : dataSnapshot.getChildren()) {
                     String key = card.getKey();
                     if (card.child(uid).exists()) {
-                        findCardByKey(key, callback);
+                        findEventByKey(key, callback);
                     }
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "getAllCards: " + databaseError);
+                Log.e(TAG, "getAllEvents: " + databaseError);
                 callback.result(null);
             }
         });
@@ -162,7 +162,7 @@ public class CardDAOImpl implements ICardDAO {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if (dataSnapshot.child(uid).exists()) {
-                    findCardByKey(dataSnapshot.getKey(), callback);
+                    findEventByKey(dataSnapshot.getKey(), callback);
                 }
             }
 
@@ -194,7 +194,7 @@ public class CardDAOImpl implements ICardDAO {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "getAllCards.ChildEventListener: " + databaseError);
+                Log.e(TAG, "getAllEvents.ChildEventListener: " + databaseError);
                 callback.result(null);
             }
         });

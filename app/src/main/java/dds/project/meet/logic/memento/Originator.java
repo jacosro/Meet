@@ -1,19 +1,19 @@
 package dds.project.meet.logic.memento;
 
-import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.Event;
 
 /**
  * Created by RaulCoroban on 13/05/2017.
  */
 
 public class Originator {
-    public Card currentState;
+    public Event currentState;
 
-    public void setState(Card s) {
+    public void setState(Event s) {
         this.currentState = s;
     }
 
-    public Card getState() {
+    public Event getState() {
         return currentState;
     }
 

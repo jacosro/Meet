@@ -16,8 +16,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -30,8 +28,8 @@ import java.util.Locale;
 
 import dds.project.meet.R;
 import dds.project.meet.logic.adapters.ParticipantOnEventAdapter;
-import dds.project.meet.logic.entities.Card;
-import dds.project.meet.logic.util.CardFactory;
+import dds.project.meet.logic.entities.Event;
+import dds.project.meet.logic.util.EventFactory;
 import dds.project.meet.logic.util.GLocation;
 import dds.project.meet.logic.util.MyLocation;
 import dds.project.meet.logic.util.TimeDistance;
@@ -67,7 +65,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
 
     //Class fields
     private String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-    private Card mCard;
+    private Event mEvent;
     private GLocation mLocation;
 
 
@@ -75,7 +73,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
-        mCard = CardFactory.getEmptyCard();
+        mEvent = EventFactory.getEmptyCard();
 
         nameEvent = (TextView) findViewById(R.id.name_event);
         timeEvent = (TextView) findViewById(R.id.time_event);
@@ -92,7 +90,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
         distanceCar = (TextView) findViewById(R.id.distanceCar);
 
         Intent intent = getIntent();
-        mCard.setDbKey(intent.getStringExtra("key"));
+        mEvent.setDbKey(intent.getStringExtra("key"));
 
         setListeners();
         initializeRecyclerView();
@@ -110,7 +108,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
             @Override
             public void onClick(View v) {
                 Intent toEventSettings = new Intent(EventActivity.this, SettingsEventActivity.class);
-                toEventSettings.putExtra("key", mCard.getDbKey());
+                toEventSettings.putExtra("key", mEvent.getDbKey());
                 startActivity(toEventSettings);
             }
         });
@@ -180,25 +178,25 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
     @Override
     public void onStart() {
         super.onStart();
-        mPersistence.cardDAO.findCardByKey(mCard.getDbKey(), new QueryCallback<Card>() {
+        mPersistence.eventDAO.findEventByKey(mEvent.getDbKey(), new QueryCallback<Event>() {
             @Override
-            public void result(Card data) {
+            public void result(Event data) {
                 if (data != null) {
-                    mCard = data;
+                    mEvent = data;
 
                     Log.d(TAG, data.toString());
 
-                    nameEvent.setText(mCard.getName());
-                    timeEvent.setText(mCard.getTime());
-                    dateEvent.setText(mCard.getDateDay() + "" + correctSuperScript(mCard.getDateDay()) + " " + months[mCard.getDateMonth()]);
-                    locationMap.setText(mCard.getLocation());
-                    descriptionTextView.setText(mCard.getDescription());
+                    nameEvent.setText(mEvent.getName());
+                    timeEvent.setText(mEvent.getTime());
+                    dateEvent.setText(mEvent.getDateDay() + "" + correctSuperScript(mEvent.getDateDay()) + " " + months[mEvent.getDateMonth()]);
+                    locationMap.setText(mEvent.getLocation());
+                    descriptionTextView.setText(mEvent.getDescription());
 
-                    adapterParticipants = new ParticipantOnEventAdapter(mCard.getParticipants(), EventActivity.this, mCard);
+                    adapterParticipants = new ParticipantOnEventAdapter(mEvent.getParticipants(), EventActivity.this, mEvent);
                     recyclerParticipants.setAdapter(adapterParticipants);
 
                     try {
-                        mLocation = new GLocation(EventActivity.this, mCard.getLocation(), EventActivity.this);
+                        mLocation = new GLocation(EventActivity.this, mEvent.getLocation(), EventActivity.this);
                     } catch (IOException e) {
                         Log.e(TAG, "Error on location: " + e);
                     }

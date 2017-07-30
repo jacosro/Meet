@@ -56,9 +56,9 @@ import java.util.TreeSet;
 import dds.project.meet.R;
 import dds.project.meet.logic.adapters.ContactAdapter;
 import dds.project.meet.logic.adapters.ParticipantAdapter;
-import dds.project.meet.logic.entities.Card;
+import dds.project.meet.logic.entities.Event;
 import dds.project.meet.logic.entities.User;
-import dds.project.meet.logic.util.CardFactory;
+import dds.project.meet.logic.util.EventFactory;
 import dds.project.meet.logic.util.RecyclerItemClickListener;
 import dds.project.meet.persistence.util.QueryCallback;
 
@@ -103,7 +103,7 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
     private ImageButton when, whatTime;
     private Boolean timePicked = false;
     private Boolean datePicked = false;
-    private Card mCard;
+    private Event mEvent;
 
     private String[] months = {"Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."};
 
@@ -135,7 +135,7 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
         dataContacts = new ArrayList<>();
         adapterContacts = new ContactAdapter(dataContacts, this);
 
-        mCard = CardFactory.getEmptyCard();
+        mEvent = EventFactory.getEmptyCard();
 
         doneFab.hide();
 
@@ -274,7 +274,7 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
                     public void onClick(View v) {
                         dialog.hide();
                         descriptionButton.setText("Change Description");
-                        mCard.setDescription(((TextInputLayout) mView.findViewById(R.id.descriptionEditText)).getEditText().getText().toString());
+                        mEvent.setDescription(((TextInputLayout) mView.findViewById(R.id.descriptionEditText)).getEditText().getText().toString());
                     }
                 });
 
@@ -397,9 +397,9 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
         DatePickerDialog cal = new DatePickerDialog(CreateNewEventActivity.this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int newYear, int newMonth, int dayOfMonth) {
-                mCard.setDateDay(dayOfMonth);
-                mCard.setDateMonth(newMonth);
-                mCard.setDateYear(newYear);
+                mEvent.setDateDay(dayOfMonth);
+                mEvent.setDateMonth(newMonth);
+                mEvent.setDateYear(newYear);
 
                 whenLabel.setText(dayOfMonth + " " + months[newMonth]);
                 when.setImageResource(R.drawable.icon_calendar_selected);
@@ -431,7 +431,7 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
                 } else hourS = hourOfDay + "";
 
                 String time = hourS + ":" + minuteS;
-                mCard.setTime(time);
+                mEvent.setTime(time);
                 whatTimeLabel.setText(time);
                 whatTime.setImageResource(R.drawable.icon_clock_selected);
                 timePicked = true;
@@ -445,12 +445,12 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
     public void donePressed() {
         Log.d(TAG, "done pressed");
 
-        mCard.setPersons(dataMembers.size());
-        mCard.setParticipants(dataMembers);
+        mEvent.setPersons(dataMembers.size());
+        mEvent.setParticipants(dataMembers);
 
         if (constraintsAreOk()) {
-            mCard.setName(editTextName.getText().toString());
-            mPersistence.cardDAO.addCard(mCard, new QueryCallback<Boolean>() {
+            mEvent.setName(editTextName.getText().toString());
+            mPersistence.eventDAO.addEvent(mEvent, new QueryCallback<Boolean>() {
                 @Override
                 public void result(Boolean data) {
                     Log.d(TAG, "Add card " + data);
@@ -473,27 +473,27 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
             return false;
         }
 
-        if (mCard.getDescription() == null ) {
+        if (mEvent.getDescription() == null ) {
             Toast.makeText(this, "Please, set a description", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        if (mCard.getLocation() == null ) {
+        if (mEvent.getLocation() == null ) {
             Toast.makeText(this, "Please, set a location", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        if (mCard.getPersons() <= 0) {
+        if (mEvent.getPersons() <= 0) {
             Toast.makeText(this, "Please, select at least one create_event_participant", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        if (mCard.getDateYear() < 2017 ) {
+        if (mEvent.getDateYear() < 2017 ) {
             Toast.makeText(this, "Please, select a date for the event", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        if (mCard.getTime() == null) {
+        if (mEvent.getTime() == null) {
             Toast.makeText(this, "Please, select a time for the event", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -530,7 +530,7 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
         if(requestCode == SELECTED_LOCATION && data != null) {
             if(resultCode == RESULT_OK) {
                 place = PlacePicker.getPlace(this, data);
-                mCard.setLocation(place.getAddress().toString());
+                mEvent.setLocation(place.getAddress().toString());
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Log.d(TAG, "Place not found");
@@ -558,7 +558,7 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
                 public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
                     LatLng myLoca = likelyPlaces.get(0).getPlace().getLatLng();
                     double distance = calculateDistanceBetween(myLoca, placeForDistance.getLatLng());
-                    mCard.setKm((int) distance);
+                    mEvent.setKm((int) distance);
 
                     likelyPlaces.release();
                 }
