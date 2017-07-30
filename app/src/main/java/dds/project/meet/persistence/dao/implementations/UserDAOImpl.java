@@ -262,9 +262,9 @@ public class UserDAOImpl implements IUserDAO {
         String uid = user.getUid();
 
         if (key != null && uid != null) {
-            rootRef.child(CARD_USERS_KEY).child(key).child(user.getUid()).removeValue();
+            rootRef.child(EVENT_USERS_KEY).child(key).child(user.getUid()).removeValue();
 
-            rootRef.child(CARDS_KEY).child(key).child("persons").runTransaction(new Transaction.Handler() {
+            rootRef.child(EVENTS_KEY).child(key).child("persons").runTransaction(new Transaction.Handler() {
                 @Override
                 public Transaction.Result doTransaction(MutableData mutableData) {
                     int persons = mutableData.getValue(Integer.class);
@@ -313,7 +313,7 @@ public class UserDAOImpl implements IUserDAO {
     public void getAllUsersOfCard(Event event, final QueryCallback<User> callback) {
         String key = event.getDbKey();
 
-        rootRef.child(CARD_USERS_KEY).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(EVENT_USERS_KEY).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final long count = dataSnapshot.getChildrenCount();

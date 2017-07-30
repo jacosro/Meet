@@ -22,11 +22,11 @@ public class EventFactory {
     private static String [] locations = {"UPV", "Valencia", "Sydney", "Mallorca", "White House", "Big Ben", "Tour Eiffel", "Madrid", "Amsterdam", "Athens", "Paris", "Milano", "San Marino"};
     private static String [] descriptions = {"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.", " Et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.", " Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.", "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."};
 
-    public static Event getEmptyCard() {
+    public static Event getEmptyEvent() {
         return new Event();
     }
 
-    public static Event getRandomCard() {
+    public static Event getRandomEvent() {
         List<User> participants = new ArrayList<>();
 
         String time = times[(int) (Math.random() * (times.length))];
@@ -41,14 +41,14 @@ public class EventFactory {
         String owner = names[(int) (Math.random() * (names.length))];
         String dbKey = null;
 
-        return getCard(time, dateDay, dateMonth, dateYear, name, location, persons, km, description, participants, owner, dbKey);
+        return getEvent(time, dateDay, dateMonth, dateYear, name, location, persons, km, description, participants, owner, dbKey);
     }
 
-    public static Event getCard(String time, int dateDay, int dateMonth, int dateYear, String name,
-                                String location, int persons, int km, String description, List<User> participants,
-                                String owner, String dbKey) {
+    public static Event getEvent(String time, int dateDay, int dateMonth, int dateYear, String name,
+                                 String location, int persons, int km, String description, List<User> participants,
+                                 String owner, String dbKey) {
 
-        Event event = getEmptyCard();
+        Event event = getEmptyEvent();
 
         event.setTime(time);
         event.setDateDay(dateDay);
@@ -67,8 +67,8 @@ public class EventFactory {
 
     }
 
-    public static Event getCardFromDTO(EventDAO eventDAO) {
-        Event res = getEmptyCard();
+    public static Event buildEventFromDTO(EventDAO eventDAO) {
+        Event res = getEmptyEvent();
         res.setDbKey(eventDAO.getDbKey());
 
         final List<User> participants = new ArrayList<>();

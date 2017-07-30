@@ -135,7 +135,7 @@ public class CreateNewEventActivity extends BaseActivity implements GoogleApiCli
         dataContacts = new ArrayList<>();
         adapterContacts = new ContactAdapter(dataContacts, this);
 
-        mEvent = EventFactory.getEmptyCard();
+        mEvent = EventFactory.getEmptyEvent();
 
         doneFab.hide();
 

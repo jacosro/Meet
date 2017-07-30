@@ -14,9 +14,9 @@ import dds.project.meet.persistence.dao.models.IUserDAO;
 public class Persistence {
 
     public static final String USERS_KEY = "users";
-    public static final String CARDS_KEY = "cards";
+    public static final String EVENTS_KEY = "events";
     public static final String ALL_USERNAMES_KEY = "allUsernames";
-    public static final String CARD_USERS_KEY = "card_users";
+    public static final String EVENT_USERS_KEY = "event_users";
 
     private static Persistence INSTANCE = null;
 

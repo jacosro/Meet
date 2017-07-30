@@ -73,7 +73,7 @@ public class EventActivity extends BaseActivity implements OnMapReadyCallback, G
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
-        mEvent = EventFactory.getEmptyCard();
+        mEvent = EventFactory.getEmptyEvent();
 
         nameEvent = (TextView) findViewById(R.id.name_event);
         timeEvent = (TextView) findViewById(R.id.time_event);

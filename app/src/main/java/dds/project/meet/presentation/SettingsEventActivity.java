@@ -170,7 +170,7 @@ public class SettingsEventActivity extends BaseActivity implements GoogleApiClie
         dataMembers.add(mUser);
         dataContacts = new ArrayList<>();
 
-        mEvent = EventFactory.getEmptyCard();
+        mEvent = EventFactory.getEmptyEvent();
 
         setListeners();
 

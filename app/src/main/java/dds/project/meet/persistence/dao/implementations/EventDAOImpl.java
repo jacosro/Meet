@@ -43,7 +43,7 @@ public class EventDAOImpl implements IEventDAO {
 
     @Override
     public void addEvent(final Event event, final QueryCallback<Boolean> callback) {
-        String key = rootRef.child(CARDS_KEY).push().getKey();
+        String key = rootRef.child(EVENTS_KEY).push().getKey();
         String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
 
         // Set fields to event
@@ -57,14 +57,14 @@ public class EventDAOImpl implements IEventDAO {
         }
 
         // Add to cards
-        rootRef.child(CARDS_KEY).child(key).setValue(event.toDTO());
+        rootRef.child(EVENTS_KEY).child(key).setValue(event.toDTO());
 
         Map<String, Object> map = new HashMap<String, Object>(event.getParticipants().size());
 
         for (User user : event.getParticipants()) {
             map.put(user.getUid(), user.getUsername());
         }
-        rootRef.child(CARD_USERS_KEY).child(key).setValue(map);
+        rootRef.child(EVENT_USERS_KEY).child(key).setValue(map);
 
         callback.result(true);
 
@@ -81,13 +81,13 @@ public class EventDAOImpl implements IEventDAO {
 
             if (uid.equals(owner)) {
                 // Remove event from card_users
-                rootRef.child(CARD_USERS_KEY).child(key).removeValue();
+                rootRef.child(EVENT_USERS_KEY).child(key).removeValue();
 
                 // Remove event from cards
-                rootRef.child(CARDS_KEY).child(key).removeValue();
+                rootRef.child(EVENTS_KEY).child(key).removeValue();
             } else {
                 // Remove me from the event
-                rootRef.child(CARD_USERS_KEY).child(key).child(uid).removeValue();
+                rootRef.child(EVENT_USERS_KEY).child(key).child(uid).removeValue();
             }
 
             callback.result(true);
@@ -107,8 +107,8 @@ public class EventDAOImpl implements IEventDAO {
         for (User user : event.getParticipants()) {
             map.put(user.getUid(), user.getUsername());
         }
-        rootRef.child(CARD_USERS_KEY).child(key).setValue(map);
-        rootRef.child(CARDS_KEY).child(key).updateChildren(event.toDTO().toMap());
+        rootRef.child(EVENT_USERS_KEY).child(key).setValue(map);
+        rootRef.child(EVENTS_KEY).child(key).updateChildren(event.toDTO().toMap());
         callback.result(true);
     }
 
@@ -119,11 +119,11 @@ public class EventDAOImpl implements IEventDAO {
 
     @Override
     public void findEventByKey(final String key, final QueryCallback<Event> callback) {
-        rootRef.child(CARDS_KEY).orderByKey().equalTo(key).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(EVENTS_KEY).orderByKey().equalTo(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 EventDAO card = dataSnapshot.child(key).getValue(EventDAO.class);
-                callback.result(EventFactory.getCardFromDTO(card));
+                callback.result(EventFactory.buildEventFromDTO(card));
             }
 
             @Override
@@ -138,9 +138,9 @@ public class EventDAOImpl implements IEventDAO {
     public void getAllEvents(final QueryCallback<Event> callback) {
         final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
 
-        rootRef.child(CARD_USERS_KEY).keepSynced(true);
+        rootRef.child(EVENT_USERS_KEY).keepSynced(true);
        /*
-        rootRef.child(CARD_USERS_KEY).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(EVENT_USERS_KEY).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot card : dataSnapshot.getChildren()) {
@@ -158,7 +158,7 @@ public class EventDAOImpl implements IEventDAO {
             }
         });
 */
-        rootRef.child(CARD_USERS_KEY).addChildEventListener(new ChildEventListener() {
+        rootRef.child(EVENT_USERS_KEY).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if (dataSnapshot.child(uid).exists()) {
