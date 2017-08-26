@@ -52,18 +52,25 @@ public class GLocation {
         return mLocation;
     }
 
-    public LatLng getLatLng(String address) throws IOException {
-        Geocoder gc = new Geocoder(context);
-        List<Address> list = gc.getFromLocationName(address, 1);
-        if (!list.isEmpty()) {
-            Address add = list.get(0);
-            double latitude = add.getLatitude();
-            double longitude = add.getLongitude();
-
-            return new LatLng(latitude, longitude);
-
+    public LatLng getLatLng(String address) {
+        LatLng res = null;
+        try {
+            
+            Geocoder gc = new Geocoder(context);
+            List<Address> list = gc.getFromLocationName(address, 1);
+            if (!list.isEmpty()) {
+                Address add = list.get(0);
+                double latitude = add.getLatitude();
+                double longitude = add.getLongitude();
+                res = new LatLng(latitude, longitude);
+            }
+            return res;
+        } catch (IOException e) {
+            String apiAdd = address.replace(" ", "+");
+            // Use google api
+            // https://maps.googleapis.com/maps/api/geocode/json?address=apiAdd
+            return res;
         }
-        return null;
     }
 
     public boolean googleServicesOK() {
