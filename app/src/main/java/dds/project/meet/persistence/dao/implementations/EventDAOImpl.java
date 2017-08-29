@@ -1,5 +1,6 @@
 package dds.project.meet.persistence.dao.implementations;
 
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.google.firebase.database.ChildEventListener;
@@ -9,7 +10,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dds.project.meet.logic.entities.Event;
@@ -33,6 +36,8 @@ public class EventDAOImpl implements IEventDAO {
     private DatabaseReference rootRef;
 
     private QueryCallback<String> onUserRemovedCallback = null;
+
+    private boolean listenerEnabled = false;
 
     public EventDAOImpl() {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -135,8 +140,10 @@ public class EventDAOImpl implements IEventDAO {
     }
 
     @Override
-    public void getAllEvents(final QueryCallback<Event> callback) {
-        final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
+    public void getAllEvents(final QueryCallback<List<Event>> callback) {
+        User user = Persistence.getInstance().userDAO.getCurrentUser();
+        final String uid = user.getUid();
+        final String username = user.getUsername();
 
         rootRef.child(EVENT_USERS_KEY).keepSynced(true);
        /*
@@ -158,45 +165,40 @@ public class EventDAOImpl implements IEventDAO {
             }
         });
 */
-        rootRef.child(EVENT_USERS_KEY).addChildEventListener(new ChildEventListener() {
+
+
+        rootRef.child(EVENT_USERS_KEY).orderByChild(uid).equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (dataSnapshot.child(uid).exists()) {
-                    findEventByKey(dataSnapshot.getKey(), callback);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, dataSnapshot.toString());
+                final long eventCount = dataSnapshot.getChildrenCount();
+                Log.d(TAG, String.valueOf(eventCount));
+
+                final List<Event> result = new ArrayList<>();
+
+                for (DataSnapshot eventId : dataSnapshot.getChildren()) {
+                    findEventByKey(eventId.getKey(), new QueryCallback<Event>() {
+                        @Override
+                        public void result(Event data) {
+                            result.add(data);
+                            if (result.size() == eventCount) {
+                                callback.result(result);
+                            }
+                        }
+                    });
                 }
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                String key = dataSnapshot.getKey();
-                String cardKey = null;
-
-                if (dataSnapshot.child(uid).exists()) {
-                    cardKey = key;
-                } else if (uid.equals(key)) {
-                    cardKey = dataSnapshot.getRef().getParent().getKey();
-                }
-
-                if (onUserRemovedCallback != null) {
-                    onUserRemovedCallback.result(cardKey);
-                }
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "getAllEvents.ChildEventListener: " + databaseError);
-                callback.result(null);
+                Log.d(TAG, "Error recuperando los eventos: " + databaseError);
             }
         });
+    }
+
+    @Override
+    public void setListenerForNewEvents(QueryCallback<Event> callback) {
+        if (!listenerEnabled) {
+        }
     }
 }

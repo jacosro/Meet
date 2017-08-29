@@ -35,6 +35,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
+import java.util.List;
 
 import dds.project.meet.R;
 import dds.project.meet.logic.adapters.EventAdapter;
@@ -87,6 +88,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     // Class fields
     private Originator originator;
     private CareTaker careTaker;
+
+    private boolean newCardListener = false;
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -442,14 +445,31 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     //Firebase Handler
     public void loadEvents() {
-        mPersistence.eventDAO.getAllEvents(new QueryCallback<Event>() {
+        mPersistence.eventDAO.getAllEvents(new QueryCallback<List<Event>>() {
+            @Override
+            public void result(List<Event> data) {
+                if (data != null) {
+                    for (Event event : data) {
+                        addCardToUI(event);
+                    }
+                    recyclerEvents.smoothScrollToPosition(0);
+                    refreshKm();
+
+                    if (!newCardListener) {
+                        listenForNewEvents();
+                    }
+                } else {
+                    Log.d(TAG, "Could not load events");
+                }
+            }
+        });
+    }
+
+    public void listenForNewEvents() {
+        mPersistence.eventDAO.setListenerForNewEvents(new QueryCallback<Event>() {
             @Override
             public void result(Event data) {
-                if (data != null) {
-                    addCardToUI(data);
-                    recyclerEvents.smoothScrollToPosition(0);
-                    refreshKm(data);
-                }
+
             }
         });
     }
