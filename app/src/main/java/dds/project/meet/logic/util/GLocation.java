@@ -55,13 +55,13 @@ public class GLocation {
     public LatLng getLatLng(String address) throws IOException {
         Geocoder gc = new Geocoder(context);
         List<Address> list = gc.getFromLocationName(address, 1);
-        if (!list.isEmpty()) {
-            Address add = list.get(0);
-            double latitude = add.getLatitude();
-            double longitude = add.getLongitude();
-            return new LatLng(latitude, longitude);
-        }
-        return null;
+        if (list.isEmpty())
+            return null;
+
+        Address add = list.get(0);
+        double latitude = add.getLatitude();
+        double longitude = add.getLongitude();
+        return new LatLng(latitude, longitude);
     }
 
     public boolean googleServicesOK() {

@@ -2,9 +2,11 @@ package dds.project.meet.presentation;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
@@ -466,12 +468,19 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (requestCode == PICK_IMAGE_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Uri imageUri = data.getData();
+                mProfileImage.set(imageUri);
+                loadAvatar(imageUri);
+                /*Cursor cursor = getContentResolver().query(imageUri, null, null, null, null);
+                cursor.moveToFirst();
+                int column = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                String name = cursor.getString(column);
+                Log.d(TAG, name);
                 if (!imageUri.getLastPathSegment().endsWith(".jpg")) {
                     Toast.makeText(this, "Invalid image type! Use jpg", Toast.LENGTH_SHORT).show();
                 } else {
                     mProfileImage.set(imageUri);
                     loadAvatar(imageUri);
-                }
+                }*/
             }
         }
     }
