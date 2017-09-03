@@ -191,14 +191,61 @@ public class EventDAOImpl implements IEventDAO {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "Error recuperando los eventos: " + databaseError);
+                Log.d(TAG, "Error retrieving events: " + databaseError);
             }
         });
     }
 
     @Override
-    public void setListenerForNewEvents(QueryCallback<Event> callback) {
+    public void setListenerForNewEvents(final QueryCallback<Event> callback) {
+        final String uid = Persistence.getInstance().userDAO.getCurrentUser().getUid();
         if (!listenerEnabled) {
+            Log.d(TAG, "Listener enabled!");
+            rootRef.child(EVENT_USERS_KEY).keepSynced(true);
+            rootRef.child(EVENT_USERS_KEY).addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Log.d(TAG + "::childAdded", dataSnapshot.toString());
+                    if (dataSnapshot.child(uid).exists()) {
+                        Log.d(TAG, "Adding: " + dataSnapshot.getKey());
+                        findEventByKey(dataSnapshot.getKey(), callback);
+                    }
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    String key = dataSnapshot.getKey();
+                    String cardKey = null;
+
+                    if (dataSnapshot.child(uid).exists()) {
+                        cardKey = key;
+                    } else if (uid.equals(key)) {
+                        cardKey = dataSnapshot.getRef().getParent().getKey();
+                    }
+
+                    if (onUserRemovedCallback != null) {
+                        onUserRemovedCallback.result(cardKey);
+                    }
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.e(TAG, "getAllEvents.ChildEventListener: " + databaseError);
+                    callback.result(null);
+                }
+            });
+
+            listenerEnabled = true;
         }
     }
 }

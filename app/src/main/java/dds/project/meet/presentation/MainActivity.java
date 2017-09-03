@@ -469,7 +469,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         mPersistence.eventDAO.setListenerForNewEvents(new QueryCallback<Event>() {
             @Override
             public void result(Event data) {
-
+                if (data != null) {
+                    addCardToUI(data);
+                    refreshKm(data);
+                }
             }
         });
     }
