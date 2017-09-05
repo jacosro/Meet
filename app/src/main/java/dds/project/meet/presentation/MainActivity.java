@@ -33,6 +33,12 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.util.List;
@@ -52,6 +58,7 @@ import dds.project.meet.logic.util.MyLocation;
 import dds.project.meet.logic.util.ProfileImage;
 import dds.project.meet.logic.util.RecyclerItemClickListener;
 import dds.project.meet.logic.util.TimeDistance;
+import dds.project.meet.persistence.Persistence;
 import dds.project.meet.persistence.util.QueryCallback;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -445,6 +452,53 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     //Firebase Handler
     public void loadEvents() {
+        final DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+
+        rootRef.child(Persistence.EVENT_USERS_KEY).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String uid = mPersistence.userDAO.getCurrentUser().getUid();
+                if (dataSnapshot.child(uid).exists()) {
+                    // Added new event and you are in
+                    mPersistence.eventDAO.findEventByKey(dataSnapshot.getKey(), new QueryCallback<Event>() {
+                        @Override
+                        public void result(Event data) {
+                            if (data != null) {
+                                addCardToUI(data);
+                                recyclerEvents.smoothScrollToPosition(0);
+                                refreshKm(data);
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                // Nothing at the moment
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                String uid = mPersistence.userDAO.getCurrentUser().getUid();
+                if (dataSnapshot.child(uid).exists()) {
+                    adapterEvents.removeItemWithId(dataSnapshot.getKey());
+                    refreshUI();
+                }
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        /*
         mPersistence.eventDAO.getAllEvents(new QueryCallback<List<Event>>() {
             @Override
             public void result(List<Event> data) {
@@ -463,6 +517,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 }
             }
         });
+        */
     }
 
     public void listenForNewEvents() {

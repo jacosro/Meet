@@ -112,7 +112,7 @@ public class UserDAOImpl implements IUserDAO {
                             rootRef.child(USERS_KEY).child(uid).setValue(user);
 
                             // Add username to allUsernames
-                            rootRef.child(ALL_USERNAMES_KEY).child(user.getUsername()).setValue(uid);
+                            rootRef.child(USERNAME_UID).child(user.getUsername()).setValue(uid);
 
                         } else {
                             Log.e(TAG, "createNewUser: " + task.getException());
@@ -134,7 +134,7 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void getEmailFromUsername(String username, final QueryCallback<String> callback) {
-        rootRef.child(ALL_USERNAMES_KEY).child(username).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(USERNAME_UID).child(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String uid = dataSnapshot.getValue(String.class);
@@ -333,7 +333,7 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void getAllUsernames(final QueryCallback<Collection<String>> callback) {
-        rootRef.child(ALL_USERNAMES_KEY).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(USERNAME_UID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 List<String> res = new ArrayList<>();

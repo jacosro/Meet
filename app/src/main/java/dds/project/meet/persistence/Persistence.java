@@ -15,8 +15,10 @@ public class Persistence {
 
     public static final String USERS_KEY = "users";
     public static final String EVENTS_KEY = "events";
-    public static final String ALL_USERNAMES_KEY = "allUsernames";
+    public static final String USERNAME_UID = "username_uid";
+    public static final String USERNAME_EMAIL = "username_email";
     public static final String EVENT_USERS_KEY = "event_users";
+
 
     private static Persistence INSTANCE = null;
 
