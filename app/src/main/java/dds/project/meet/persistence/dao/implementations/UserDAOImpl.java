@@ -134,27 +134,11 @@ public class UserDAOImpl implements IUserDAO {
 
     @Override
     public void getEmailFromUsername(String username, final QueryCallback<String> callback) {
-        rootRef.child(USERNAME_UID).child(username).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(USERNAME_EMAIL).child(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String uid = dataSnapshot.getValue(String.class);
-
-                if (uid == null) {
-                    callback.result(null);
-                } else {
-                    rootRef.child(USERS_KEY).child(uid).child("email").addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            String email = dataSnapshot.getValue(String.class);
-                            callback.result(email);
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            Log.e(TAG, "getEmailFromUsername.getEmail: " + databaseError);
-                        }
-                    });
-                }
+                String email = dataSnapshot.getValue(String.class);
+                callback.result(email);
             }
 
             @Override
@@ -310,22 +294,34 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
-    public void getAllUsersOfCard(Event event, final QueryCallback<User> callback) {
+    public void getAllUsersOfEvent(Event event, final QueryCallback<List<User>> callback) {
         String key = event.getDbKey();
 
         rootRef.child(EVENT_USERS_KEY).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final long count = dataSnapshot.getChildrenCount();
+                final List<User> res = new ArrayList<>();
 
                 for (DataSnapshot user : dataSnapshot.getChildren()) {
-                    findUserByUid(user.getKey(), callback);
+                    findUserByUid(user.getKey(), new QueryCallback<User>() {
+                        @Override
+                        public void result(User data) {
+                            if (data != null) {
+                                res.add(data);
+
+                                if (res.size() == count) {
+                                    callback.result(res);
+                                }
+                            }
+                        }
+                    });
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "getAllUsersOfCard: " + databaseError);
+                Log.e(TAG, "getAllUsersOfEvent: " + databaseError);
                 callback.result(null);
             }
         });
@@ -354,7 +350,7 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
-    public void getAllPhoneNumbers(final QueryCallback<Collection<String>> callback) {
+    public void getAllPhoneNumbers(final QueryCallback<List<String>> callback) {
         rootRef.child(USERS_KEY).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

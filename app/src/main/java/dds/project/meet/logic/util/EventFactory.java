@@ -72,12 +72,12 @@ public class EventFactory {
         res.setDbKey(eventDAO.getDbKey());
 
         final List<User> participants = new ArrayList<>();
-        Persistence.getInstance().userDAO.getAllUsersOfCard(res, new QueryCallback<User>() {
+        Persistence.getInstance().userDAO.getAllUsersOfEvent(res, new QueryCallback<List<User>>() {
             @Override
-            public void result(User data) {
+            public void result(List<User> data) {
                 if (data != null) {
                     Log.d("UserResult", data.toString());
-                    participants.add(data);
+                    participants.addAll(data);
                 }
             }
         });

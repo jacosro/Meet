@@ -5,6 +5,7 @@ import android.net.Uri;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Collection;
+import java.util.List;
 
 import dds.project.meet.logic.entities.Event;
 import dds.project.meet.logic.entities.User;
@@ -36,7 +37,7 @@ public interface IUserDAO {
     void removeUserFromEvent(Event event, User user, QueryCallback<Boolean> callback);
 
     void getAllUsers(QueryCallback<Collection<User>> callback);
-    void getAllUsersOfCard(Event event, QueryCallback<User> callback);
+    void getAllUsersOfEvent(Event event, QueryCallback<List<User>> callback);
     void getAllUsernames(QueryCallback<Collection<String>> callback);
-    void getAllPhoneNumbers(QueryCallback<Collection<String>> callback);
+    void getAllPhoneNumbers(QueryCallback<List<String>> callback);
 }
